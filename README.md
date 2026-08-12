@@ -1,6 +1,6 @@
 
 
-# DaycareHQ 🍼
+# Daycare 🍼
 
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
 ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
@@ -10,7 +10,7 @@
 
 > **Next-Generation Daycare Management System with a stunning Glassmorphic UI.**
 
-DaycareHQ is a comprehensive, secure, and visually striking platform designed to streamline daycare operations, from enrollment and verification to daily management.
+Daycare is a comprehensive, secure, and visually striking platform designed to streamline daycare operations, from enrollment and verification to daily management.
 
 ## ✨ Features Showcase
 
@@ -24,7 +24,7 @@ DaycareHQ is a comprehensive, secure, and visually striking platform designed to
 - **Core Features Showcase:** Clean grid layout highlighting "Easy Child Enrollment," "Live Daily Logs," and "Safe & Confidential" operations.
 - **How It Works:** A simple 4-step process guide (Create Center Profile → Onboard Families → Log Daily Activities → Keep Parents Engaged) to quickly educate new users.
 - **Trust Indicators:** A fixed stat bar highlighting SSL security, 500+ registered children, and secure activity logs.
-<img width="1920" height="1080" alt="Screenshot 2026-08-12 061542" src="https://github.com/user-attachments/assets/4633e3f6-497d-41e0-b44c-313c9acb75a7" />
+<img width="1918" height="912" alt="Screenshot 2026-08-12 062001" src="https://github.com/user-attachments/assets/46ddbb3b-8986-47f6-a656-c6b7e8560bd5" />
 ### Register Page (`/register`)
 - **Dynamic Layout:** Wide two-column split layout with left-aligned branding imagery ("Welcome to Daycare") and an interactive scrolling form on the right.
 - **Comprehensive Data Capture:** Collects Full Name, Phone Number, Email (with an inline "Verify Email" button), Organization, Emergency Contact Details, and Relationship.
@@ -37,7 +37,8 @@ DaycareHQ is a comprehensive, secure, and visually striking platform designed to
 - **Secure Access:** Standard Email and Password login paired with a "Forgot password?" recovery flow.
 - **Seamless OAuth:** "Continue with Google" integration for one-click secure access without a password.
 - **Account Creation Link:** Easy routing for new users to switch to the "Create an Account" page.
-<img width="1920" height="1080" alt="Screenshot 2026-08-12 061738" src="https://github.com/user-attachments/assets/7762a1d5-84f3-4737-acf7-15058c9ae34f" />
+  <img width="1918" height="916" alt="Screenshot 2026-08-12 062110" src="https://github.com/user-attachments/assets/0ebb0bad-bae6-4019-8bcf-735b284cf647" />
+
 ### Verification & Access Control
 - **ID Verification Module:** Integration ready for face recognition or encrypted credential upload.
 - **Role-Based Authorization:** Secure access tiers for admins, staff, and parents.
