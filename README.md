@@ -25,12 +25,14 @@ Daycare is a comprehensive, secure, and visually striking platform designed to s
 - **How It Works:** A simple 4-step process guide (Create Center Profile → Onboard Families → Log Daily Activities → Keep Parents Engaged) to quickly educate new users.
 - **Trust Indicators:** A fixed stat bar highlighting SSL security, 500+ registered children, and secure activity logs.
 <img width="1918" height="912" alt="Screenshot 2026-08-12 062001" src="https://github.com/user-attachments/assets/46ddbb3b-8986-47f6-a656-c6b7e8560bd5" />
+
 ### Register Page (`/register`)
 - **Dynamic Layout:** Wide two-column split layout with left-aligned branding imagery ("Welcome to Daycare") and an interactive scrolling form on the right.
 - **Comprehensive Data Capture:** Collects Full Name, Phone Number, Email (with an inline "Verify Email" button), Organization, Emergency Contact Details, and Relationship.
 - **ID Verification Flow:** Dedicated ID Verification module integration prior to account creation ("Secure your account with face and identity verification").
 - **Strict Validations & UX:** Regex enforcing Ethiopian phone formats and real-time password strength tracking with a compact visual progress bar ("Excellent / Strong & secure").
 - **OAuth Integration:** Seamless "Continue with Google" option as an alternative to standard email registration.
+<img width="1917" height="913" alt="Screenshot 2026-08-12 062237" src="https://github.com/user-attachments/assets/2ed5738e-73ee-4ae1-9256-c485e355aa84" />
 
 ### Login Page (`/login`)
 - **Clean UI Experience:** Focused centered card featuring the MiNT Daycare house badge and welcoming "Welcome Back" typography.
