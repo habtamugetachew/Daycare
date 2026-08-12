@@ -1,4 +1,4 @@
-<img width="1920" height="1080" alt="Screenshot 2026-08-12 061542" src="https://github.com/user-attachments/assets/4633e3f6-497d-41e0-b44c-313c9acb75a7" />
+
 # DaycareHQ 🍼
 
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
@@ -23,7 +23,7 @@ DaycareHQ is a comprehensive, secure, and visually striking platform designed to
 - **Core Features Showcase:** Clean grid layout highlighting "Easy Child Enrollment," "Live Daily Logs," and "Safe & Confidential" operations.
 - **How It Works:** A simple 4-step process guide (Create Center Profile → Onboard Families → Log Daily Activities → Keep Parents Engaged) to quickly educate new users.
 - **Trust Indicators:** A fixed stat bar highlighting SSL security, 500+ registered children, and secure activity logs.
-
+<img width="1920" height="1080" alt="Screenshot 2026-08-12 061542" src="https://github.com/user-attachments/assets/4633e3f6-497d-41e0-b44c-313c9acb75a7" />
 ### Register Page (`/register`)
 - **Dynamic Layout:** Wide two-column split layout with left-aligned branding imagery ("Welcome to Daycare") and an interactive scrolling form on the right.
 - **Comprehensive Data Capture:** Collects Full Name, Phone Number, Email (with an inline "Verify Email" button), Organization, Emergency Contact Details, and Relationship.
