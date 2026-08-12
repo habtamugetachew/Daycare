@@ -66,6 +66,7 @@ The application features tailored dashboard views specific to the user's role to
   - **Children & Parents:** Manage children profiles, parents & guardians, and process enrollment approvals.
   - **Staff Management:** Add new staff, view staff directory, and manage classroom assignments.
   - **Core Operations:** Track attendance, monitor payments, and handle global communications.
+<img width="1918" height="917" alt="Screenshot 2026-08-12 062507" src="https://github.com/user-attachments/assets/92055aad-c23c-46b2-81cb-1fa6c3a394c5" />
 
 #### 🛎️ Reception Dashboard (`ReceptionDashboard.jsx`)
 - **Overview:** Front-desk operations focused on check-ins, registration, and immediate scheduling.
@@ -74,6 +75,7 @@ The application features tailored dashboard views specific to the user's role to
   - **Registration:** Process new registers, update information, and generate Child IDs.
   - **Attendance Tracking:** Manage Nanny attendance and Child attendance logs.
   - **Updates & Comms:** Monitor registration updates and handle front-line communications.
+<img width="1918" height="917" alt="Screenshot 2026-08-12 062617" src="https://github.com/user-attachments/assets/8545049a-8f6b-4dd3-83b3-dcb6bc44edf8" />
 
 #### 🍼 Nanny Dashboard (`TeacherDashboard.jsx`)
 - **Overview:** Classroom-focused interface for daily child care management and logging.
@@ -82,6 +84,7 @@ The application features tailored dashboard views specific to the user's role to
   - **Classroom Management:** View assigned room details, student lists, and monitor capacity.
   - **Daily Reports:** Detailed logging tools for Meals Intake, Activities, Sleep & Naps, and Vaccination Logs.
   - **Operations:** Record classroom attendance and utilize direct communication channels.
+<img width="1918" height="921" alt="Screenshot 2026-08-12 062731" src="https://github.com/user-attachments/assets/7f07883c-1adc-47c1-bf5d-030a48070623" />
 
 #### 👨‍👩‍👧 Parent Dashboard (`ParentDashboard.jsx`)
 - **Overview:** Personal portal for guardians to track their child's day and manage financial details.
@@ -90,6 +93,7 @@ The application features tailored dashboard views specific to the user's role to
   - **My Children:** Register new children and access comprehensive child profiles.
   - **Tracking & Finance:** Monitor registration updates, process payments, and view Daily Reports.
   - **Communication:** Secure messaging channel to contact the daycare staff.
+<img width="1918" height="912" alt="Screenshot 2026-08-12 062810" src="https://github.com/user-attachments/assets/92f734ff-dc63-4dba-b5bb-86825318e147" />
 
 ### 2. ID Scan (Verification) Module
 - **Automated Check-In/Out:** Secure system utilizing facial recognition and QR/Barcode identity verification.
