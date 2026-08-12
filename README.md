@@ -1,4 +1,5 @@
 
+
 # DaycareHQ 🍼
 
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
@@ -36,7 +37,7 @@ DaycareHQ is a comprehensive, secure, and visually striking platform designed to
 - **Secure Access:** Standard Email and Password login paired with a "Forgot password?" recovery flow.
 - **Seamless OAuth:** "Continue with Google" integration for one-click secure access without a password.
 - **Account Creation Link:** Easy routing for new users to switch to the "Create an Account" page.
-
+<img width="1920" height="1080" alt="Screenshot 2026-08-12 061738" src="https://github.com/user-attachments/assets/7762a1d5-84f3-4737-acf7-15058c9ae34f" />
 ### Verification & Access Control
 - **ID Verification Module:** Integration ready for face recognition or encrypted credential upload.
 - **Role-Based Authorization:** Secure access tiers for admins, staff, and parents.
