@@ -123,7 +123,46 @@ The application features tailored dashboard views specific to the user's role to
 - **Export & Print Options:** One-click high-resolution export to PDF (`html2pdf` / `@react-pdf/renderer`) and PNG formats for physical printing or mobile wallet saving.
 - **Batch Generation:** Ability for Admins to generate ID cards for an entire classroom or daycare group simultaneously.
 
-## 🛠 Tech Stack & Libraries
+## 🔐 Demo Credentials
+
+Use these accounts to explore the system without registering:
+
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| 👑 **Admin** | habtamugetachew202@gmail.com | `Admin#123` |
+| 🍼 **Nanny** | habtamugetachew303@gmail.com | `Nanny#123` |
+| 👨‍👩‍👧 **Parent** | habtamugetachew505@gmail.com | `Parent#123` |
+| 🛎️ **Receptionist** | habtamugetachew606@gmail.com | `Reception#123` |
+
+> Each role unlocks a different dashboard with role-specific features and permissions.
+
+---
+
+## 🖼️ Screenshots
+
+### User Profile Menu
+The top-right user menu provides quick access to the key personal sections. Clicking the avatar reveals:
+- **My Profile** — view and edit personal information and avatar
+- **Notifications** — real-time badge showing unread alerts (shown here with 3 unread)
+- **Settings** — account preferences and security options
+- **Appearance** — toggle between Light and Dark themes instantly
+- **Help & Support** — access guides, FAQs, and contact support
+- **Sign Out** — securely end the current session
+
+> The badge displays the user's role tag (e.g. `PARENT`, `ADMIN`) for quick identity confirmation at a glance.
+
+![User Profile Menu](screenshots/profile-menu.png)
+
+> 💡 **To add this screenshot:** Save your image as `profile-menu.png` inside the `screenshots/` folder, then run:
+> ```bash
+> git add screenshots/profile-menu.png
+> git commit -m "Add profile menu screenshot"
+> git push
+> ```
+
+---
+
+##  Tech Stack & Libraries
 
 | Category | Technologies |
 | :--- | :--- |
@@ -143,8 +182,8 @@ The application features tailored dashboard views specific to the user's role to
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/daycarehq.git
-   cd daycarehq
+   git clone https://github.com/habtamugetachew/Daycare.git
+   cd Daycare
    ```
 
 2. **Install dependencies:**
