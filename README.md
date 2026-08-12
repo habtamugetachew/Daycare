@@ -1,3 +1,4 @@
+<img width="1920" height="1080" alt="Screenshot 2026-08-12 061542" src="https://github.com/user-attachments/assets/4633e3f6-497d-41e0-b44c-313c9acb75a7" />
 # DaycareHQ 🍼
 
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
