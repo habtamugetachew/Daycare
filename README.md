@@ -138,7 +138,7 @@ Use these accounts to explore the system without registering:
 
 ---
 
-## 🖼️ Screenshots
+## Profile Settings
 
 ### User Profile Menu
 The top-right user menu provides quick access to the key personal sections. Clicking the avatar reveals:
@@ -151,7 +151,8 @@ The top-right user menu provides quick access to the key personal sections. Clic
 
 > The badge displays the user's role tag (e.g. `PARENT`, `ADMIN`) for quick identity confirmation at a glance.
 
-![User Profile Menu](screenshots/profile-menu.png)
+<img width="322" height="522" alt="Screenshot 2026-08-12 062940" src="https://github.com/user-attachments/assets/6750478e-3c9b-4ee0-82fb-efc7330f698e" />
+
 
 > 💡 **To add this screenshot:** Save your image as `profile-menu.png` inside the `screenshots/` folder, then run:
 > ```bash
