@@ -102,7 +102,8 @@ The application features tailored dashboard views specific to the user's role to
 - **Automated Logging:** Stamps timestamp, guardian name, and photo snapshot on successful verification.
 - **Instant Alert System:** Triggers audio and visual feedback (Green for approved, Red alert for unauthorized pickup attempts).
 - **Architecture / Workflow:**
-  ```text
+  ``
+  text
   [Camera Feed] --> [Capture Frame] --> [Decode QR/Face]
          |                                     |
          v                                     v
