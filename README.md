@@ -211,7 +211,7 @@ The top-right user menu provides quick access to the key personal sections. Clic
    ```bash
    # Run both frontend and backend concurrently
    npm run dev
-   ```
+   ``
 
 ## 🔌 API Endpoints Documentation
 
