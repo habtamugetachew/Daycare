@@ -136,7 +136,7 @@ Use these accounts to explore the system without registering:
 
 > Each role unlocks a different dashboard with role-specific features and permissions.
 
------
+----
 
 ## Profile Settings
 
