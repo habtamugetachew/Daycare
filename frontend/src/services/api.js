@@ -1,10 +1,23 @@
 import axios from 'axios';
 
+// Determine the API base URL
+// On production (Netlify): use VITE_API_BASE_URL env variable
+// On local dev: use relative /api which proxies to localhost:5000
+const getBaseURL = () => {
+  const envURL = import.meta.env.VITE_API_BASE_URL;
+  if (envURL) {
+    return `${envURL}/api`;
+  }
+  // Default to relative path for local development
+  return '/api';
+};
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: getBaseURL(),
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  withCredentials: true
 });
 
 // Request interceptor to add the JWT token to headers
