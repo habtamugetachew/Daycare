@@ -1,14 +1,21 @@
 import axios from 'axios';
 
-// Determine the API base URL
-// On production (Netlify): use VITE_API_BASE_URL env variable
-// On local dev: use relative /api which proxies to localhost:5000
+// Get the API base URL from environment variable (set by Netlify or .env in dev)
+// Vite automatically prefixes VITE_ env vars with import.meta.env
 const getBaseURL = () => {
   const envURL = import.meta.env.VITE_API_BASE_URL;
+  
+  // Log for debugging (visible in browser console)
+  console.log('[API] VITE_API_BASE_URL =', envURL);
+  
   if (envURL) {
-    return `${envURL}/api`;
+    const baseURL = `${envURL}/api`;
+    console.log('[API] Using baseURL:', baseURL);
+    return baseURL;
   }
-  // Default to relative path for local development
+  
+  // Fallback for local development (relative path proxies to localhost:5000)
+  console.log('[API] Using relative path fallback: /api');
   return '/api';
 };
 

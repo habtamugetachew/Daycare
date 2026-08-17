@@ -30,9 +30,10 @@ const SystemStatus = () => {
       results.api    = 'degraded';
     }
 
-    // Check backend health endpoint
+    // Check backend health endpoint using the configured API base
     try {
-      const res = await fetch('/api/../health').catch(() => null);
+      const healthURL = new URL('/health', import.meta.env.VITE_API_BASE_URL || window.location.origin).toString();
+      const res = await fetch(healthURL).catch(() => null);
       if (!res || !res.ok) {
         results.server = 'degraded';
       }
