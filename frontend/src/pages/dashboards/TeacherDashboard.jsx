@@ -3,28 +3,32 @@ import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/useLanguage';
+import { useSettings } from '../../context/SettingsContext';
 
 const TeacherDashboard = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { isFreeMode } = useSettings();
   const [classroom, setClassroom] = useState(null);
   const [attendance, setAttendance] = useState({ records: [], absentChildren: [], summary: {} });
   const [reports, setReports] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [meals, setMeals] = useState([]);
   const [naps, setNaps] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [classroomRes, attendanceRes, reportsRes, apptsRes, mealsRes, napsRes] = await Promise.all([
+        const [classroomRes, attendanceRes, reportsRes, apptsRes, mealsRes, napsRes, paymentsRes] = await Promise.all([
           api.get('/classrooms/my-classroom'),
           api.get('/attendance/today'),
           api.get('/reports'),
           api.get('/appointments/upcoming'),
           api.get('/meals'),
-          api.get('/attendance/today')
+          api.get('/attendance/today'),
+          api.get('/payments')
         ]);
         setClassroom(classroomRes.data.data);
         setAttendance(attendanceRes.data.data);
@@ -32,6 +36,7 @@ const TeacherDashboard = () => {
         setAppointments(apptsRes.data.data);
         setMeals(mealsRes.data.data || []);
         setNaps(napsRes.data.data.records || []);
+        setPayments(paymentsRes.data.data || []);
       } catch (err) {
         console.error('Teacher dashboard error:', err);
       } finally {
@@ -50,6 +55,13 @@ const TeacherDashboard = () => {
   }
 
   const totalStudents = classroom?.children?.length || 0;
+
+  const unpaidChildrenIds = new Set(
+    payments
+      .filter(p => ['pending', 'overdue', 'unpaid'].includes(p.status?.toLowerCase()))
+      .map(p => p.child?._id || (typeof p.child === 'string' ? p.child : null))
+      .filter(Boolean)
+  );
 
   return (
     <div className="space-y-6">
@@ -96,13 +108,21 @@ const TeacherDashboard = () => {
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {classroom?.children?.map(child => {
                 const record = attendance.records?.find(r => r.child?._id === child._id);
+                const isUnpaid = !isFreeMode && unpaidChildrenIds.has(child._id);
                 return (
                   <div key={child._id} className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-teal-900/30 last:border-0">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
-                        {child.firstName?.charAt(0) || '?'}
+                      <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-[#0d1520] flex items-center justify-center text-xs font-bold text-slate-500">
+                        {child.firstName?.charAt(0)}{child.lastName?.charAt(0)}
                       </div>
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{child.firstName || 'Unknown'} {child.lastName || ''}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-slate-800 dark:text-white">{child.firstName} {child.lastName}</p>
+                        {isUnpaid && (
+                          <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-500">
+                            Unpaid
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
                       record?.status === 'present' ? 'bg-emerald-500/10 text-emerald-400' :

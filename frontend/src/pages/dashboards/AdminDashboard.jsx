@@ -3,12 +3,15 @@ import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/useLanguage';
+import { useSettings } from '../../context/SettingsContext';
+
 
 const INPUT = 'w-full border border-glass rounded-xl px-4 py-2.5 text-sm bg-card text-primary focus:outline-none focus:ring-2 focus:ring-[var(--primary-light)]';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { isFreeMode, togglePaymentMode } = useSettings();
   const [stats, setStats] = useState(null);
   const [payments, setPayments] = useState({ stats: {}, data: [] });
   const [appointments, setAppointments] = useState([]);
@@ -17,6 +20,14 @@ const AdminDashboard = () => {
   const [naps, setNaps] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [togglingMode, setTogglingMode] = useState(false);
+
+  const handleToggleFreeMode = async () => {
+    setTogglingMode(true);
+    try { await togglePaymentMode(); }
+    catch (e) { console.error(e); }
+    finally { setTogglingMode(false); }
+  };
 
   // Quick-add modals
   const [modal, setModal] = useState(null); // 'parent' | 'staff' | null

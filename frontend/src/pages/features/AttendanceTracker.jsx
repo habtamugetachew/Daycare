@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/useLanguage';
+import { useSettings } from '../../context/SettingsContext';
 
 const AttendanceTracker = () => {
   const { user } = useAuth();
@@ -13,15 +14,21 @@ const AttendanceTracker = () => {
   const [actionLoading, setActionLoading] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const { isFreeMode } = useSettings();
+  const [payments, setPayments] = useState([]);
 
   const fetchAttendance = async () => {
     try {
       setLoading(true);
       const query = selectedClassroom ? `?classroomId=${selectedClassroom}` : '';
-      const res = await api.get(`/attendance/today${query}`);
+      const [res, paymentsRes] = await Promise.all([
+        api.get(`/attendance/today${query}`),
+        api.get('/payments')
+      ]);
       setAttendance(res.data.data);
+      setPayments(paymentsRes.data.data || []);
     } catch (err) {
-      setError('Failed to load attendance data.');
+      setError('Failed to load data.');
     } finally {
       setLoading(false);
     }
@@ -41,7 +48,20 @@ const AttendanceTracker = () => {
     fetchAttendance();
   }, [selectedClassroom]);
 
+  const unpaidChildrenIds = new Set(
+    payments
+      .filter(p => ['pending', 'overdue', 'unpaid'].includes(p.status?.toLowerCase()))
+      .map(p => p.child?._id || (typeof p.child === 'string' ? p.child : null))
+      .filter(Boolean)
+  );
+
   const handleSetStatus = async (childId, classroomId, status) => {
+    if (!isFreeMode && status === 'present' && unpaidChildrenIds.has(childId)) {
+      if (!window.confirm('WARNING: This child has pending/overdue payments. Verify cash/receipt before allowing check-in.\n\nProceed with check-in?')) {
+        return;
+      }
+    }
+
     setActionLoading(childId);
     setError('');
     try {

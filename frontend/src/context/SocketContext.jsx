@@ -13,7 +13,8 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     // Only connect if we have a logged-in user
     if (user && token) {
-      const newSocket = io('http://localhost:5000', {
+      const backendURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const newSocket = io(backendURL, {
         withCredentials: true,
         reconnectionDelay: 1000,
         reconnectionDelayMax: 5000,

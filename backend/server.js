@@ -21,7 +21,7 @@ const server = http.createServer(app);
 // Socket.io initialization
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    origin: ['http://localhost:3000', 'http://localhost:5173', 'https://mintdaycare.netlify.app'],
     credentials: true
   }
 });
@@ -51,7 +51,7 @@ app.set('connectedUsers', connectedUsers);
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173'],
+  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://mintdaycare.netlify.app'],
   credentials: true
 }));
 app.use(express.json());
@@ -71,6 +71,7 @@ app.use('/api/staff', require('./routes/staff'));
 app.use('/api/meals', require('./routes/meals'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/teacher-attendance', require('./routes/teacherAttendance'));
+app.use('/api/settings', require('./routes/settings'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Health check

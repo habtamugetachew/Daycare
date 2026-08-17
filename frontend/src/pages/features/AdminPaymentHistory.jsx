@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '../../services/api';
+import { useSettings } from '../../context/SettingsContext';
 
 const fmtCurrency = (n) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'ETB' }).format(n || 0);
@@ -15,6 +16,7 @@ const STATUS_BADGE = {
 };
 
 const AdminPaymentHistory = () => {
+  const { isFreeMode, togglePaymentMode } = useSettings();
   const [payments,   setPayments]   = useState([]);
   const [stats,      setStats]      = useState({});
   const [loading,    setLoading]    = useState(true);
@@ -27,7 +29,15 @@ const AdminPaymentHistory = () => {
   const [page,       setPage]       = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total,      setTotal]      = useState(0);
+  const [togglingMode, setTogglingMode] = useState(false);
   const LIMIT = 20;
+
+  const handleToggleFreeMode = async () => {
+    setTogglingMode(true);
+    try { await togglePaymentMode(); }
+    catch (e) { console.error(e); }
+    finally { setTogglingMode(false); }
+  };
 
   const fetchHistory = useCallback(async (p = 1) => {
     setLoading(true); setError('');
@@ -79,6 +89,36 @@ const AdminPaymentHistory = () => {
 
   return (
     <div className="space-y-5">
+
+      {/* Payment Mode Toggle */}
+      <div className={`flex items-center justify-between gap-4 px-5 py-4 rounded-2xl border ${
+        isFreeMode ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-amber-500/10 border-amber-500/30'
+      }`}>
+        <div>
+          <p className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
+            <i className={`bx ${isFreeMode ? 'bx-gift text-emerald-500' : 'bx-credit-card text-amber-500'} text-lg`} />
+            {isFreeMode ? 'Free Mode Active' : 'Payment Mode Active'}
+          </p>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {isFreeMode
+              ? 'Parents have free access — no payments required'
+              : 'Chapa payments are required from parents'}
+          </p>
+        </div>
+        <button
+          onClick={handleToggleFreeMode}
+          disabled={togglingMode}
+          title="Toggle Free / Payment Mode"
+          className={`relative inline-flex h-7 min-w-[3.25rem] items-center rounded-full transition-colors duration-300 focus:outline-none disabled:opacity-60 ${
+            isFreeMode ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'
+          }`}
+        >
+          <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-300 ${
+            isFreeMode ? 'translate-x-7' : 'translate-x-1'
+          }`} />
+        </button>
+      </div>
+
       {/* Stats row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[

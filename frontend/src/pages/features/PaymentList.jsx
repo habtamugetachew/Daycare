@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/useLanguage';
+import { useSettings } from '../../context/SettingsContext';
 import MakePayment from './MakePayment';
 import AdminPaymentHistory from './AdminPaymentHistory';
 
@@ -248,6 +249,7 @@ const PaymentModal = ({ invoice, onClose, onSuccess }) => {
 // ── TAB 1: Invoices ───────────────────────────────────────────────────────────
 const InvoicesTab = ({ canManage }) => {
   const { t } = useLanguage();
+  const { isFreeMode } = useSettings();
   const navigate = useNavigate();
   const [payments,     setPayments]     = useState([]);
   const [stats,        setStats]        = useState({});
@@ -496,7 +498,7 @@ const InvoicesTab = ({ canManage }) => {
             </span>
           </p>
         </div>
-        {!canManage && (
+        {!canManage && !isFreeMode && (
           <button
             onClick={() => setCreateModal(true)}
             className="flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors shadow-lg shadow-indigo-500/30"
@@ -570,7 +572,7 @@ const InvoicesTab = ({ canManage }) => {
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2">
-                        {!canManage && p.status !== 'paid' && p.status !== 'cancelled' && (
+                        {!canManage && !isFreeMode && p.status !== 'paid' && p.status !== 'cancelled' && (
                           <button
                             onClick={() => navigate(`/dashboard/parent/make-payment`)}
                             className="text-xs font-bold text-white px-3 py-1.5 rounded-full flex items-center gap-1 hover:opacity-90"
@@ -843,6 +845,7 @@ const ADMIN_TABS = [
 const PaymentList = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { isFreeMode, togglePaymentMode } = useSettings();
   const location  = useLocation();
   const navigate  = useNavigate();
   const isAdmin   = ['admin', 'reception', 'staff'].includes(user?.role);
@@ -878,15 +881,46 @@ const PaymentList = () => {
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('paymentsTitle', 'Payments')}</h2>
           <p className="text-slate-500 dark:text-slate-400 text-sm">{t('paymentsSubtitle', 'Invoices and receipt history')}</p>
         </div>
-        {!canManage && (
-          <button
-            onClick={() => navigate('/dashboard/parent/make-payment')}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-white text-sm shadow-lg shadow-[#00A884]/30 hover:-translate-y-0.5 transition-all flex-shrink-0"
-            style={{ background: 'linear-gradient(135deg, #00A884 0%, #00C49A 100%)' }}
-          >
-            <i className="bx bx-credit-card text-base" /> Make Payment
-          </button>
-        )}
+
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Free Mode Toggle — admin/reception only */}
+          {canManage && (
+            <div className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border ${
+              isFreeMode ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-amber-500/10 border-amber-500/30'
+            }`}>
+              <div>
+                <p className="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
+                  <i className={`bx ${isFreeMode ? 'bx-gift text-emerald-500' : 'bx-credit-card text-amber-500'}`} />
+                  {isFreeMode ? 'Free Mode' : 'Payment Mode'}
+                </p>
+                <p className="text-[10px] text-slate-400 mt-0.5">
+                  {isFreeMode ? 'Click to enable payments' : 'Click to enable free access'}
+                </p>
+              </div>
+              <button
+                onClick={async () => { try { await togglePaymentMode(); } catch(e) { console.error(e); } }}
+                title="Toggle Free / Payment Mode"
+                className={`relative inline-flex h-6 min-w-[2.75rem] items-center rounded-full transition-colors duration-300 focus:outline-none ${
+                  isFreeMode ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'
+                }`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-300 ${
+                  isFreeMode ? 'translate-x-6' : 'translate-x-1'
+                }`} />
+              </button>
+            </div>
+          )}
+
+          {!canManage && !isFreeMode && (
+            <button
+              onClick={() => navigate('/dashboard/parent/make-payment')}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-white text-sm shadow-lg shadow-[#00A884]/30 hover:-translate-y-0.5 transition-all flex-shrink-0"
+              style={{ background: 'linear-gradient(135deg, #00A884 0%, #00C49A 100%)' }}
+            >
+              <i className="bx bx-credit-card text-base" /> Make Payment
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Tab bar */}

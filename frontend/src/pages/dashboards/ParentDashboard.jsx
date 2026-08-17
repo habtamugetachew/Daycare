@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/useLanguage';
+import { useSettings } from '../../context/SettingsContext';
 
 const getChildAge = (dobString) => {
   const dob = new Date(dobString);
@@ -20,6 +21,7 @@ const getChildAge = (dobString) => {
 const ParentDashboard = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { isFreeMode } = useSettings();
   const [children, setChildren]       = useState([]);
   const [payments, setPayments]       = useState([]);
   const [reports, setReports]         = useState([]);
@@ -92,10 +94,17 @@ const ParentDashboard = () => {
     );
   }
 
-  const pendingPayments = payments.filter(p => p.status === 'pending' || p.status === 'overdue');
-  const overduePayments = payments.filter(p => p.status === 'overdue');
+  const pendingPayments = payments.filter(p => ['pending', 'overdue', 'unpaid'].includes(p.status?.toLowerCase()));
+  const overduePayments = payments.filter(p => p.status?.toLowerCase() === 'overdue');
   const todayReport     = reports[0];
   const todayMeals      = meals.filter(m => m.date === new Date().toISOString().split('T')[0]);
+
+  const unpaidChildrenIds = new Set(
+    pendingPayments
+      .map(p => p.child?._id || (typeof p.child === 'string' ? p.child : null))
+      .filter(Boolean)
+  );
+  const unpaidChildrenList = children.filter(c => unpaidChildrenIds.has(c._id));
 
   return (
     <div className="space-y-6">
@@ -121,7 +130,21 @@ const ParentDashboard = () => {
       )}
 
       {/* ── Alert banners ────────────────────────────────────── */}
-      {overduePayments.length > 0 && (
+      {isFreeMode && (
+        <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 flex items-center gap-3">
+          <i className="bx bx-gift text-emerald-400 text-xl" />
+          <div>
+            <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+              Free Trial Active
+            </p>
+            <p className="text-xs text-slate-500">
+              Enjoy complimentary access to all daycare features during this period.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {!isFreeMode && overduePayments.length > 0 && (
         <div className="bg-rose-500/10 border border-rose-500/30 rounded-xl p-4 flex items-center gap-3">
           <i className="bx bx-error-circle text-rose-400 text-xl" />
           <div>
@@ -136,7 +159,7 @@ const ParentDashboard = () => {
         </div>
       )}
 
-      {pendingPayments.length > 0 && overduePayments.length === 0 && (
+      {!isFreeMode && pendingPayments.length > 0 && overduePayments.length === 0 && (
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 flex items-center gap-3">
           <i className="bx bx-error text-amber-400 text-xl" />
           <div>
@@ -163,6 +186,32 @@ const ParentDashboard = () => {
         </div>
       )}
 
+      {/* ── Unpaid Children List ─────────────────────────────── */}
+      {!isFreeMode && unpaidChildrenList.length > 0 && (
+        <div className="bg-rose-500/10 border border-rose-500/30 rounded-xl p-4">
+          <h3 className="text-sm font-semibold text-rose-500 dark:text-rose-400 mb-3 flex items-center gap-2">
+            <i className="bx bx-error-circle" /> {t('unpaidChildrenList') || 'Unpaid Children List'}
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            {unpaidChildrenList.map(child => (
+              <div key={child._id} className="bg-white/60 dark:bg-[#111c2d]/60 rounded-xl p-3 border border-rose-500/20 flex items-center gap-3 transition hover:bg-white dark:hover:bg-[#111c2d]">
+                <div className="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500 font-bold text-sm">
+                  {child.firstName?.charAt(0)}
+                </div>
+                <div>
+                  <p className="font-semibold text-slate-800 dark:text-white text-sm">
+                    {child.firstName} {child.lastName}
+                  </p>
+                  <Link to="/dashboard/parent/invoices" className="text-xs text-rose-500 dark:text-rose-400 hover:underline">
+                    {t('viewInvoices') || 'View Invoices'} →
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── Summary stat strip ───────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
@@ -180,7 +229,7 @@ const ParentDashboard = () => {
             color: 'emerald',
             path: '/dashboard/parent/attendance'
           },
-          {
+          !isFreeMode && {
             label: t('pending'),
             value: pendingPayments.length,
             icon: 'bx-receipt',
@@ -194,7 +243,7 @@ const ParentDashboard = () => {
             color: 'cyan',
             path: '/dashboard/parent/appointments'
           }
-        ].map(s => (
+        ].filter(Boolean).map(s => (
           <Link
             key={s.label}
             to={s.path}
@@ -662,81 +711,83 @@ const ParentDashboard = () => {
         </div>
 
         {/* Payment Invoices */}
-        <div className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
-              <i className="bx bx-receipt text-emerald-400" /> {t('paymentSummary')}
-            </h3>
-            <Link to="/dashboard/parent/invoices" className="text-xs text-indigo-400 hover:underline">
-              {t('allInvoices')} →
-            </Link>
-          </div>
-          {payments.length === 0 ? (
-            <div className="text-center py-8 text-slate-400">
-              <i className="bx bx-wallet text-3xl opacity-30" />
-              <p className="text-sm mt-2">{t('noInvoicesFound')}</p>
+        {!isFreeMode && (
+          <div className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <i className="bx bx-receipt text-emerald-400" /> {t('paymentSummary')}
+              </h3>
+              <Link to="/dashboard/parent/invoices" className="text-xs text-indigo-400 hover:underline">
+                {t('allInvoices')} →
+              </Link>
             </div>
-          ) : (
-            <>
-              {/* Summary pills */}
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                {[
-                  {
-                    label: 'Paid',
-                    count: payments.filter(p => p.status === 'paid').length,
-                    color: 'emerald'
-                  },
-                  {
-                    label: 'Pending',
-                    count: payments.filter(p => p.status === 'pending').length,
-                    color: 'amber'
-                  },
-                  {
-                    label: 'Overdue',
-                    count: payments.filter(p => p.status === 'overdue').length,
-                    color: 'rose'
-                  }
-                ].map(s => (
-                  <div
-                    key={s.label}
-                    className={`bg-${s.color}-500/10 rounded-xl p-3 text-center`}
-                  >
-                    <p className={`text-lg font-bold text-${s.color}-400`}>{s.count}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">{s.label}</p>
-                  </div>
-                ))}
+            {payments.length === 0 ? (
+              <div className="text-center py-8 text-slate-400">
+                <i className="bx bx-wallet text-3xl opacity-30" />
+                <p className="text-sm mt-2">{t('noInvoicesFound')}</p>
               </div>
-              {/* Recent invoices */}
-              <div className="space-y-2">
-                {payments.slice(0, 4).map(p => (
-                  <div
-                    key={p._id}
-                    className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-teal-900/30 last:border-0"
-                  >
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">
-                        {p.child?.firstName} {p.child?.lastName}
-                      </p>
-                      <p className="text-xs text-slate-400">{p.invoiceNumber || p.type}</p>
+            ) : (
+              <>
+                {/* Summary pills */}
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  {[
+                    {
+                      label: 'Paid',
+                      count: payments.filter(p => p.status === 'paid').length,
+                      color: 'emerald'
+                    },
+                    {
+                      label: 'Pending',
+                      count: payments.filter(p => p.status === 'pending').length,
+                      color: 'amber'
+                    },
+                    {
+                      label: 'Overdue',
+                      count: payments.filter(p => p.status === 'overdue').length,
+                      color: 'rose'
+                    }
+                  ].map(s => (
+                    <div
+                      key={s.label}
+                      className={`bg-${s.color}-500/10 rounded-xl p-3 text-center`}
+                    >
+                      <p className={`text-lg font-bold text-${s.color}-400`}>{s.count}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{s.label}</p>
                     </div>
-                    <div className="text-right flex-shrink-0 ml-3">
-                      <p className="text-sm font-bold text-slate-800 dark:text-white">ETB {p.amount}</p>
-                      <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                        p.status === 'paid'
-                          ? 'bg-emerald-500/10 text-emerald-400'
-                          : p.status === 'overdue'
-                          ? 'bg-rose-500/10 text-rose-400'
-                          : 'bg-amber-500/10 text-amber-400'
-                      }`}>
-                        {p.status}
-                      </span>
+                  ))}
+                </div>
+                {/* Recent invoices */}
+                <div className="space-y-2">
+                  {payments.slice(0, 4).map(p => (
+                    <div
+                      key={p._id}
+                      className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-teal-900/30 last:border-0"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">
+                          {p.child?.firstName} {p.child?.lastName}
+                        </p>
+                        <p className="text-xs text-slate-400">{p.invoiceNumber || p.type}</p>
+                      </div>
+                      <div className="text-right flex-shrink-0 ml-3">
+                        <p className="text-sm font-bold text-slate-800 dark:text-white">ETB {p.amount}</p>
+                        <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                          p.status === 'paid'
+                            ? 'bg-emerald-500/10 text-emerald-400'
+                            : p.status === 'overdue'
+                            ? 'bg-rose-500/10 text-rose-400'
+                            : 'bg-amber-500/10 text-amber-400'
+                        }`}>
+                          {p.status}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {/* ── Quick Actions ─────────────────────────────────────── */}

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/useLanguage';
+import { useSettings } from '../../context/SettingsContext';
 import SupportModal from '../../components/SupportModal';
 
 const fmtCurrency = (n) =>
@@ -297,6 +298,7 @@ const Step3 = ({ selected, paying, onPay, onBack }) => {
 const MakePayment = ({ embedded = false }) => {
   const { user }   = useAuth();
   const { t }      = useLanguage();
+  const { isFreeMode } = useSettings();
   const navigate   = useNavigate();
   const [step,     setStep]     = useState(1);
   const [invoices, setInvoices] = useState([]);
@@ -356,6 +358,22 @@ const MakePayment = ({ embedded = false }) => {
   );
 
   const wrapper = embedded ? 'space-y-6 pt-2' : 'min-h-screen bg-slate-50 -m-6 px-8 py-8';
+
+  if (isFreeMode) {
+    return (
+      <div className={wrapper}>
+        <div className="flex flex-col items-center justify-center h-64 text-center mt-8">
+          <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mb-4">
+            <i className="bx bx-gift text-3xl text-emerald-400" />
+          </div>
+          <h2 className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">Free Trial Active</h2>
+          <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+            Enjoy complimentary access to all daycare features during this period. No payments are required.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={wrapper}>
