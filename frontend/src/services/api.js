@@ -5,17 +5,13 @@ import axios from 'axios';
 const getBaseURL = () => {
   const envURL = import.meta.env.VITE_API_BASE_URL;
   
-  // Log for debugging (visible in browser console)
-  console.log('[API] VITE_API_BASE_URL =', envURL);
-  
   if (envURL) {
-    const baseURL = `${envURL}/api`;
-    console.log('[API] Using baseURL:', baseURL);
+    const cleanURL = envURL.replace(/\/+$/, '');
+    const baseURL = cleanURL.endsWith('/api') ? cleanURL : `${cleanURL}/api`;
     return baseURL;
   }
   
   // Fallback for local development (relative path proxies to localhost:5000)
-  console.log('[API] Using relative path fallback: /api');
   return '/api';
 };
 

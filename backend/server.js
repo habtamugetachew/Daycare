@@ -10,18 +10,37 @@ const { Server } = require('socket.io');
 // Load environment variables
 dotenv.config();
 
-// Connect to Database then seed
-connectDB().then(() => {
-  seedAll();
-});
 
 const app = express();
 const server = http.createServer(app);
 
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'https://mintdaycare.netlify.app'
+];
+if (process.env.FRONTEND_URL && !allowedOrigins.includes(process.env.FRONTEND_URL)) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
+
+const checkCorsOrigin = (origin, callback) => {
+  if (!origin) return callback(null, true);
+  if (
+    allowedOrigins.includes(origin) ||
+    origin.startsWith('http://localhost:') ||
+    origin.startsWith('http://127.0.0.1:')
+  ) {
+    return callback(null, true);
+  }
+  return callback(null, true);
+};
+
 // Socket.io initialization
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:5173', 'https://mintdaycare.netlify.app'],
+    origin: checkCorsOrigin,
     credentials: true
   }
 });
@@ -51,7 +70,7 @@ app.set('connectedUsers', connectedUsers);
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://mintdaycare.netlify.app'],
+  origin: checkCorsOrigin,
   credentials: true
 }));
 app.use(express.json());
@@ -99,8 +118,20 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, () => {
-  console.log(`\n🚀 DaycareHQ Server running on port ${PORT}`);
-  console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🌐 Health check: http://localhost:${PORT}/health\n`);
-});
+const startServer = async () => {
+  try {
+    await connectDB();
+    await seedAll();
+
+    server.listen(PORT, () => {
+      console.log(`\n🚀 DaycareHQ Server running on port ${PORT}`);
+      console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🌐 Health check: http://localhost:${PORT}/health\n`);
+    });
+  } catch (err) {
+    console.error('❌ Failed to start server:', err.message);
+    process.exit(1);
+  }
+};
+
+startServer();

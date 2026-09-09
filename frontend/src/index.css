@@ -273,7 +273,7 @@ html.dark label.login-label { color: #ffffff !important; }
 .dark tbody tr:hover      { background-color: var(--primary-soft) !important; }
 
 /* Hover interactive */
-.dark .dark\:hover\:bg-\[#162030\]:hover { background-color: rgba(0,196,199,0.08) !important; }
+.dark .dark\:hover\:bg-\[\#162030\]:hover { background-color: rgba(0,196,199,0.08) !important; }
 
 /* Scrollbar */
 .dark ::-webkit-scrollbar-thumb {

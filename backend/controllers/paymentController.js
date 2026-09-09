@@ -265,7 +265,7 @@ const chapaInitialize = async (req, res) => {
     if (payment.status === 'cancelled') return res.status(400).json({ success: false, message: 'Cannot pay a cancelled invoice' });
 
     const txRef      = `MINT-${payment._id}-${Date.now()}`;
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const frontendUrl = req.headers.origin || process.env.FRONTEND_URL || 'http://localhost:3000';
 
     const sanitizeCustomizationText = (value) =>
       (value || '')

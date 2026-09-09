@@ -4,7 +4,7 @@ const Classroom = require('../models/Classroom');
 const Message = require('../models/Message');
 
 /* ── Notify parent + all reception users on approval/disapproval ── */
-const sendChildApprovalNotifications = async ({ child, action, adminId, adminReason }) => {
+const sendChildApprovalNotifications = async ({ child, action, adminId, adminReason, req }) => {
   try {
     const childName = `${child.firstName} ${child.lastName}`;
     const isApproved = action === 'approved';
@@ -47,8 +47,8 @@ const sendChildApprovalNotifications = async ({ child, action, adminId, adminRea
       const inserted = await Message.insertMany(messages);
 
       // Emit socket event to online users
-      const io = req.app.get('io');
-      const connectedUsers = req.app.get('connectedUsers');
+      const io = req?.app?.get?.('io');
+      const connectedUsers = req?.app?.get?.('connectedUsers');
       if (io && connectedUsers) {
         inserted.forEach(msg => {
           const recipientSocketId = connectedUsers.get(msg.recipient.toString());
@@ -312,6 +312,7 @@ const approveChild = async (req, res) => {
       action: 'approved',
       adminId: req.user._id,
       adminReason: note || '',
+      req,
     });
 
     res.status(200).json({ success: true, data: child });
@@ -344,6 +345,7 @@ const disapproveChild = async (req, res) => {
       action: 'disapproved',
       adminId: req.user._id,
       adminReason: note || '',
+      req,
     });
 
     res.status(200).json({ success: true, data: child });
