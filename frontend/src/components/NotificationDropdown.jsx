@@ -67,6 +67,11 @@ function getLocalizedNotifType(type, t) {
   return t(typeMap[type] || type) || type;
 }
 
+function getLocalizedNotifBody(notif) {
+  if (!notif?.body) return '';
+  return notif.body.replace(/\$([0-9.,]+)/g, 'ETB $1');
+}
+
 const playPremiumChime = () => {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -364,7 +369,7 @@ const NotifItem = ({ notif, onRead, role, index = 0, t }) => {
               )}
               {localizedTitle}
             </p>
-            <p className="text-[11px] text-slate-400 mt-0.5">{notif.body}</p>
+            <p className="text-[11px] text-slate-400 mt-0.5">{getLocalizedNotifBody(notif)}</p>
             <p className="text-[10px] text-slate-300 dark:text-slate-600 mt-0.5">{timeAgo(notif.time, t)}</p>
           </div>
         </div>
@@ -424,7 +429,7 @@ const NotifItem = ({ notif, onRead, role, index = 0, t }) => {
           )}
           {localizedTitle}
         </p>
-        <p className="text-[11px] text-slate-400 mt-0.5 truncate">{notif.body}</p>
+        <p className="text-[11px] text-slate-400 mt-0.5 truncate">{getLocalizedNotifBody(notif)}</p>
         <p className="text-[10px] text-slate-300 dark:text-slate-600 mt-1">{timeAgo(notif.time, t)}</p>
       </div>
 

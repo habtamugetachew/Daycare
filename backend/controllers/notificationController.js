@@ -123,7 +123,7 @@ const getNotifications = async (req, res) => {
           title: isOverdue
             ? `Overdue invoice — ${pmt.child?.firstName || 'Child'}`
             : `Payment due — ${pmt.child?.firstName || 'Child'}`,
-          body: `$${pmt.amount} · ${pmt.invoiceNumber || pmt.type}`,
+          body: `ETB ${pmt.amount} · ${pmt.invoiceNumber || pmt.type}`,
           time: pmt.dueDate || pmt.createdAt,
           read: false,
           refId: pmt._id,
