@@ -18,7 +18,7 @@ import {
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
-  const { collapsed, mobileOpen, toggle } = useSidebar();
+  const { collapsed, mobileOpen, toggle, setMobileOpen } = useSidebar();
   const { t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
@@ -35,6 +35,12 @@ const Sidebar = () => {
 
   const isCollapsed = !isMobile && collapsed;
   const translateX = isMobile && !mobileOpen ? '-100%' : '0';
+
+  const handleNavClick = () => {
+    if (isMobile) {
+      setMobileOpen(false);
+    }
+  };
 
   const toggleSubmenu = (menuTitle) => {
     if (isCollapsed) return;
@@ -128,16 +134,27 @@ const Sidebar = () => {
           transform: `translateX(${translateX})`,
           transition: 'width 0.3s cubic-bezier(0.4,0,0.2,1), transform 0.3s cubic-bezier(0.4,0,0.2,1)',
           overflow: 'hidden',
-          zIndex: 100,
+          zIndex: 150,
         }}
       >
-        <button
-          onClick={toggle}
-          className="absolute top-3 right-3 z-[10] w-8 h-8 flex items-center justify-center rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200"
-          title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          <ChevronLeft className="text-lg" />
-        </button>
+        {isMobile ? (
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="absolute top-3 right-3 z-[10] w-8 h-8 flex items-center justify-center rounded-lg text-white/80 hover:text-white hover:bg-white/15 transition-all duration-200"
+            title="Close sidebar"
+            aria-label="Close sidebar"
+          >
+            <i className="bx bx-x text-2xl" />
+          </button>
+        ) : (
+          <button
+            onClick={toggle}
+            className="absolute top-3 right-3 z-[10] w-8 h-8 flex items-center justify-center rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200"
+            title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            <ChevronLeft className="text-lg" />
+          </button>
+        )}
 
         <div
           className="brand"
@@ -194,6 +211,7 @@ const Sidebar = () => {
                       onClick={() => {
                         toggleSubmenu(item.title || item.titleKey);
                         if (item.path) {
+                          handleNavClick();
                           navigate(item.path);
                         }
                       }}
@@ -211,6 +229,7 @@ const Sidebar = () => {
                   ) : (
                     <NavLink
                       to={item.path}
+                      onClick={handleNavClick}
                       className={({ isActive }) => `nav-link w-full text-left flex items-center px-3 py-2 rounded-2xl transition-all ${isActive ? 'bg-slate-900/5 text-slate-900 dark:bg-white/5 dark:text-white' : 'text-slate-500 dark:text-slate-300 hover:bg-slate-900/5 dark:hover:bg-white/10'}`}
                       title={isCollapsed ? label : ''}
                     >
@@ -227,6 +246,7 @@ const Sidebar = () => {
                         <li key={`${label}-${idx}`}>
                           <NavLink
                             to={getSubPath(sub)}
+                            onClick={handleNavClick}
                             className={({ isActive }) => isActive ? 'active' : ''}
                           >
                             <i className={`bx ${sub.icon} text-base`} />

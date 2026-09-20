@@ -68,24 +68,24 @@ const ReceptionDashboard = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {[
           { label: t('totalFamilies'), value: visitors.count, icon: 'bx-user-check', color: 'indigo' },
           { label: t('present'), value: visitors.checkedIn, icon: 'bx-building', color: 'emerald' },
           { label: t('upcomingAppointments'), value: appointments.length, icon: 'bx-calendar', color: 'cyan' },
           { label: t('totalChildren'), value: children.length, icon: 'bx-child', color: 'purple' }
         ].map(s => (
-          <div key={s.label} className="bg-card rounded-2xl border border-glass p-4">
+          <div key={s.label} className="bg-card rounded-2xl border border-glass p-3.5 sm:p-4">
             <i className={`bx ${s.icon} text-xl text-${s.color}-400`} />
-            <p className="text-2xl font-bold text-slate-800 dark:text-white mt-2">{s.value}</p>
-            <p className="text-xs text-slate-500">{s.label}</p>
+            <p className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mt-1.5 sm:mt-2">{s.value}</p>
+            <p className="text-xs text-slate-500 truncate">{s.label}</p>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Quick Check-in */}
-        <div className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 p-6">
+        <div className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
               <i className="bx bx-log-in-circle text-indigo-400" /> {t('providerAttendance')}

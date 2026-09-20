@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/useLanguage';
 import { useIdScanner } from '../hooks/useIdScanner';
@@ -752,12 +752,12 @@ const Register = () => {
 
   return (
     <>
-      <div className="min-h-screen w-screen relative flex items-center justify-center px-4 py-8 overflow-hidden">
+      <div className="min-h-screen w-full max-w-full relative flex items-center justify-center px-2 sm:px-4 py-6 sm:py-8 overflow-x-hidden">
         {/* Full screen background */}
         <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url('${theme === 'dark' ? '/assets/images/darkmode.png' : '/assets/images/registerz.png'}')`, filter: isDark ? 'brightness(0.65)' : 'none' }} />
         
         {/* OVERLAPPING CARD CONTAINER */}
-        <div className="relative z-10 flex items-stretch justify-center w-full max-w-[1020px] px-4">
+        <div className="relative z-10 flex items-stretch justify-center w-full max-w-[1020px] px-1 sm:px-4">
           
           {/* LEFT PANEL - Glass (Slightly shorter, sits behind right panel) */}
           <div className="hidden lg:flex flex-col items-center justify-center relative z-10 w-full max-w-[420px] rounded-l-[32px] p-8 text-center my-6"
@@ -802,7 +802,7 @@ const Register = () => {
           </div>
 
           {/* RIGHT PANEL - Form Container (Taller, overlaps left panel) */}
-          <div className="flex-1 w-full max-w-[520px] px-8 py-8 relative z-20 rounded-[16px] shadow-[0_20px_60px_rgba(0,0,0,0.6)]" 
+          <div className="flex-1 w-full max-w-[520px] px-4 sm:px-8 py-6 sm:py-8 relative z-20 rounded-[16px] shadow-[0_20px_60px_rgba(0,0,0,0.6)]" 
                style={{ background: colors.cardBg, border: `1px solid ${colors.cardBorder}` }}>
             
             {/* Alerts */}
@@ -816,7 +816,7 @@ const Register = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
 
             {/* Row 1: Full Name + Phone */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-[11px] font-bold mb-1.5" style={{ color: colors.textMain }}>{t('fullName')}</label>
                 <div className="relative">
@@ -848,9 +848,9 @@ const Register = () => {
               </div>
             </div>
 
-            {/* Row 2: Email (70%) + Organization (30%) */}
-            <div className="flex items-end gap-3">
-              <div className="flex-[3] min-w-0">
+            {/* Row 2: Email + Organization */}
+            <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+              <div className="flex-1 sm:flex-[3] min-w-0">
                 <label className="block text-[11px] font-bold mb-1.5" style={{ color: colors.textMain }}>{t('emailLabel')} <span style={{ color: '#ef4444' }}>*</span></label>
                 <div className="flex gap-1.5">
                   <div className="relative flex-1">
@@ -888,7 +888,7 @@ const Register = () => {
                 {otpError && <p className="flex items-center gap-1 text-[10px] mt-1"><i className="bx bx-error-circle text-[11px]" style={{ color: '#ef4444' }} /><span style={{ color: '#ef4444' }}>{otpError}</span></p>}
                 {otpSuccess && !isEmailVerified && <p className="flex items-center gap-1 text-[10px] mt-1"><i className="bx bx-check-circle text-[11px]" style={{ color: '#6ee7b7' }} /><span style={{ color: '#6ee7b7' }}>{otpSuccess}</span></p>}
               </div>
-              <div className="flex-[1] min-w-0">
+              <div className="flex-1 sm:flex-[1] min-w-0">
                 <label className="block text-[11px] font-bold mb-1.5" style={{ color: colors.textMain }}>{t('organization')}</label>
                 <div className="relative">
                   <i className="bx bx-building absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: colors.textMuted }} />
@@ -901,7 +901,7 @@ const Register = () => {
             </div>
 
             {/* Emergency Contact Section */}
-            <div className="grid grid-cols-3 gap-2 mt-4 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4 mb-4">
               <div>
                 <label className="block text-[10px] font-bold mb-1" style={{ color: isDark ? '#00d8d6' : '#111827' }}>{t('contactName') || 'Emergency Name'}</label>
                 <div className="relative">

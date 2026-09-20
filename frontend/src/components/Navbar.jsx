@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/useLanguage';
+import { useSidebar } from '../context/SidebarContext';
 import api from '../services/api';
 import NotificationDropdown from './NotificationDropdown';
 import ProfilePanel from './ProfilePanel';
@@ -9,6 +10,7 @@ import UserAvatar from './common/UserAvatar';
 
 const Navbar = ({ pageTitle = 'Dashboard' }) => {
   const { user, logout, setUser } = useAuth();
+  const { toggle: toggleSidebar } = useSidebar();
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
@@ -105,25 +107,35 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
 
   return (
     <header className="
-      flex items-center justify-between w-full h-[64px] px-6 md:px-8
+      flex items-center justify-between w-full h-[64px] px-3 sm:px-6 md:px-8
       bg-white dark:bg-[#0A1218]
       border-b border-slate-200 dark:border-[#1E2C35]
       sticky top-0 z-30
       transition-all duration-200
       shadow-sm
     ">
-      {/* Left — breadcrumb + title */}
-      <div className="flex flex-col">
-        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#00ADB5]">
-          Daycare
-        </span>
-        <h1 className="text-base font-bold text-slate-900 dark:text-white leading-tight m-0">
-          {pageTitle}
-        </h1>
+      {/* Left — Hamburger button (mobile) + breadcrumb + title */}
+      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+        <button
+          onClick={toggleSidebar}
+          className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-[#0F1D26] border border-slate-200 dark:border-[#1E2C35] text-slate-700 dark:text-slate-200 hover:text-[#00ADB5] hover:border-[#00ADB5]/40 transition-all flex-shrink-0"
+          aria-label="Toggle navigation menu"
+        >
+          <i className="bx bx-menu text-2xl" />
+        </button>
+
+        <div className="flex flex-col min-w-0">
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#00ADB5] leading-none mb-0.5">
+            Daycare
+          </span>
+          <h1 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-tight m-0 truncate max-w-[130px] sm:max-w-none">
+            {pageTitle}
+          </h1>
+        </div>
       </div>
 
       {/* Right */}
-      <div className="flex items-center gap-3 sm:gap-4">
+      <div className="flex items-center gap-1.5 sm:gap-3 md:gap-4 flex-shrink-0">
 
         {/* Date pill */}
         <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 dark:bg-[#0F1D26] border border-slate-200 dark:border-[#1E2C35] text-sm font-semibold text-slate-700 dark:text-white/80">
@@ -134,18 +146,18 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
         {/* Theme toggle */}
         <button
           onClick={toggleTheme}
-          className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-[#0F1D26] border border-slate-200 dark:border-[#1E2C35] text-slate-500 dark:text-white/70 hover:text-[#00ADB5] hover:border-[#00ADB5]/40 transition-all"
+          className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-[#0F1D26] border border-slate-200 dark:border-[#1E2C35] text-slate-500 dark:text-white/70 hover:text-[#00ADB5] hover:border-[#00ADB5]/40 transition-all flex-shrink-0"
           title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
         >
           <i className={`bx ${isDark ? 'bx-sun' : 'bx-moon'} text-lg`} />
         </button>
 
         {/* Language selector */}
-        <div className="relative">
+        <div className="relative flex-shrink-0">
           <select
             value={locale}
             onChange={(e) => setLocale(e.target.value)}
-            className="appearance-none h-9 rounded-xl border border-slate-200 dark:border-[#1E2C35] bg-white dark:bg-[#0F1D26] px-3 pr-8 text-sm font-semibold text-slate-700 dark:text-white shadow-sm outline-none transition-all hover:border-[#00ADB5]/40 min-w-[110px]"
+            className="appearance-none h-9 rounded-xl border border-slate-200 dark:border-[#1E2C35] bg-white dark:bg-[#0F1D26] px-2.5 pr-7 sm:px-3 sm:pr-8 text-xs sm:text-sm font-semibold text-slate-700 dark:text-white shadow-sm outline-none transition-all hover:border-[#00ADB5]/40 min-w-[75px] sm:min-w-[110px]"
             title="Switch language"
           >
             {LANGUAGE_OPTIONS.map((option) => (
@@ -154,7 +166,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
               </option>
             ))}
           </select>
-          <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-slate-400">
+          <div className="pointer-events-none absolute inset-y-0 right-1.5 sm:right-2 flex items-center text-slate-400">
             <i className="bx bx-chevron-down text-base" />
           </div>
         </div>
@@ -169,7 +181,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
             {/* Trigger button */}
             <button
               onClick={() => setProfileOpen(p => !p)}
-              className="flex items-center gap-2.5 pl-3 border-l border-slate-200 dark:border-[#1E2C35] focus:outline-none"
+              className="flex items-center gap-2 sm:gap-2.5 pl-2 sm:pl-3 border-l border-slate-200 dark:border-[#1E2C35] focus:outline-none"
             >
               {/* Avatar */}
               <UserAvatar
@@ -196,7 +208,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
             {/* ── Dropdown panel ── */}
             {profileOpen && (
               <div
-                className="absolute right-0 top-[calc(100%+12px)] w-[260px] bg-white dark:bg-[#111c2d] rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 z-[200] overflow-hidden"
+                className="absolute right-0 top-[calc(100%+12px)] w-[260px] max-w-[calc(100vw-24px)] bg-white dark:bg-[#111c2d] rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 z-[200] overflow-hidden"
                 style={{ animation: 'fadeSlideIn 0.18s cubic-bezier(0.16,1,0.3,1)' }}
               >
                 {/* Up caret */}

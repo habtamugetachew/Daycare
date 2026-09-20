@@ -46,7 +46,7 @@ const Home = () => {
             NAVBAR
         ════════════════════════════════════════════ */}
         <nav
-          className="flex items-center justify-between px-6 py-3 border-b"
+          className="flex items-center justify-between px-3 sm:px-6 py-2.5 sm:py-3 border-b"
           style={{
             background: isDark ? 'var(--surface-2)' : 'var(--white)',
             borderColor: isDark ? 'var(--border)' : 'var(--border)',
@@ -54,26 +54,26 @@ const Home = () => {
           }}
         >
           {/* Logo — MiNT official logo image + text */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <img
               src="/assets/images/mint-logo.png"
               alt="MiNT Logo"
-              className="h-20 w-20 object-contain"
+              className="h-10 w-10 sm:h-14 sm:w-14 md:h-16 md:w-16 object-contain flex-shrink-0"
             />
-            <div>
-              <span className="block font-bold text-sm leading-tight"
+            <div className="min-w-0">
+              <span className="block font-bold text-xs sm:text-sm leading-tight truncate"
                 style={{ color: 'var(--primary-light)' }}>
                 የኢኖቬሽንና ቴክኖሎጂ ሚኒስቴር
               </span>
-              <span className="block font-bold text-sm leading-tight"
+              <span className="hidden sm:block font-bold text-xs sm:text-sm leading-tight truncate"
                 style={{ color: 'var(--primary-light)' }}>
                 Ministry of Innovation and Technology
               </span>
             </div>
           </div>
 
-          {/* Nav links */}
-          <div className="hidden md:flex items-center gap-5 text-xs font-semibold">
+          {/* Desktop Nav links */}
+          <div className="hidden md:flex items-center gap-5 text-xs font-semibold flex-shrink-0">
             <Link
               to="/"
               className="pb-0.5 border-b-2"
@@ -89,7 +89,7 @@ const Home = () => {
               style={{ color: isDark ? 'var(--white)' : 'var(--primary-dark)' }}
               className="hover:text-[var(--primary-light)] transition-colors">{t('navLogin')}</Link>
 
-            {/* Theme toggle — amber sun in light mode (matches screenshot) */}
+            {/* Theme toggle — amber sun in light mode */}
             <button
               onClick={toggleTheme}
               className="p-2 rounded-xl transition-all"
@@ -132,6 +132,47 @@ const Home = () => {
               style={{ background: 'var(--accent)' }}
             >
               {t('navGetStarted')}
+            </Link>
+          </div>
+
+          {/* Mobile Nav actions */}
+          <div className="flex md:hidden items-center gap-2 flex-shrink-0">
+            <button
+              onClick={toggleTheme}
+              className="p-1.5 rounded-xl text-[var(--accent)]"
+              title="Toggle theme"
+            >
+              <i className="bx bx-sun text-lg"></i>
+            </button>
+
+            <div className="relative">
+              <select
+                value={locale}
+                onChange={(e) => setLocale(e.target.value)}
+                className="appearance-none h-8 rounded-lg border px-2 pr-6 text-xs font-semibold shadow-sm outline-none"
+                style={{
+                  background: isDark ? 'var(--surface)' : 'var(--white)',
+                  color: isDark ? 'var(--white)' : 'var(--primary-dark)',
+                  borderColor: isDark ? 'var(--border)' : 'var(--border)'
+                }}
+              >
+                {LANGUAGE_OPTIONS.map((option) => (
+                  <option key={option.code} value={option.code}>
+                    {option.label.slice(0, 3)}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-1 flex items-center" style={{ color: isDark ? 'var(--white)' : 'var(--primary-dark)' }}>
+                <i className="bx bx-chevron-down text-xs" />
+              </div>
+            </div>
+
+            <Link
+              to="/login"
+              className="px-3 py-1.5 rounded-lg text-xs font-bold text-white shadow"
+              style={{ background: 'var(--accent)' }}
+            >
+              {t('navLogin')}
             </Link>
           </div>
         </nav>

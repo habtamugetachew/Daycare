@@ -168,7 +168,7 @@ const AdminPaymentHistory = () => {
             <option value="cash">Cash</option>
           </select>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 items-end">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
           <div>
             <label className="text-xs font-semibold text-slate-500 mb-1 block">From Date</label>
             <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)}
@@ -179,9 +179,9 @@ const AdminPaymentHistory = () => {
             <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)}
               className="w-full rounded-xl border border-slate-200 dark:border-teal-900/40 px-3 py-2 text-sm bg-slate-50 dark:bg-[#0d1520] text-slate-800 dark:text-white focus:outline-none" />
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap sm:flex-nowrap">
             <button onClick={() => fetchHistory(1)}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#00A884] hover:bg-[#009070] text-white font-semibold text-sm transition">
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#00A884] hover:bg-[#009070] text-white font-semibold text-sm transition">
               <i className="bx bx-filter-alt" /> Apply Filters
             </button>
             <button onClick={() => { setSearch(''); setStatus('all'); setMethod('all'); setStartDate(''); setEndDate(''); }}
@@ -189,9 +189,9 @@ const AdminPaymentHistory = () => {
               Reset
             </button>
           </div>
-          <div className="flex justify-end">
+          <div className="flex justify-start sm:justify-end">
             <button onClick={handleExportCSV} disabled={payments.length === 0}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm transition disabled:opacity-40">
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm transition disabled:opacity-40">
               <i className="bx bx-download" /> Export CSV
             </button>
           </div>
@@ -211,7 +211,7 @@ const AdminPaymentHistory = () => {
             <p className="text-xs mt-1">Try adjusting your search or filters</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto w-full" style={{ WebkitOverflowScrolling: 'touch' }}>
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 dark:border-teal-900/30 bg-slate-50 dark:bg-[#0d1520]">

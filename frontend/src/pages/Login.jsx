@@ -158,7 +158,7 @@ const Login = () => {
 
 
   return (
-    <div className="auth-page min-h-screen w-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden transition-colors duration-200">
+    <div className="auth-page min-h-screen w-full max-w-full flex items-center justify-center py-8 sm:py-12 px-3 sm:px-6 lg:px-8 relative overflow-x-hidden transition-colors duration-200">
 
       {/* Background Image Layer (Light or Dark swap) */}
       <div

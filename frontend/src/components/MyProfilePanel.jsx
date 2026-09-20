@@ -130,7 +130,7 @@ const MyProfilePanel = ({ open, onClose }) => {
       />
 
       {/* ── Slide-over panel ──────────────────────────────── */}
-      <div className={`fixed top-0 right-0 z-[220] h-full w-[340px] max-w-full bg-white dark:bg-[#111c2d] shadow-2xl border-l border-slate-200 dark:border-slate-800 flex flex-col transition-transform duration-300 ease-in-out ${open ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`fixed top-0 right-0 z-[220] h-full w-full sm:w-[380px] max-w-full bg-white dark:bg-[#111c2d] shadow-2xl border-l border-slate-200 dark:border-slate-800 flex flex-col transition-transform duration-300 ease-in-out ${open ? 'translate-x-0' : 'translate-x-full'}`}>
 
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">

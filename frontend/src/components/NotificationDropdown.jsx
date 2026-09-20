@@ -194,7 +194,7 @@ const NotificationDropdown = ({ role }) => {
       {/* Dropdown panel */}
       {open && (
         <div
-          className="absolute right-0 mt-2 w-[340px] max-h-[480px] flex flex-col bg-card border border-glass rounded-2xl shadow-2xl z-[200] overflow-hidden"
+          className="absolute -right-12 sm:right-0 mt-2 w-[calc(100vw-32px)] sm:w-[360px] max-w-[360px] max-h-[480px] flex flex-col bg-card border border-glass rounded-2xl shadow-2xl z-[200] overflow-hidden"
           style={{ animation: 'fadeSlideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
         >
           {/* Header */}

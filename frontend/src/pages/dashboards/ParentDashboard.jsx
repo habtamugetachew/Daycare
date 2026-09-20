@@ -213,7 +213,7 @@ const ParentDashboard = () => {
       )}
 
       {/* ── Summary stat strip ───────────────────────────────── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {[
           {
             label: t('myChildren'),
@@ -247,11 +247,11 @@ const ParentDashboard = () => {
           <Link
             key={s.label}
             to={s.path}
-            className={`bg-card rounded-2xl border border-glass p-4 transition-all duration-200`}
+            className={`bg-card rounded-2xl border border-glass p-3.5 sm:p-4 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]`}
           >
             <i className={`bx ${s.icon} text-xl`} style={{ color: 'var(--primary-light)' }} />
-            <p className="text-2xl font-bold text-primary mt-2">{s.value}</p>
-            <p className="text-xs text-muted">{s.label}</p>
+            <p className="text-xl sm:text-2xl font-bold text-primary mt-1.5 sm:mt-2">{s.value}</p>
+            <p className="text-xs text-muted truncate">{s.label}</p>
           </Link>
         ))}
       </div>
@@ -276,7 +276,7 @@ const ParentDashboard = () => {
         </div>
 
         {showRegisterForm && (
-          <div className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 p-6 mb-6">
+          <div className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 p-4 sm:p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h4 className="text-lg font-bold text-slate-800 dark:text-white">{t('registerChild')}</h4>
@@ -551,7 +551,7 @@ const ParentDashboard = () => {
                   </div>
 
                   {/* Action buttons */}
-                  <div className="mt-3 grid grid-cols-3 gap-2">
+                  <div className="mt-3 grid grid-cols-3 gap-1.5 sm:gap-2">
                     <Link
                       to="/dashboard/parent/daily-report"
                       className="text-center text-xs font-semibold text-indigo-400 bg-indigo-500/10 rounded-lg py-2 hover:bg-indigo-500/20 transition-colors"

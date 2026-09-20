@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../services/api';
 import DeleteConfirmModal from '../../components/shared/DeleteConfirmModal';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/useLanguage';
 import { useSocket } from '../../context/SocketContext';
+import UserAvatar from '../../components/common/UserAvatar';
 
 // ── Smart relative timestamp (updates every 30s via tick state) ─────────────
 function timeAgo(dateStr, _tick) {
@@ -122,9 +123,14 @@ const ThreadRow = ({ msg, isSelected, onClick, myId, tick }) => {
       className={`w-full text-left px-4 py-3.5 flex items-start gap-3 hover:bg-slate-50 dark:hover:bg-[#162030]/50 transition-colors border-b border-slate-100 dark:border-teal-900/30 last:border-0 ${
         isSelected ? 'bg-indigo-500/5 border-r-2 border-indigo-500' : ''
       }`}>
-      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mt-0.5">
-        {other?.fullName?.charAt(0) || '?'}
-      </div>
+      <UserAvatar
+        user={other}
+        avatar={other?.avatar}
+        name={other?.fullName}
+        size="sm"
+        ring={false}
+        className="w-9 h-9 flex-shrink-0 mt-0.5"
+      />
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
           <p className={`text-sm truncate ${
@@ -157,6 +163,8 @@ const Communication = () => {
   const { t } = useLanguage();
   const { socket } = useSocket();
   const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // tabs: 'announcements' | 'messages'
   const [tab, setTab] = useState('announcements');
@@ -186,6 +194,7 @@ const Communication = () => {
   const announceRefs = useRef({});
   // Track which announcement is being edited (to pre-fill the form)
   const [editingAnnouncement, setEditingAnnouncement] = useState(null);
+  const [viewingAnnouncement, setViewingAnnouncement] = useState(null);
 
   const emptyCompose = { recipientId: '', subject: '', body: '', priority: 'normal' };
   const [compose, setCompose] = useState(emptyCompose);
@@ -399,12 +408,13 @@ const Communication = () => {
   }, [fetchAnnouncements, fetchInbox, fetchContacts]);
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const tabParam = params.get('tab');
-    const msgId = params.get('msgId');
-    const annId = params.get('id');
+    if (loading) return;
 
-    if (!loading) {
+    const tabParam = searchParams.get('tab');
+    const msgId = searchParams.get('msgId');
+    const annId = searchParams.get('id');
+
+    if (tabParam || msgId || annId) {
       if (tabParam === 'announcements' || annId) {
         setTab('announcements');
         if (annId) setTargetAnnId(annId);
@@ -421,12 +431,20 @@ const Communication = () => {
         }
       }
 
-      if (tabParam || msgId || annId) {
-        // Clear query string so it doesn't repeatedly try to open on other re-renders
-        window.history.replaceState(null, '', location.pathname);
-      }
+      // Clear search params in React Router so it never re-triggers or reverts user tab choice
+      setSearchParams({}, { replace: true });
     }
-  }, [location.search, loading, inbox, sentMessages, selected, announcements]);
+  }, [loading, searchParams, setSearchParams, inbox, sentMessages]);
+
+  const openViewAnnouncement = async (a) => {
+    setViewingAnnouncement(a);
+    if (!a.isRead && a._id) {
+      try {
+        await api.put(`/messages/${a._id}/read`);
+        setAnnouncements(prev => prev.map(item => (item._id === a._id || (a.broadcastId && item.broadcastId === a.broadcastId)) ? { ...item, isRead: true } : item));
+      } catch { /* silent */ }
+    }
+  };
 
   // ── Open thread ─────────────────────────────────────────────────────────────
   const openThread = async (msg) => {
@@ -652,6 +670,99 @@ const Communication = () => {
         confirmLabel={t('delete', 'Delete')}
         cancelLabel={t('cancel', 'Cancel')}
       />
+
+      {/* Announcement Detail Modal */}
+      {viewingAnnouncement && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm" onClick={() => setViewingAnnouncement(null)}>
+          <div
+            className="w-full max-w-lg rounded-2xl bg-white dark:bg-[#111c2d] border border-slate-200 dark:border-teal-900/40 shadow-2xl overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-start justify-between p-6 border-b border-slate-100 dark:border-teal-900/30">
+              <div className="flex items-start gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 text-amber-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <i className="bx bx-megaphone text-2xl" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${getPriority(viewingAnnouncement.priority).bg} ${getPriority(viewingAnnouncement.priority).text}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${getPriority(viewingAnnouncement.priority).dot}`} />
+                      {viewingAnnouncement.priority === 'urgent' ? t('priorityHigh', 'High') : viewingAnnouncement.priority === 'low' ? t('priorityLow', 'Low') : t('priorityNormal', 'Normal')}
+                    </span>
+                    <span className="text-xs text-slate-400 flex items-center gap-1">
+                      <i className="bx bx-time-five text-[13px]" />
+                      {formatDateLine(viewingAnnouncement.createdAt)} · {formatTimeLine(viewingAnnouncement.createdAt)}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-snug">
+                    {viewingAnnouncement.subject?.replace('[Announcement] ', '') || 'Announcement Details'}
+                  </h3>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewingAnnouncement(null)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
+              >
+                <i className="bx bx-x text-2xl" />
+              </button>
+            </div>
+
+            {/* Meta info row */}
+            <div className="px-6 py-3 bg-slate-50/80 dark:bg-[#0d1520]/80 border-b border-slate-100 dark:border-teal-900/20 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                <UserAvatar
+                  user={viewingAnnouncement.sender}
+                  avatar={viewingAnnouncement.sender?.avatar}
+                  name={viewingAnnouncement.sender?.fullName}
+                  size="xs"
+                  ring={false}
+                />
+                <span>{t('sentByCol', 'Sent By')}: <strong className="text-slate-900 dark:text-white">{viewingAnnouncement.sender?.fullName || 'Administrator'}</strong> <span className="capitalize text-slate-400">({viewingAnnouncement.sender?.role || 'Admin'})</span></span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                <i className="bx bxs-group text-base text-slate-400" />
+                <span>{t('sentToCol', 'Sent To')}: <strong className="text-slate-900 dark:text-white">{groupLabel(viewingAnnouncement.broadcastGroup, viewingAnnouncement.broadcastCount)}</strong></span>
+              </div>
+            </div>
+
+            {/* Body Content */}
+            <div className="p-6 max-h-[50vh] overflow-y-auto">
+              <div className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap selection:bg-teal-500/20">
+                {viewingAnnouncement.body || 'No description provided.'}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 border-t border-slate-100 dark:border-teal-900/30 flex items-center justify-between gap-3 bg-slate-50/50 dark:bg-[#0d1520]/40">
+              {canAnnounce && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const a = viewingAnnouncement;
+                    setViewingAnnouncement(null);
+                    openEditForm(a);
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-teal-600 dark:text-teal-400 hover:bg-teal-500/10 border border-teal-500/30 transition-colors cursor-pointer"
+                >
+                  <i className="bx bx-edit text-sm" />
+                  {t('editAnnouncement', 'Edit Announcement')}
+                </button>
+              )}
+              <div className="ml-auto flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setViewingAnnouncement(null)}
+                  className="px-5 py-2 rounded-xl text-xs font-semibold bg-indigo-500 hover:bg-indigo-600 text-white transition-colors cursor-pointer"
+                >
+                  {t('close', 'Close')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -876,18 +987,24 @@ const Communication = () => {
             { key: 'announcements', label: t('announcements', 'Announcements'), icon: 'bx-megaphone', count: announcements.filter(m => !m.isRead).length },
             { key: 'messages', label: t('directMessages', 'Direct Messages'), icon: 'bx-envelope', count: unread }
           ].map(t => (
-            <button key={t.key} onClick={() => {
-              setTab(t.key);
-              setSelected(null);
-              setThread(null);
-              // Close whichever form is open when switching tabs
-              setShowAnnounceForm(false);
-              setShowCompose(false);
-              setEditingAnnouncement(null);
-              setAnnounceForm(emptyAnnounce);
-              setAnnounceTarget('all');
-            }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${tab === t.key
+            <button
+              type="button"
+              key={t.key}
+              onClick={() => {
+                setTab(t.key);
+                setSelected(null);
+                setThread(null);
+                // Close whichever form is open when switching tabs
+                setShowAnnounceForm(false);
+                setShowCompose(false);
+                setEditingAnnouncement(null);
+                setAnnounceForm(emptyAnnounce);
+                setAnnounceTarget('all');
+                if (searchParams.toString()) {
+                  setSearchParams({}, { replace: true });
+                }
+              }}
+              className={`cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${tab === t.key
                 ? 'bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 ring-1 ring-indigo-500/30'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5'
                 }`}>
@@ -983,11 +1100,12 @@ const Communication = () => {
                         <tr
                           key={a.broadcastId || a._id}
                           ref={announceRefs.current[a._id]}
-                          className={`hover:bg-slate-50/70 dark:hover:bg-[#0d1520]/60 transition-colors ${highlighted ? 'ring-2 ring-inset ring-indigo-500 bg-indigo-50/40 dark:bg-indigo-500/5' : ''}`}
+                          onClick={() => openViewAnnouncement(a)}
+                          className={`cursor-pointer group hover:bg-slate-50/70 dark:hover:bg-[#0d1520]/60 transition-colors ${highlighted ? 'ring-2 ring-inset ring-indigo-500 bg-indigo-50/40 dark:bg-indigo-500/5' : ''}`}
                         >
                           {/* Announcement title + preview */}
                           <td className="px-6 py-4 max-w-xs">
-                            <p className="text-sm font-bold text-slate-900 dark:text-white leading-5 truncate">
+                            <p className="text-sm font-bold text-slate-900 dark:text-white leading-5 truncate group-hover:text-teal-500 dark:group-hover:text-teal-400 transition-colors">
                               {cleanSubject}
                             </p>
                             <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400 line-clamp-1 leading-4">
@@ -1013,12 +1131,23 @@ const Communication = () => {
 
                           {/* Sent By */}
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                              {a.sender?.fullName || 'DaycareHQ'}
-                            </p>
-                            <p className="text-xs text-slate-400 mt-0.5 capitalize">
-                              {a.sender?.role || 'Administrator'}
-                            </p>
+                            <div className="flex items-center gap-2.5">
+                              <UserAvatar
+                                user={a.sender}
+                                avatar={a.sender?.avatar}
+                                name={a.sender?.fullName}
+                                size="xs"
+                                ring={false}
+                              />
+                              <div>
+                                <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                                  {a.sender?.fullName || 'DaycareHQ'}
+                                </p>
+                                <p className="text-xs text-slate-400 mt-0.5 capitalize">
+                                  {a.sender?.role || 'Administrator'}
+                                </p>
+                              </div>
+                            </div>
                           </td>
 
                           {/* Date */}
@@ -1043,21 +1172,38 @@ const Communication = () => {
                           {/* Actions */}
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openViewAnnouncement(a);
+                                }}
+                                title="View announcement details"
+                                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-teal-400 hover:bg-teal-500/10 transition-colors cursor-pointer"
+                              >
+                                <i className="bx bx-show text-lg" />
+                              </button>
                               {canAnnounce && (
                                 <button
                                   type="button"
-                                  onClick={() => openEditForm(a)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    openEditForm(a);
+                                  }}
                                   title="Edit announcement"
-                                  className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors"
+                                  className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors cursor-pointer"
                                 >
                                   <i className="bx bx-edit text-lg" />
                                 </button>
                               )}
                               <button
                                 type="button"
-                                onClick={() => requestDeleteThread(a._id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  requestDeleteThread(a._id);
+                                }}
                                 title="Delete announcement"
-                                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
+                                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors cursor-pointer"
                               >
                                 <i className="bx bx-trash text-lg" />
                               </button>
@@ -1168,13 +1314,29 @@ const Communication = () => {
                 <>
                   {/* Fixed chat header */}
                   <div className="px-5 py-3 border-b border-slate-200 dark:border-slate-700/50 flex items-center justify-between gap-4 flex-shrink-0 bg-white dark:bg-[#111c2d]">
-                    <div>
-                      <h3 className="text-sm font-bold text-slate-800 dark:text-white mt-0.5">
-                        {thread.parent.sender?._id === user?._id ? thread.parent.recipient?.fullName : thread.parent.sender?.fullName}
-                      </h3>
-                      <p className="text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-400 mt-0.5">
-                        {thread.parent.sender?._id === user?._id ? thread.parent.recipient?.role : thread.parent.sender?.role}
-                      </p>
+                    <div className="flex items-center gap-3 min-w-0">
+                      {(() => {
+                        const partner = thread.parent.sender?._id === user?._id ? thread.parent.recipient : thread.parent.sender;
+                        return (
+                          <>
+                            <UserAvatar
+                              user={partner}
+                              avatar={partner?.avatar}
+                              name={partner?.fullName}
+                              size="md"
+                              ring="ring-2 ring-teal-500/20"
+                            />
+                            <div className="min-w-0">
+                              <h3 className="text-sm font-bold text-slate-800 dark:text-white truncate">
+                                {partner?.fullName || 'User'}
+                              </h3>
+                              <p className="text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-400 mt-0.5 capitalize">
+                                {partner?.role || 'Member'}
+                              </p>
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
                     <button onClick={() => requestDeleteThread(thread.parent._id)}
                       className="text-slate-400 hover:text-rose-400 transition-colors p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 flex-shrink-0">
@@ -1209,9 +1371,14 @@ const Communication = () => {
                           <div key={message._id} className={`flex items-end gap-2 ${mine ? 'justify-end' : 'justify-start'}`}>
                             {/* Avatar for received messages */}
                             {!mine && (
-                              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 mb-0.5">
-                                {senderName.charAt(0).toUpperCase()}
-                              </div>
+                              <UserAvatar
+                                user={message.sender}
+                                avatar={message.sender?.avatar}
+                                name={senderName}
+                                size="xs"
+                                ring={false}
+                                className="mb-0.5 flex-shrink-0"
+                              />
                             )}
 
                             <div className={`max-w-[65%] sm:max-w-[55%] flex flex-col ${mine ? 'items-end' : 'items-start'}`}>
@@ -1246,9 +1413,14 @@ const Communication = () => {
 
                             {/* Avatar for sent messages */}
                             {mine && (
-                              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 mb-0.5">
-                                {(user?.fullName || 'Y').charAt(0).toUpperCase()}
-                              </div>
+                              <UserAvatar
+                                user={user}
+                                avatar={user?.avatar}
+                                name={user?.fullName}
+                                size="xs"
+                                ring={false}
+                                className="mb-0.5 flex-shrink-0"
+                              />
                             )}
                           </div>
                         );

@@ -7,7 +7,8 @@ const crypto = require('crypto');
 const getInbox = async (req, res) => {
   try {
     const messages = await Message.find({ recipient: req.user._id, parentMessage: null })
-      .populate('sender', 'fullName role')
+      .populate('sender', 'fullName role avatar')
+      .populate('recipient', 'fullName role avatar')
       .populate('relatedChild', 'firstName lastName')
       .sort({ updatedAt: -1 })
       .lean();
@@ -35,7 +36,8 @@ const getInbox = async (req, res) => {
 const getSent = async (req, res) => {
   try {
     const messages = await Message.find({ sender: req.user._id, parentMessage: null })
-      .populate('recipient', 'fullName role')
+      .populate('sender', 'fullName role avatar')
+      .populate('recipient', 'fullName role avatar')
       .populate('relatedChild', 'firstName lastName')
       .sort({ updatedAt: -1 })
       .lean();
@@ -62,8 +64,8 @@ const getSent = async (req, res) => {
 const getThread = async (req, res) => {
   try {
     const parent = await Message.findById(req.params.id)
-      .populate('sender', 'fullName role')
-      .populate('recipient', 'fullName role')
+      .populate('sender', 'fullName role avatar')
+      .populate('recipient', 'fullName role avatar')
       .populate('relatedChild', 'firstName lastName');
 
     if (!parent) {
@@ -71,8 +73,8 @@ const getThread = async (req, res) => {
     }
 
     const replies = await Message.find({ parentMessage: req.params.id })
-      .populate('sender', 'fullName role')
-      .populate('recipient', 'fullName role')
+      .populate('sender', 'fullName role avatar')
+      .populate('recipient', 'fullName role avatar')
       .sort({ createdAt: 1 });
 
     // Mark parent as read
@@ -117,8 +119,8 @@ const sendMessage = async (req, res) => {
 
     const message = await Message.create(messageData);
     const populated = await Message.findById(message._id)
-      .populate('sender', 'fullName role')
-      .populate('recipient', 'fullName role')
+      .populate('sender', 'fullName role avatar')
+      .populate('recipient', 'fullName role avatar')
       .populate('relatedChild', 'firstName lastName');
 
     // Update the parent's updatedAt so it jumps to the top of recent chats
@@ -157,8 +159,8 @@ const getAnnouncements = async (req, res) => {
       subject: { $regex: /^\[Announcement\]/ },
       parentMessage: null
     })
-      .populate('sender', 'fullName role')
-      .populate('recipient', 'fullName role')
+      .populate('sender', 'fullName role avatar')
+      .populate('recipient', 'fullName role avatar')
       .sort({ createdAt: -1 });
 
     // Group by broadcastId; fall back to grouping by subject+timestamp-window for legacy messages

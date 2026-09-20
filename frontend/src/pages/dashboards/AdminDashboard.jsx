@@ -151,17 +151,17 @@ const AdminDashboard = () => {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
         {statCards.map((card) => (
           <Link
             key={card.label}
             to={card.path}
-            className={`bg-gradient-to-br ${colorMap[card.color]} border-glass rounded-2xl p-4 hover:scale-105 transition-all duration-200 cursor-pointer`}
+            className={`bg-gradient-to-br ${colorMap[card.color]} border-glass rounded-2xl p-3.5 sm:p-4 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer`}
           >
             <i className={`bx ${card.icon} text-2xl ${colorMap[card.color].split(' ').pop()}`} />
             <div className="mt-2">
-              <p className="text-2xl font-bold text-primary">{card.value}</p>
-              <p className="text-xs text-muted mt-0.5">{card.label}</p>
+              <p className="text-xl sm:text-2xl font-bold text-primary">{card.value}</p>
+              <p className="text-xs text-muted mt-0.5 truncate">{card.label}</p>
             </div>
           </Link>
         ))}
@@ -169,21 +169,21 @@ const AdminDashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Payment Summary */}
-        <div className="bg-card rounded-2xl border border-glass p-6">
+        <div className="bg-card rounded-2xl border border-glass p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
               <i className="bx bx-wallet text-teal-400" /> {t('paymentOverview')}
             </h3>
             <Link to="/dashboard/admin/payments" className="text-xs text-teal-400 hover:underline">{t('viewAll')}</Link>
           </div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
             {[
               { label: t('collected'), amount: payments.stats.totalPaid || 0, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
               { label: t('pending'), amount: payments.stats.totalPending || 0, color: 'text-amber-400', bg: 'bg-amber-500/10' },
               { label: t('overdue'), amount: payments.stats.totalOverdue || 0, color: 'text-rose-400', bg: 'bg-rose-500/10' }
             ].map(p => (
               <div key={p.label} className={`${p.bg} rounded-xl p-3 text-center`}>
-                <p className={`text-lg font-bold ${p.color}`}>ETB {p.amount.toLocaleString()}</p>
+                <p className={`text-base sm:text-lg font-bold ${p.color}`}>ETB {p.amount.toLocaleString()}</p>
                 <p className="text-xs text-slate-500 mt-1">{p.label}</p>
               </div>
             ))}
@@ -191,12 +191,12 @@ const AdminDashboard = () => {
           {/* Recent payments */}
           <div className="mt-4 space-y-2">
             {payments.data.slice(0, 4).map(p => (
-              <div key={p._id} className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-teal-900/30 last:border-0">
-                <div>
-                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{p.child?.firstName} {p.child?.lastName}</p>
-                  <p className="text-xs text-slate-400">{p.invoiceNumber} · {p.type}</p>
+              <div key={p._id} className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-teal-900/30 last:border-0 gap-2">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{p.child?.firstName} {p.child?.lastName}</p>
+                  <p className="text-xs text-slate-400 truncate">{p.invoiceNumber} · {p.type}</p>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex-shrink-0">
                   <p className="text-sm font-bold text-slate-800 dark:text-white">ETB {p.amount}</p>
                   <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
                     p.status === 'paid' ? 'bg-emerald-500/10 text-emerald-400' :
@@ -278,22 +278,22 @@ const AdminDashboard = () => {
 
       {/* Add Parent Modal */}
       {modal === 'parent' && (
-        <div className="fixed inset-0 bg-black/50 z-[200] flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 w-full max-w-lg shadow-2xl">
-            <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-teal-900/30">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 w-full max-w-lg shadow-2xl max-h-[92vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-100 dark:border-teal-900/30 flex-shrink-0">
               <div>
-                <h3 className="text-lg font-bold text-slate-800 dark:text-white">{t('addNewParent')}</h3>
+                <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">{t('addNewParent')}</h3>
                 <p className="text-xs text-slate-400 mt-0.5">{t('createParentDesc')}</p>
               </div>
-              <button onClick={closeModal} className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-[#0d1520] transition-colors">
+              <button onClick={closeModal} className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-[#0d1520] transition-colors">
                 <i className="bx bx-x text-xl" />
               </button>
             </div>
-            <form onSubmit={handleAddParent} className="p-6 space-y-4">
+            <form onSubmit={handleAddParent} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
               {formError && <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl p-3 text-sm">{formError}</div>}
               {formSuccess && <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl p-3 text-sm">{formSuccess}</div>}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="sm:col-span-2">
                   <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1 block">{t('fullName')} *</label>
                   <input required type="text" value={parentForm.fullName} onChange={e => setParentForm({ ...parentForm, fullName: e.target.value })} className={INPUT} placeholder="John Parent" />
                 </div>
@@ -315,8 +315,8 @@ const AdminDashboard = () => {
                 </div>
               </div>
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={closeModal} className="px-5 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#0d1520] rounded-xl hover:bg-slate-200 transition-colors">{t('cancel')}</button>
-                <button type="submit" disabled={formLoading} className="px-5 py-2.5 text-sm font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors disabled:opacity-60">
+                <button type="button" onClick={closeModal} className="px-4 sm:px-5 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#0d1520] rounded-xl hover:bg-slate-200 transition-colors">{t('cancel')}</button>
+                <button type="submit" disabled={formLoading} className="px-4 sm:px-5 py-2.5 text-sm font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors disabled:opacity-60">
                   {formLoading ? t('creating') : t('createParentBtn')}
                 </button>
               </div>
@@ -327,22 +327,22 @@ const AdminDashboard = () => {
 
       {/* Add Staff Modal */}
       {modal === 'staff' && (
-        <div className="fixed inset-0 bg-black/50 z-[200] flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 w-full max-w-lg shadow-2xl">
-            <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-teal-900/30">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 w-full max-w-lg shadow-2xl max-h-[92vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-100 dark:border-teal-900/30 flex-shrink-0">
               <div>
-                <h3 className="text-lg font-bold text-slate-800 dark:text-white">{t('addNewStaff')}</h3>
+                <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">{t('addNewStaff')}</h3>
                 <p className="text-xs text-slate-400 mt-0.5">{t('createStaffDesc')}</p>
               </div>
-              <button onClick={closeModal} className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-[#0d1520] transition-colors">
+              <button onClick={closeModal} className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-[#0d1520] transition-colors">
                 <i className="bx bx-x text-xl" />
               </button>
             </div>
-            <form onSubmit={handleAddStaff} className="p-6 space-y-4">
+            <form onSubmit={handleAddStaff} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
               {formError && <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl p-3 text-sm">{formError}</div>}
               {formSuccess && <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl p-3 text-sm">{formSuccess}</div>}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="sm:col-span-2">
                   <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1 block">{t('fullName')} *</label>
                   <input required type="text" value={staffForm.fullName} onChange={e => setStaffForm({ ...staffForm, fullName: e.target.value })} className={INPUT} placeholder="Sarah Johnson" />
                 </div>
@@ -369,8 +369,8 @@ const AdminDashboard = () => {
                 </div>
               </div>
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={closeModal} className="px-5 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#0d1520] rounded-xl hover:bg-slate-200 transition-colors">{t('cancel')}</button>
-                <button type="submit" disabled={formLoading} className="px-5 py-2.5 text-sm font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors disabled:opacity-60">
+                <button type="button" onClick={closeModal} className="px-4 sm:px-5 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#0d1520] rounded-xl hover:bg-slate-200 transition-colors">{t('cancel')}</button>
+                <button type="submit" disabled={formLoading} className="px-4 sm:px-5 py-2.5 text-sm font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors disabled:opacity-60">
                   {formLoading ? t('adding') : t('addStaffBtn')}
                 </button>
               </div>
