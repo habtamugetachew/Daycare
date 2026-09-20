@@ -476,6 +476,12 @@ ul { list-style: none; }
   border-top: 1px solid rgba(255,255,255,0.08);
   flex-shrink: 0;
 }
+.sidebar.collapsed .sidebar-footer {
+  padding: 12px 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .sidebar-signout-button {
   display: inline-flex;
   justify-content: space-between;
