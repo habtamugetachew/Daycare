@@ -5,6 +5,7 @@ import { useLanguage } from '../context/useLanguage';
 import api from '../services/api';
 import NotificationDropdown from './NotificationDropdown';
 import ProfilePanel from './ProfilePanel';
+import UserAvatar from './common/UserAvatar';
 
 const Navbar = ({ pageTitle = 'Dashboard' }) => {
   const { user, logout, setUser } = useAuth();
@@ -171,16 +172,12 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
               className="flex items-center gap-2.5 pl-3 border-l border-slate-200 dark:border-[#1E2C35] focus:outline-none"
             >
               {/* Avatar */}
-              <div className="relative flex-shrink-0">
-                {user.avatar ? (
-                  <img src={user.avatar} alt="avatar" className="w-10 h-10 rounded-full object-cover shadow-sm ring-2 ring-white dark:ring-[#0A1218]" />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-[#00ADB5] flex items-center justify-center text-white font-bold text-sm shadow-sm ring-2 ring-white dark:ring-[#0A1218]">
-                    {user.fullName?.charAt(0) ?? 'U'}
-                  </div>
-                )}
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-white dark:border-[#0A1218]" />
-              </div>
+              <UserAvatar
+                user={user}
+                size="md"
+                showOnline={true}
+                ring="ring-2 ring-white dark:ring-[#0A1218]"
+              />
 
               {/* Name + badge */}
               <div className="hidden sm:flex flex-col text-left">
@@ -208,20 +205,18 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
                 {/* User info header */}
                 <div className="flex items-center gap-3 px-5 pt-5 pb-4 border-b border-slate-100 dark:border-slate-800">
                   <div className="relative flex-shrink-0">
-                    {user.avatar ? (
-                      <img src={user.avatar} alt="avatar" className="w-11 h-11 rounded-full object-cover ring-2 ring-white dark:ring-[#111c2d]" />
-                    ) : (
-                      <div className="w-11 h-11 rounded-full bg-[#00ADB5] flex items-center justify-center text-white font-bold text-base ring-2 ring-white dark:ring-[#111c2d]">
-                        {user.fullName?.charAt(0) ?? 'U'}
-                      </div>
-                    )}
-                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-white dark:border-[#111c2d]" />
+                    <UserAvatar
+                      user={user}
+                      size="lg"
+                      showOnline={true}
+                      ring="ring-2 ring-white dark:ring-[#111c2d]"
+                    />
 
                     {/* Camera button to upload new avatar */}
                     <button
                       onClick={handleAvatarClick}
                       title="Change avatar"
-                      className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white dark:bg-[#0A1218] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-500 hover:text-[#00ADB5] shadow-sm"
+                      className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white dark:bg-[#0A1218] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-500 hover:text-[#00ADB5] shadow-sm z-10"
                     >
                       <i className="bx bx-camera text-[14px]" />
                     </button>

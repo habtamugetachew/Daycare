@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import UserAvatar from './common/UserAvatar';
 
 const ProfilePanel = ({ open, onClose }) => {
   const { user, setUser } = useAuth();
@@ -103,19 +104,16 @@ const ProfilePanel = ({ open, onClose }) => {
         <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 64px)' }}>
           <div className="flex flex-col items-center">
             <div className="relative">
-              {user?.avatar ? (
-                <img src={user.avatar} alt="avatar" className="w-28 h-28 rounded-full object-cover shadow-md" />
-              ) : (
-                <div className="w-28 h-28 rounded-full bg-[#00ADB5] flex items-center justify-center text-white text-3xl font-bold">{user?.fullName?.charAt(0) ?? 'U'}</div>
-              )}
+              <UserAvatar
+                user={user}
+                size="2xl"
+                showOnline={true}
+                ring="ring-4 ring-white dark:ring-[#07101a]"
+              />
 
-              <button onClick={handlePick} title="Change profile picture" className="absolute -right-1 top-2 w-10 h-10 rounded-full bg-white dark:bg-[#0b1720] border border-slate-200 dark:border-slate-800 flex items-center justify-center shadow-md">
+              <button onClick={handlePick} title="Change profile picture" className="absolute -right-1 top-2 w-10 h-10 rounded-full bg-white dark:bg-[#0b1720] border border-slate-200 dark:border-slate-800 flex items-center justify-center shadow-md z-10">
                 <i className="bx bx-camera text-lg text-slate-700 dark:text-slate-200" />
               </button>
-
-              <div className="absolute left-1/2 transform -translate-x-1/2 bottom-[-10px]">
-                <span className="inline-block w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white dark:border-[#07101a]" />
-              </div>
             </div>
 
             <h4 className="mt-4 text-lg font-bold text-slate-800 dark:text-white">{user?.fullName}</h4>

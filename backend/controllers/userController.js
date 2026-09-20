@@ -15,7 +15,7 @@ const updateAvatar = async (req, res) => {
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
     // Remove previous avatar file if present and stored locally
-    if (user.avatar) {
+    if (user.avatar && !user.avatar.startsWith('data:')) {
       try {
         const oldPath = path.join(__dirname, '..', user.avatar.replace(/^\/+/, ''));
         if (fs.existsSync(oldPath)) {
@@ -26,9 +26,16 @@ const updateAvatar = async (req, res) => {
       }
     }
 
-    // Save new avatar path (served by /uploads)
-    user.avatar = `/uploads/avatars/${req.file.filename}`;
+    // Save as persistent base64 data URL so avatar survives cloud container restarts (Render, etc.)
+    const fileBuffer = fs.readFileSync(req.file.path);
+    const mimeType = req.file.mimetype || 'image/jpeg';
+    user.avatar = `data:${mimeType};base64,${fileBuffer.toString('base64')}`;
     await user.save();
+
+    // Clean up temporary disk file
+    try {
+      if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+    } catch (_) {}
 
     // Exclude sensitive fields
     const safeUser = user.toObject();

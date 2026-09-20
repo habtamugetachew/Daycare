@@ -2,6 +2,7 @@ const Child = require('../models/Child');
 const User = require('../models/User');
 const Classroom = require('../models/Classroom');
 const Message = require('../models/Message');
+const fs = require('fs');
 
 /* ── Notify parent + all reception users on approval/disapproval ── */
 const sendChildApprovalNotifications = async ({ child, action, adminId, adminReason, req }) => {
@@ -232,10 +233,15 @@ const updateChildAvatar = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
 
-    // Build public url for the uploaded avatar
-    const avatarPath = `/uploads/avatars/${req.file.filename}`;
-    child.photoUrl = avatarPath;
+    // Save as persistent base64 data URL so avatar survives cloud container restarts
+    const fileBuffer = fs.readFileSync(req.file.path);
+    const mimeType = req.file.mimetype || 'image/jpeg';
+    child.photoUrl = `data:${mimeType};base64,${fileBuffer.toString('base64')}`;
     await child.save();
+
+    try {
+      if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+    } catch (_) {}
 
     const populated = await Child.findById(child._id)
       .populate('classroom', 'name ageGroup')

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Camera, Mail, Phone, User as UserIcon, BadgeInfo, Calendar, Briefcase, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
+import UserAvatar from '../common/UserAvatar';
 
 const ProfileSettings = () => {
   const { user, setUser } = useAuth();
@@ -59,12 +60,6 @@ const ProfileSettings = () => {
     }
   };
 
-  const avatarUrl = user?.avatar
-    ? `${import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000'}${user.avatar}`
-    : null;
-
-  const initials = (user?.fullName || 'U').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-
   return (
     <div>
       <div className="mb-8">
@@ -85,12 +80,12 @@ const ProfileSettings = () => {
         {/* Profile Picture Upload */}
         <div className="flex flex-col items-center space-y-4">
           <div className="relative group cursor-pointer">
-            <label htmlFor="avatar-upload" className="cursor-pointer block">
-              <div className="w-32 h-32 rounded-full bg-teal-100 dark:bg-teal-900/40 text-teal-600 dark:text-teal-400 flex items-center justify-center text-4xl font-bold shadow-sm overflow-hidden border-4 border-white dark:border-[#111c2d]">
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                ) : initials}
-              </div>
+            <label htmlFor="avatar-upload" className="cursor-pointer block relative">
+              <UserAvatar
+                user={user}
+                size="3xl"
+                ring="ring-4 ring-white dark:ring-[#111c2d]"
+              />
               <div className="absolute inset-0 bg-slate-900/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                 {avatarUploading ? (
                   <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />

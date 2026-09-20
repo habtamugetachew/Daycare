@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import UserAvatar from './common/UserAvatar';
 
 /* ── role display helper ─────────────────────────────────── */
 const roleLabel = (role) =>
@@ -87,6 +88,30 @@ const MyProfilePanel = ({ open, onClose }) => {
     }
   };
 
+  /* ── upload avatar ───────────────────────────────────── */
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    try {
+      const res = await api.post('/auth/avatar', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      if (res.data?.success) {
+        const updated = res.data.user;
+        setUser && setUser(updated);
+        setProfile && setProfile(prev => ({ ...prev, ...updated }));
+        localStorage.setItem('user', JSON.stringify(updated));
+        flash(setSuccess, 'Avatar updated successfully.');
+      }
+    } catch (err) {
+      flash(setError, err.response?.data?.message || 'Avatar upload failed.');
+    } finally {
+      e.target.value = '';
+    }
+  };
+
   const p = profile || user;
   if (!p) return null;
 
@@ -127,21 +152,20 @@ const MyProfilePanel = ({ open, onClose }) => {
               {/* ── Avatar section ────────────────────────── */}
               <div className="flex flex-col items-center py-7 px-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#0d1929]">
                 <div className="relative mb-3">
-                  {p.avatar ? (
-                    <img src={p.avatar} alt={p.fullName} className="w-20 h-20 rounded-full object-cover ring-4 ring-white dark:ring-[#111c2d] shadow-md" />
-                  ) : (
-                    <div className="w-20 h-20 rounded-full bg-[#00ADB5] flex items-center justify-center text-white text-2xl font-bold ring-4 ring-white dark:ring-[#111c2d] shadow-md">
-                      {p.fullName?.charAt(0) ?? 'U'}
-                    </div>
-                  )}
+                  <UserAvatar
+                    user={p}
+                    size="xl"
+                    ring="ring-4 ring-white dark:ring-[#111c2d]"
+                  />
                   {/* Camera button */}
                   <button
                     onClick={() => fileRef.current?.click()}
-                    className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-[#00ADB5] flex items-center justify-center text-white shadow-sm hover:bg-[#009aa1] transition-colors"
+                    title="Change avatar"
+                    className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-[#00ADB5] flex items-center justify-center text-white shadow-sm hover:bg-[#009aa1] transition-colors z-10"
                   >
                     <i className="bx bx-camera text-sm" />
                   </button>
-                  <input ref={fileRef} type="file" accept="image/*" className="hidden" />
+                  <input ref={fileRef} type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
                 </div>
                 <h3 className="text-base font-bold text-slate-900 dark:text-white">{p.fullName}</h3>
                 <span className="mt-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-[#00ADB5]/40 text-[#00ADB5] bg-[#00ADB5]/8">
