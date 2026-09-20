@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useSocket } from '../context/SocketContext';
+import { useLanguage } from '../context/useLanguage';
 
 const TYPE_LINK = {
   message: (role, refId) => `/dashboard/${role}/communication?tab=messages&msgId=${refId}`,
@@ -21,15 +22,49 @@ const COLOR = {
   emerald: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', dot: 'bg-emerald-400' },
 };
 
-function timeAgo(dateStr) {
+function timeAgo(dateStr, t) {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1) return t ? t('justNow') : 'just now';
+  if (mins < 60) return `${mins}${t ? t('minutesAgo') : 'm ago'}`;
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
+  if (hrs < 24) return `${hrs}${t ? t('hoursAgo') : 'h ago'}`;
   const days = Math.floor(hrs / 24);
-  return `${days}d ago`;
+  return `${days}${t ? t('daysAgo') : 'd ago'}`;
+}
+
+function getLocalizedNotifTitle(notif, t) {
+  if (!notif?.title) return '';
+  if (notif.title.startsWith('Overdue invoice — ')) {
+    const childName = notif.title.replace('Overdue invoice — ', '');
+    return `${t('overdueInvoice')} — ${childName}`;
+  }
+  if (notif.title.startsWith('Payment due — ')) {
+    const childName = notif.title.replace('Payment due — ', '');
+    return `${t('paymentDue')} — ${childName}`;
+  }
+  if (notif.title === 'New message') {
+    return t('newMessage');
+  }
+  if (notif.title === 'Child Registration Update') {
+    return t('childRegistrationUpdate');
+  }
+  if (notif.title.startsWith('Appointment: ')) {
+    const apptName = notif.title.replace('Appointment: ', '');
+    return `${t('appointmentPrefix')}: ${apptName}`;
+  }
+  return notif.title;
+}
+
+function getLocalizedNotifType(type, t) {
+  const typeMap = {
+    payment: 'paymentType',
+    message: 'messageType',
+    announcement: 'announcementType',
+    appointment: 'appointmentType',
+    child_approval: 'childApprovalType',
+  };
+  return t(typeMap[type] || type) || type;
 }
 
 const playPremiumChime = () => {
@@ -62,6 +97,7 @@ const playPremiumChime = () => {
 
 const NotificationDropdown = ({ role }) => {
   const { socket } = useSocket();
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -201,10 +237,10 @@ const NotificationDropdown = ({ role }) => {
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-teal-900/30 flex-shrink-0">
             <div className="flex items-center gap-2">
               <i className="bx bx-bell text-[var(--primary-light)] text-lg" />
-              <span className="font-bold text-primary text-sm">Notifications</span>
+              <span className="font-bold text-primary text-sm">{t('notificationsTitle')}</span>
               {unreadCount > 0 && (
                 <span className="text-[10px] font-bold bg-rose-500/10 text-rose-500 px-2 py-0.5 rounded-full">
-                  {unreadCount} new
+                  {unreadCount} {t('newBadge')}
                 </span>
               )}
             </div>
@@ -214,7 +250,7 @@ const NotificationDropdown = ({ role }) => {
                 disabled={clearing}
                 className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold disabled:opacity-50 transition-colors"
               >
-                {clearing ? 'Clearing…' : 'Mark all read'}
+                {clearing ? t('clearing') : t('markAllRead')}
               </button>
             )}
           </div>
@@ -228,8 +264,8 @@ const NotificationDropdown = ({ role }) => {
             ) : notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-slate-400">
                 <i className="bx bx-bell-off text-4xl mb-2 opacity-40" />
-                <p className="text-sm font-medium">You're all caught up!</p>
-                <p className="text-xs mt-1 opacity-60">No notifications right now</p>
+                <p className="text-sm font-medium">{t('allCaughtUp')}</p>
+                <p className="text-xs mt-1 opacity-60">{t('noNotifications')}</p>
               </div>
             ) : (
               <>
@@ -237,10 +273,10 @@ const NotificationDropdown = ({ role }) => {
                 {unread.length > 0 && (
                   <div>
                     <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                      New
+                      {t('newSection')}
                     </p>
                     {unread.map((notif, i) => (
-                      <NotifItem key={notif.id} notif={notif} onRead={handleRead} role={role} index={i} />
+                      <NotifItem key={notif.id} notif={notif} onRead={handleRead} role={role} index={i} t={t} />
                     ))}
                   </div>
                 )}
@@ -249,10 +285,10 @@ const NotificationDropdown = ({ role }) => {
                 {read.length > 0 && (
                   <div>
                     <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                      Earlier
+                      {t('earlierSection')}
                     </p>
                     {read.map((notif, i) => (
-                      <NotifItem key={notif.id} notif={notif} onRead={handleRead} role={role} index={i + unread.length} />
+                      <NotifItem key={notif.id} notif={notif} onRead={handleRead} role={role} index={i + unread.length} t={t} />
                     ))}
                   </div>
                 )}
@@ -267,7 +303,7 @@ const NotificationDropdown = ({ role }) => {
               className="w-full text-center text-xs text-slate-400 hover:text-indigo-400 font-semibold transition-colors py-1"
             >
               <i className="bx bx-refresh mr-1" />
-              Refresh
+              {t('refresh')}
             </button>
           </div>
         </div>
@@ -293,9 +329,11 @@ const NotificationDropdown = ({ role }) => {
 };
 
 // ── Single notification row ───────────────────────────────────────
-const NotifItem = ({ notif, onRead, role, index = 0 }) => {
+const NotifItem = ({ notif, onRead, role, index = 0, t }) => {
   const c = COLOR[notif.color] || COLOR.indigo;
   const isChildApproval = notif.type === 'child_approval';
+  const localizedTitle = getLocalizedNotifTitle(notif, t);
+  const localizedType = getLocalizedNotifType(notif.type, t);
 
   /* ── child_approval: custom wide card ── */
   if (isChildApproval) {
@@ -324,10 +362,10 @@ const NotifItem = ({ notif, onRead, role, index = 0 }) => {
               {isDisapproval && !notif.read && (
                 <span className="inline-block mr-1 text-amber-400">●</span>
               )}
-              {notif.title}
+              {localizedTitle}
             </p>
             <p className="text-[11px] text-slate-400 mt-0.5">{notif.body}</p>
-            <p className="text-[10px] text-slate-300 dark:text-slate-600 mt-0.5">{timeAgo(notif.time)}</p>
+            <p className="text-[10px] text-slate-300 dark:text-slate-600 mt-0.5">{timeAgo(notif.time, t)}</p>
           </div>
         </div>
 
@@ -335,7 +373,7 @@ const NotifItem = ({ notif, onRead, role, index = 0 }) => {
         {isDisapproval && notif.adminReason && (
           <div className="mt-2.5 ml-12 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/25 px-3 py-2.5">
             <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-1">
-              Admin Reason:
+              {t ? t('adminReason') : 'Admin Reason:'}
             </p>
             <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
               {notif.adminReason}
@@ -354,7 +392,7 @@ const NotifItem = ({ notif, onRead, role, index = 0 }) => {
               }`}
           >
             <i className="bx bx-edit-alt text-sm" />
-            Update Child Details
+            {t ? t('updateChildDetails') : 'Update Child Details'}
           </a>
         </div>
       </div>
@@ -384,15 +422,15 @@ const NotifItem = ({ notif, onRead, role, index = 0 }) => {
           {notif.priority === 'high' && !notif.read && (
             <span className="inline-block mr-1 text-rose-400">●</span>
           )}
-          {notif.title}
+          {localizedTitle}
         </p>
         <p className="text-[11px] text-slate-400 mt-0.5 truncate">{notif.body}</p>
-        <p className="text-[10px] text-slate-300 dark:text-slate-600 mt-1">{timeAgo(notif.time)}</p>
+        <p className="text-[10px] text-slate-300 dark:text-slate-600 mt-1">{timeAgo(notif.time, t)}</p>
       </div>
 
       {/* Type badge */}
       <span className={`flex-shrink-0 text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-md ${c.bg} ${c.text} mt-0.5`}>
-        {notif.type}
+        {localizedType}
       </span>
     </button>
   );

@@ -56,18 +56,32 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
     navigate('/login');
   };
 
-  const formattedDate = new Date().toLocaleDateString('en-US', {
+  const dateLocales = {
+    am: 'am-ET',
+    om: 'om-ET',
+    ti: 'ti-ET',
+    en: 'en-US',
+  };
+  const formattedDate = new Date().toLocaleDateString(dateLocales[locale] || 'en-US', {
     weekday: 'short',
     year:    'numeric',
     month:   'short',
     day:     'numeric',
   });
 
-  const roleLabel = user?.role === 'teacher'
-    ? 'Nanny'
-    : user?.role
-    ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
-    : '';
+  const roleKeyMap = {
+    admin: 'admin',
+    teacher: 'nanny',
+    parent: 'parent',
+    reception: 'receptionRole',
+    receptionist: 'receptionRole',
+    staff: 'staff',
+  };
+  const roleLabel = t(roleKeyMap[user?.role] || user?.role || '');
+
+  const displayFullName = user?.fullName === 'System Administrator'
+    ? t('systemAdministrator')
+    : user?.fullName;
 
   const dashboardBase = `/dashboard/${user?.role}`;
 
@@ -99,11 +113,11 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
   const [profilePanelOpen, setProfilePanelOpen] = useState(false);
 
   const menuItems = [
-    { icon: 'bx-user',         label: 'My Profile',      action: () => { setProfileOpen(false); setProfilePanelOpen(true); } },
-    { icon: 'bx-bell',         label: 'Notifications',   action: () => { setProfileOpen(false); window.dispatchEvent(new CustomEvent('openNotifications')); }, badge: null },
-    { icon: 'bx-cog',          label: 'Settings',        action: () => { setProfileOpen(false); navigate(`/dashboard/${user?.role}/settings`); } },
-    { icon: 'bx-adjust',       label: 'Appearance',      action: toggleTheme, extra: isDark ? 'Dark' : 'Light' },
-    { icon: 'bx-help-circle',  label: 'Help & Support',  action: () => { setProfileOpen(false); navigate(`/dashboard/${user?.role}/help`); } },
+    { icon: 'bx-user',         label: t('myProfile'),      action: () => { setProfileOpen(false); setProfilePanelOpen(true); } },
+    { icon: 'bx-bell',         label: t('notificationsTitle'),   action: () => { setProfileOpen(false); window.dispatchEvent(new CustomEvent('openNotifications')); }, badge: null },
+    { icon: 'bx-cog',          label: t('settings'),        action: () => { setProfileOpen(false); navigate(`/dashboard/${user?.role}/settings`); } },
+    { icon: 'bx-adjust',       label: t('appearance'),      action: toggleTheme, extra: isDark ? t('darkMode') : t('lightMode') },
+    { icon: 'bx-help-circle',  label: t('helpAndSupport'),  action: () => { setProfileOpen(false); navigate(`/dashboard/${user?.role}/help`); } },
   ];
 
   return (
@@ -199,7 +213,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
               <div className="hidden sm:flex flex-col text-left">
                 <div className="flex items-center gap-1">
                   <span className="text-sm font-bold text-slate-800 dark:text-white leading-tight">
-                    {user.fullName}
+                    {displayFullName}
                   </span>
                   <i className={`bx bx-chevron-down text-slate-400 dark:text-slate-500 text-base transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
                 </div>
@@ -238,7 +252,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
                     </button>
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-bold text-slate-800 dark:text-white truncate">{user.fullName}</p>
+                    <p className="text-sm font-bold text-slate-800 dark:text-white truncate">{displayFullName}</p>
                     <p className="text-xs text-slate-400 truncate mt-0.5">{roleLabel}</p>
                   </div>
                 </div>
@@ -283,7 +297,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
                     <div className="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center group-hover:bg-rose-100 dark:group-hover:bg-rose-500/20 transition-colors">
                       <i className="bx bx-log-out text-base text-rose-500" />
                     </div>
-                    Sign Out
+                    {t('signOut')}
                   </button>
                 </div>
               </div>
