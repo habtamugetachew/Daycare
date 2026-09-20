@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/useLanguage';
+import TranslatorIcon from '../components/common/TranslatorIcon';
 
 /* ── circuit board SVG pattern (teal lines on dark) ── */
 const CIRCUIT_SVG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg stroke='%2300C4C7' stroke-width='0.8' fill='none' opacity='0.6'%3E%3Cpath d='M0 30 h40 M60 30 h60 M30 0 v40 M30 60 v60 M0 90 h25 M45 90 h75 M90 0 v25 M90 45 v75 M60 60 h30 M60 60 v30'/%3E%3Ccircle cx='30' cy='30' r='3' fill='%2300C4C7'/%3E%3Ccircle cx='90' cy='90' r='3' fill='%2300C4C7'/%3E%3Ccircle cx='90' cy='30' r='2' fill='%2300C4C7'/%3E%3Ccircle cx='30' cy='90' r='2' fill='%2300C4C7'/%3E%3Ccircle cx='60' cy='60' r='4' fill='%2300C4C7'/%3E%3Ccircle cx='0' cy='30' r='2' fill='%2300C4C7'/%3E%3Ccircle cx='30' cy='0' r='2' fill='%2300C4C7'/%3E%3C/g%3E%3C/svg%3E")`;
@@ -103,11 +104,14 @@ const Home = () => {
             </button>
 
             {/* Language selector */}
-            <div className="relative ml-2">
+            <div className="relative ml-2 flex items-center">
+              <div className="pointer-events-none absolute left-2.5 z-10 flex items-center">
+                <TranslatorIcon className="w-4 h-4" />
+              </div>
               <select
                 value={locale}
                 onChange={(e) => setLocale(e.target.value)}
-                className="appearance-none h-9 rounded-xl border px-3 pr-8 text-sm font-semibold shadow-sm outline-none transition-all cursor-pointer"
+                className="appearance-none h-9 rounded-xl border pl-8 pr-8 text-sm font-semibold shadow-sm outline-none transition-all cursor-pointer"
                 style={{
                   background: isDark ? 'var(--surface)' : 'var(--white)',
                   color: isDark ? 'var(--white)' : 'var(--primary-dark)',
@@ -145,11 +149,14 @@ const Home = () => {
               <i className="bx bx-sun text-lg"></i>
             </button>
 
-            <div className="relative">
+            <div className="relative flex items-center">
+              <div className="pointer-events-none absolute left-2 z-10 flex items-center">
+                <TranslatorIcon className="w-3.5 h-3.5" />
+              </div>
               <select
                 value={locale}
                 onChange={(e) => setLocale(e.target.value)}
-                className="appearance-none h-8 rounded-lg border px-2 pr-6 text-xs font-semibold shadow-sm outline-none"
+                className="appearance-none h-8 rounded-lg border pl-6 pr-6 text-xs font-semibold shadow-sm outline-none cursor-pointer"
                 style={{
                   background: isDark ? 'var(--surface)' : 'var(--white)',
                   color: isDark ? 'var(--white)' : 'var(--primary-dark)',

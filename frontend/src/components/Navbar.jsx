@@ -7,6 +7,7 @@ import api from '../services/api';
 import NotificationDropdown from './NotificationDropdown';
 import ProfilePanel from './ProfilePanel';
 import UserAvatar from './common/UserAvatar';
+import TranslatorIcon from './common/TranslatorIcon';
 
 const Navbar = ({ pageTitle = 'Dashboard' }) => {
   const { user, logout, setUser } = useAuth();
@@ -153,11 +154,14 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
         </button>
 
         {/* Language selector */}
-        <div className="relative flex-shrink-0">
+        <div className="relative flex-shrink-0 flex items-center">
+          <div className="pointer-events-none absolute left-2 sm:left-2.5 z-10 flex items-center">
+            <TranslatorIcon className="w-4 h-4" />
+          </div>
           <select
             value={locale}
             onChange={(e) => setLocale(e.target.value)}
-            className="appearance-none h-9 rounded-xl border border-slate-200 dark:border-[#1E2C35] bg-white dark:bg-[#0F1D26] px-2.5 pr-7 sm:px-3 sm:pr-8 text-xs sm:text-sm font-semibold text-slate-700 dark:text-white shadow-sm outline-none transition-all hover:border-[#00ADB5]/40 min-w-[75px] sm:min-w-[110px]"
+            className="appearance-none h-9 rounded-xl border border-slate-200 dark:border-[#1E2C35] bg-white dark:bg-[#0F1D26] pl-7 sm:pl-8 pr-7 sm:pr-8 text-xs sm:text-sm font-semibold text-slate-700 dark:text-white shadow-sm outline-none transition-all hover:border-[#00ADB5]/40 min-w-[88px] sm:min-w-[115px] cursor-pointer"
             title="Switch language"
           >
             {LANGUAGE_OPTIONS.map((option) => (
