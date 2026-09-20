@@ -953,7 +953,8 @@ export const translations = {
     "appearance": "Appearance",
     "helpAndSupport": "Help & Support",
     "darkMode": "Dark",
-    "lightMode": "Light"
+    "lightMode": "Light",
+    "daycare": "Daycare"
   },
   am: {
     "receiptNumber": "የደረሰኝ ቁጥር",
@@ -1910,7 +1911,8 @@ export const translations = {
     "appearance": "ገጽታ",
     "helpAndSupport": "እገዛ እና ድጋፍ",
     "darkMode": "ጨለማ",
-    "lightMode": "ብርሃን"
+    "lightMode": "ብርሃን",
+    "daycare": "የሕፃናት ማቆያ"
   },
   om: {
     "receiptNumber": "Lakkoofsa Nagahee",
@@ -2868,7 +2870,8 @@ export const translations = {
     "appearance": "Bifa",
     "helpAndSupport": "Gargaarsa & Deeggarsa",
     "darkMode": "Dukkana",
-    "lightMode": "Ifaa"
+    "lightMode": "Ifaa",
+    "daycare": "Kunuunsa Daa'immanii"
   },
   ti: {
     "receiptNumber": "ቁጽሪ ቅብሊት",
@@ -3825,6 +3828,7 @@ export const translations = {
     "appearance": "ትርኢት",
     "helpAndSupport": "ሓገዝን ደገፍን",
     "darkMode": "ጸላም",
-    "lightMode": "ብርሃን"
+    "lightMode": "ብርሃን",
+    "daycare": "መውዓሊ ህጻናት"
   }
 };

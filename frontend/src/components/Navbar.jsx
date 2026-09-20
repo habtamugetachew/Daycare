@@ -141,7 +141,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
 
         <div className="flex flex-col min-w-0">
           <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#00ADB5] leading-none mb-0.5">
-            Daycare
+            {t('daycare')}
           </span>
           <h1 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-tight m-0 truncate max-w-[130px] sm:max-w-none">
             {pageTitle}
