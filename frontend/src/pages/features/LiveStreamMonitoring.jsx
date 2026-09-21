@@ -24,7 +24,9 @@ import {
   AlertCircle,
   CheckCircle2,
   Grid,
-  Square
+  Square,
+  ChevronDown,
+  Check
 } from 'lucide-react';
 
 const LiveStreamMonitoring = () => {
@@ -48,6 +50,10 @@ const LiveStreamMonitoring = () => {
   const [nightVision, setNightVision] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
 
+  // Room switcher dropdown state
+  const [isRoomDropdownOpen, setIsRoomDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
   // Admin view toggle (single vs matrix)
   const [viewMode, setViewMode] = useState('single');
 
@@ -58,6 +64,26 @@ const LiveStreamMonitoring = () => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsRoomDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Map room name to its corresponding camera feed photo
+  const getRoomImage = (name = '') => {
+    const lower = name.toLowerCase();
+    if (lower.includes('rainbow') || lower.includes('art') || lower.includes('color')) {
+      return '/assets/images/daycare-rainbow-room.jpg';
+    }
+    return '/assets/images/daycare-sunshine-room.jpg';
+  };
 
   // Format timestamp: "Sep 21, 2026  12:31:24 PM" exactly like reference image
   const formatLiveTimestamp = (date) => {
@@ -147,7 +173,7 @@ const LiveStreamMonitoring = () => {
     try {
       const img = new Image();
       img.crossOrigin = 'anonymous';
-      img.src = '/assets/images/daycare-sunshine-room.jpg';
+      img.src = getRoomImage(roomName);
       img.onload = () => {
         const canvas = document.createElement('canvas');
         canvas.width = img.naturalWidth || 1920;
@@ -368,7 +394,7 @@ const LiveStreamMonitoring = () => {
                   <>
                     {/* The Crisp Classroom Feed Image */}
                     <img
-                      src="/assets/images/daycare-sunshine-room.jpg"
+                      src={getRoomImage(roomName)}
                       alt="Daycare Live Stream"
                       className="w-full h-full object-cover transition-all duration-300"
                       style={{
@@ -522,17 +548,85 @@ const LiveStreamMonitoring = () => {
             <div className="bg-[#081827] border border-teal-900/50 rounded-2xl p-5 shadow-2xl space-y-4">
               <h3 className="text-base font-bold text-white">Room Information</h3>
 
-              {/* Assigned Room Highlight Box */}
-              <div className="bg-[#0b2438] border border-teal-500/20 rounded-xl p-3.5 flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-sm shadow-amber-500/20">
-                  <Sun className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-400 font-medium leading-none">Assigned Room</p>
-                  <p className="text-base font-bold text-white mt-1 leading-tight tracking-wide">
-                    {roomName}
-                  </p>
-                </div>
+              {/* Assigned Room Dropdown Box */}
+              <div ref={dropdownRef} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsRoomDropdownOpen(!isRoomDropdownOpen)}
+                  className="w-full bg-[#0b2438] hover:bg-[#0c2e47] border border-teal-500/20 hover:border-teal-500/40 rounded-xl p-3.5 flex items-center justify-between gap-3.5 transition-all text-left group cursor-pointer shadow-sm"
+                  title="Click to select another assigned room"
+                >
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div className="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-sm shadow-amber-500/20 group-hover:scale-105 transition-transform">
+                      <Sun className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-slate-400 font-medium leading-none flex items-center gap-1.5">
+                        <span>Assigned Room</span>
+                        {rooms.length > 1 && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-300 font-semibold">
+                            {rooms.length} rooms
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-base font-bold text-white mt-1 leading-tight tracking-wide truncate">
+                        {roomName}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1 text-slate-400 group-hover:text-teal-400 transition-colors shrink-0">
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isRoomDropdownOpen ? 'rotate-180 text-teal-400' : ''}`} />
+                  </div>
+                </button>
+
+                {/* Interactive Dropdown Menu */}
+                {isRoomDropdownOpen && (
+                  <div className="absolute top-full left-0 right-0 mt-2 z-40 bg-[#071929]/95 backdrop-blur-xl border border-teal-500/30 rounded-2xl p-2 shadow-2xl space-y-1 animate-fade-in">
+                    <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 border-b border-white/5 uppercase tracking-wider flex items-center justify-between">
+                      <span>Select Assigned Room</span>
+                      <span className="text-teal-400 font-normal lowercase">{rooms.length} available</span>
+                    </div>
+
+                    <div className="max-h-56 overflow-y-auto space-y-1 pt-1 pr-1 scrollbar-thin">
+                      {rooms.map((room) => {
+                        const isSelected = room.roomId === selectedRoom?.roomId;
+                        return (
+                          <button
+                            key={room.roomId}
+                            type="button"
+                            onClick={() => {
+                              setSelectedRoomId(room.roomId);
+                              setIsRoomDropdownOpen(false);
+                              setActionSuccess(`Switched camera to ${room.name}`);
+                              setTimeout(() => setActionSuccess(''), 2500);
+                            }}
+                            className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left text-xs transition-all cursor-pointer ${
+                              isSelected
+                                ? 'bg-teal-600/30 border border-teal-500/50 text-white font-bold'
+                                : 'text-slate-300 hover:bg-[#0c2e47] hover:text-white border border-transparent'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className={`w-2 h-2 rounded-full shrink-0 ${room.privacyMode ? 'bg-amber-400' : 'bg-emerald-400 animate-pulse'}`} />
+                              <div className="min-w-0">
+                                <p className="truncate font-semibold">{room.name}</p>
+                                <p className="text-[10px] text-slate-400">{room.roomNumber || 'Classroom'}</p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className="text-[10px] px-2 py-0.5 rounded-md bg-white/5 text-slate-300 font-mono">
+                                {room.enrolledCount || 8} kids
+                              </span>
+                              {isSelected && <Check className="w-3.5 h-3.5 text-teal-400" />}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Information Rows matching mockup */}
