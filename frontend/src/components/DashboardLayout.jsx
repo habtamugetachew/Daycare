@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
+import UrgentAnnouncementBanner from './UrgentAnnouncementBanner';
 import { SidebarProvider, useSidebar } from '../context/SidebarContext';
 import { useLanguage } from '../context/useLanguage';
 
@@ -43,6 +44,7 @@ const LayoutInner = ({ titleKey }) => {
       >
         <Navbar pageTitle={pageTitle} />
         <main className="flex-1 p-3.5 sm:p-5 md:p-6 lg:p-8 bg-app transition-colors duration-200 w-full max-w-full overflow-x-hidden">
+          <UrgentAnnouncementBanner />
           <Outlet />
         </main>
       </div>

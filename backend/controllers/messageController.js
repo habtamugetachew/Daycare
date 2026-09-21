@@ -139,6 +139,9 @@ const sendMessage = async (req, res) => {
       const recipientSocketId = connectedUsers.get(recipientId.toString());
       if (recipientSocketId) {
         io.to(recipientSocketId).emit('newMessage', populated);
+        if (populated.priority === 'urgent') {
+          io.to(recipientSocketId).emit('urgentAnnouncement', populated);
+        }
       }
     }
 
@@ -241,10 +244,36 @@ const getUnreadCount = async (req, res) => {
   }
 };
 
-module.exports = { getInbox, getSent, getThread, sendMessage, markRead, deleteMessage, getUnreadCount, getAnnouncements };
+// @desc    Get active unread urgent announcements for the logged-in user
+// @route   GET /api/messages/urgent-announcements
+// @access  Private
+const getUrgentAnnouncements = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const urgentMsgs = await Message.find({
+      recipient: userId,
+      priority: 'urgent',
+      isRead: false
+    })
+      .populate('sender', 'fullName role avatar')
+      .populate('relatedChild', 'firstName lastName')
+      .sort({ createdAt: -1 })
+      .limit(5);
 
-module.exports = { getInbox, getSent, getThread, sendMessage, markRead, deleteMessage, getUnreadCount, getAnnouncements };
+    res.status(200).json({ success: true, data: urgentMsgs });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
-module.exports = { getInbox, getSent, getThread, sendMessage, markRead, deleteMessage, getUnreadCount, getAnnouncements };
-
-module.exports = { getInbox, getSent, getThread, sendMessage, markRead, deleteMessage, getUnreadCount, getAnnouncements };
+module.exports = {
+  getInbox,
+  getSent,
+  getThread,
+  sendMessage,
+  markRead,
+  deleteMessage,
+  getUnreadCount,
+  getAnnouncements,
+  getUrgentAnnouncements
+};
