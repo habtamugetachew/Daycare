@@ -1,47 +1,47 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import LoadingFallback from '../../components/common/LoadingFallback';
 
-// Import all real feature pages
-import ChildList from '../features/ChildList';
-import AttendanceTracker from '../features/AttendanceTracker';
-import StaffAttendance from '../features/StaffAttendance';
-import StudentAttendance from '../features/StudentAttendance';
-import PaymentList from '../features/PaymentList';
-import DailyReports from '../features/DailyReports';
-import ClassroomList from '../features/ClassroomList';
-import VisitorLog from '../features/VisitorLog';
-import AppointmentCalendar from '../features/AppointmentCalendar';
-import MessageInbox from '../features/MessageInbox';
-import StaffList from '../features/StaffList';
-import AddStaff from '../features/AddStaff';
-import AssignRole from '../features/AssignRole';
-import AssignTeacher from '../features/AssignTeacher';
-import CapacityManagement from '../features/CapacityManagement';
-import AssignedRoom from '../features/AssignedRoom';
-import SleepNaps from '../features/SleepNaps';
-import MealPrep from '../features/MealPrep';
-import ActivitiesList from '../features/ActivitiesList';
-import ParentManagement from '../features/ParentManagement';
-import ReceptionRegisterParent from '../features/ReceptionRegisterParent';
-import TeacherAttendance from '../features/TeacherAttendance';
-import AdminApprovalWizard from '../features/AdminApprovalWizard';
-import AdminTeacherAttendance from '../features/AdminTeacherAttendance';
-import AttendanceDashboard from '../features/AttendanceDashboard';
-import MakePayment from '../features/MakePayment';
-import PaymentSuccess from '../features/PaymentSuccess';
-// New parent-specific pages
-import ChildProfile from '../features/ChildProfile';
-import ClassroomRoom from '../features/ClassroomRoom';
-import VaccinationLog from '../features/VaccinationLog';
-import RegisterChild from '../features/RegisterChild';
-import RegisterChildOnly from '../features/RegisterChildOnly';
-import BalanceInfo from '../features/BalanceInfo';    // kept for legacy direct access
-import ReceiptsHistory from '../features/ReceiptsHistory'; // kept for legacy direct access
-import Communication from '../features/Communication';
-import UpdateParentInfo from '../features/UpdateParentInfo';
-import ChildApprovalNotifications from '../features/ChildApprovalNotifications';
-import ChildIDGenerate from '../features/ChildIDGenerate';
-import UpdateInfoTabs from '../features/UpdateInfoTabs';
+// Lazy-loaded feature pages
+const ChildList = lazy(() => import('../features/ChildList'));
+const AttendanceTracker = lazy(() => import('../features/AttendanceTracker'));
+const StaffAttendance = lazy(() => import('../features/StaffAttendance'));
+const StudentAttendance = lazy(() => import('../features/StudentAttendance'));
+const PaymentList = lazy(() => import('../features/PaymentList'));
+const DailyReports = lazy(() => import('../features/DailyReports'));
+const ClassroomList = lazy(() => import('../features/ClassroomList'));
+const VisitorLog = lazy(() => import('../features/VisitorLog'));
+const AppointmentCalendar = lazy(() => import('../features/AppointmentCalendar'));
+const MessageInbox = lazy(() => import('../features/MessageInbox'));
+const StaffList = lazy(() => import('../features/StaffList'));
+const AddStaff = lazy(() => import('../features/AddStaff'));
+const AssignRole = lazy(() => import('../features/AssignRole'));
+const AssignTeacher = lazy(() => import('../features/AssignTeacher'));
+const CapacityManagement = lazy(() => import('../features/CapacityManagement'));
+const AssignedRoom = lazy(() => import('../features/AssignedRoom'));
+const SleepNaps = lazy(() => import('../features/SleepNaps'));
+const MealPrep = lazy(() => import('../features/MealPrep'));
+const ActivitiesList = lazy(() => import('../features/ActivitiesList'));
+const ParentManagement = lazy(() => import('../features/ParentManagement'));
+const ReceptionRegisterParent = lazy(() => import('../features/ReceptionRegisterParent'));
+const TeacherAttendance = lazy(() => import('../features/TeacherAttendance'));
+const AdminApprovalWizard = lazy(() => import('../features/AdminApprovalWizard'));
+const AdminTeacherAttendance = lazy(() => import('../features/AdminTeacherAttendance'));
+const AttendanceDashboard = lazy(() => import('../features/AttendanceDashboard'));
+const MakePayment = lazy(() => import('../features/MakePayment'));
+const PaymentSuccess = lazy(() => import('../features/PaymentSuccess'));
+const ChildProfile = lazy(() => import('../features/ChildProfile'));
+const ClassroomRoom = lazy(() => import('../features/ClassroomRoom'));
+const VaccinationLog = lazy(() => import('../features/VaccinationLog'));
+const RegisterChild = lazy(() => import('../features/RegisterChild'));
+const RegisterChildOnly = lazy(() => import('../features/RegisterChildOnly'));
+const BalanceInfo = lazy(() => import('../features/BalanceInfo'));
+const ReceiptsHistory = lazy(() => import('../features/ReceiptsHistory'));
+const Communication = lazy(() => import('../features/Communication'));
+const UpdateParentInfo = lazy(() => import('../features/UpdateParentInfo'));
+const ChildApprovalNotifications = lazy(() => import('../features/ChildApprovalNotifications'));
+const ChildIDGenerate = lazy(() => import('../features/ChildIDGenerate'));
+const UpdateInfoTabs = lazy(() => import('../features/UpdateInfoTabs'));
 
 const FeatureMockup = () => {
   const { role: roleParam, feature } = useParams();
@@ -171,11 +171,11 @@ const FeatureMockup = () => {
 
   return (
     <div className="space-y-4">
-      {/* Back Button removed globally */}
-
       {/* Dynamic Feature Component */}
       <div className="animate-fade-in">
-        {renderFeature()}
+        <Suspense fallback={<LoadingFallback message="Loading..." />}>
+          {renderFeature()}
+        </Suspense>
       </div>
     </div>
   );

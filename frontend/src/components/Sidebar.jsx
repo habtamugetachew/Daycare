@@ -15,6 +15,9 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  UserCog,
+  UserPlus,
+  MessageSquare,
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -66,10 +69,10 @@ const Sidebar = () => {
     { titleKey: 'children', icon: Baby, path: `/dashboard/${user.role}/view-child`, roles: ['admin'] },
     { titleKey: 'parents', icon: ShieldCheck, path: `/dashboard/${user.role}/view-parent`, roles: ['admin'] },
     { titleKey: 'enrollmentApprovals', icon: ClipboardCheck, path: '/dashboard/admin/approvals', roles: ['admin'] },
-    { titleKey: 'staffManagement', icon: ClipboardCheck, roles: ['admin'], subItems: [
-      { labelKey: 'addStaff', icon: ClipboardCheck, path: `/dashboard/admin/add-staff` },
-      { labelKey: 'viewStaff', icon: ClipboardCheck, path: `/dashboard/admin/view-staff` },
-      { labelKey: 'assign', icon: ClipboardCheck, path: `/dashboard/admin/assign` }
+    { titleKey: 'staffManagement', icon: UserCog, roles: ['admin'], subItems: [
+      { labelKey: 'addStaff', icon: UserPlus, path: `/dashboard/admin/add-staff` },
+      { labelKey: 'viewStaff', icon: Users, path: `/dashboard/admin/view-staff` },
+      { labelKey: 'assign', icon: UserCheck, path: `/dashboard/admin/assign` }
     ]},
     { titleKey: 'classroom', icon: Users, roles: ['teacher'], subItems: [
       { labelKey: 'assignedRoom', icon: Users }, { labelKey: 'studentList', icon: Users },
@@ -103,7 +106,7 @@ const Sidebar = () => {
     { titleKey: 'transportation', icon: ClipboardCheck, roles: ['staff'], subItems: [
       { labelKey: 'pickupLog', icon: ClipboardCheck }, { labelKey: 'dropOffLog', icon: ClipboardCheck }
     ]},
-    { titleKey: 'communication', icon: ShieldCheck, path: `/dashboard/${user.role}/communication`, roles: ['admin', 'teacher', 'parent', 'reception'] },
+    { titleKey: 'communication', icon: MessageSquare, path: `/dashboard/${user.role}/communication`, roles: ['admin', 'teacher', 'parent', 'reception'] },
   ];
 
   const filteredMenu = navigationConfig.filter(item => item.roles.includes(user.role));
@@ -294,18 +297,26 @@ const Sidebar = () => {
 
                   {hasSub && isOpen && !isCollapsed && (
                     <ul className="sub-menu mt-2 space-y-2 pl-2">
-                      {item.subItems.map((sub, idx) => (
-                        <li key={`${label}-${idx}`}>
-                          <NavLink
-                            to={getSubPath(sub)}
-                            onClick={handleNavClick}
-                            className={({ isActive }) => isActive ? 'active' : ''}
-                          >
-                            <i className={`bx ${sub.icon} text-base`} />
-                            <span className="text-sm">{getSubLabel(sub)}</span>
-                          </NavLink>
-                        </li>
-                      ))}
+                      {item.subItems.map((sub, idx) => {
+                        const SubIcon = sub.icon;
+                        const isComponentIcon = SubIcon && (typeof SubIcon === 'function' || typeof SubIcon === 'object');
+                        return (
+                          <li key={`${label}-${idx}`}>
+                            <NavLink
+                              to={getSubPath(sub)}
+                              onClick={handleNavClick}
+                              className={({ isActive }) => isActive ? 'active' : ''}
+                            >
+                              {isComponentIcon ? (
+                                <SubIcon className="w-4 h-4 shrink-0" />
+                              ) : typeof sub.icon === 'string' ? (
+                                <i className={`bx ${sub.icon} text-base`} />
+                              ) : null}
+                              <span className="text-sm">{getSubLabel(sub)}</span>
+                            </NavLink>
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
                 </li>
