@@ -18,6 +18,11 @@ import {
   UserCog,
   UserPlus,
   MessageSquare,
+  FileText,
+  Utensils,
+  Sparkles,
+  Moon,
+  Syringe,
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -80,14 +85,16 @@ const Sidebar = () => {
     ]},
     { titleKey: 'attendance', icon: CalendarCheck, path: `/dashboard/${user.role}/attendance`, roles: ['teacher', 'admin'] },
     { titleKey: 'myChildren', icon: Baby, roles: ['parent'], subItems: [
-      { labelKey: 'registerChild', icon: Baby, path: '/dashboard/parent/register-child' },
+      { labelKey: 'registerChild', icon: UserPlus, path: '/dashboard/parent/register-child' },
       { labelKey: 'childProfile', icon: Baby, path: '/dashboard/parent/profile-card' },
     ]},
     { titleKey: 'registrationUpdates', icon: ClipboardCheck, path: '/dashboard/parent/registration-updates', roles: ['parent'] },
     { titleKey: 'payments', icon: CreditCard, path: `/dashboard/${user.role}/payments`, roles: ['parent', 'staff', 'admin'] },
-    { titleKey: 'dailyReports', icon: ClipboardCheck, path: `/dashboard/${user.role}/daily-reports`, roles: ['teacher', 'parent'], subItems: [
-      { labelKey: 'mealsIntake', icon: ClipboardCheck }, { labelKey: 'activitiesLog', icon: ClipboardCheck },
-      { labelKey: 'sleepNaps', icon: ClipboardCheck }, { labelKey: 'vaccinationLog', icon: ClipboardCheck }
+    { titleKey: 'dailyReports', icon: FileText, path: `/dashboard/${user.role}/daily-reports`, roles: ['teacher', 'parent'], subItems: [
+      { labelKey: 'mealsIntake', icon: Utensils },
+      { labelKey: 'activitiesLog', icon: Sparkles },
+      { labelKey: 'sleepNaps', icon: Moon },
+      { labelKey: 'vaccinationLog', icon: Syringe }
     ]},
     { titleKey: 'registration', icon: UserCheck, roles: ['reception'], subItems: [
       { labelKey: 'newRegister', icon: ClipboardCheck, path: '/dashboard/reception/new-child-registry' },
