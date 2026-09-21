@@ -8,11 +8,11 @@ const FONT_SIZE_KEY = 'app_fontSize';
 
 // Accent color CSS variable map
 const ACCENT_VARS = {
-  teal:   { '--accent-500': '#14b8a6', '--accent-600': '#0d9488', '--accent-100': '#ccfbf1', '--accent-50': '#f0fdfa' },
+  teal: { '--accent-500': '#14b8a6', '--accent-600': '#0d9488', '--accent-100': '#ccfbf1', '--accent-50': '#f0fdfa' },
   indigo: { '--accent-500': '#6366f1', '--accent-600': '#4f46e5', '--accent-100': '#e0e7ff', '--accent-50': '#eef2ff' },
-  rose:   { '--accent-500': '#f43f5e', '--accent-600': '#e11d48', '--accent-100': '#ffe4e6', '--accent-50': '#fff1f2' },
-  amber:  { '--accent-500': '#f59e0b', '--accent-600': '#d97706', '--accent-100': '#fef3c7', '--accent-50': '#fffbeb' },
-  blue:   { '--accent-500': '#3b82f6', '--accent-600': '#2563eb', '--accent-100': '#dbeafe', '--accent-50': '#eff6ff' },
+  rose: { '--accent-500': '#f43f5e', '--accent-600': '#e11d48', '--accent-100': '#ffe4e6', '--accent-50': '#fff1f2' },
+  amber: { '--accent-500': '#f59e0b', '--accent-600': '#d97706', '--accent-100': '#fef3c7', '--accent-50': '#fffbeb' },
+  blue: { '--accent-500': '#3b82f6', '--accent-600': '#2563eb', '--accent-100': '#dbeafe', '--accent-50': '#eff6ff' },
 };
 
 

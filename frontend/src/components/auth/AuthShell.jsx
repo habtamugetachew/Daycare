@@ -15,10 +15,10 @@ const AuthShell = ({ title, subtitle, children }) => {
   }, [dark]);
 
   const t = {
-    cardBg:   dark ? "var(--card-bg)" : "transparent",
+    cardBg: dark ? "var(--card-bg)" : "transparent",
     headerBg: "linear-gradient(135deg, var(--primary), var(--primary-dark))",
-    notchBg:  dark ? "var(--card-bg)" : "var(--white)",
-    formBg:   dark ? "var(--card-bg)" : "var(--white)",
+    notchBg: dark ? "var(--card-bg)" : "var(--white)",
+    formBg: dark ? "var(--card-bg)" : "var(--white)",
   };
 
   return (
@@ -36,8 +36,8 @@ const AuthShell = ({ title, subtitle, children }) => {
         style={{ position: "fixed", top: "1.25rem", right: "1.25rem", zIndex: 100, width: "44px", height: "44px", borderRadius: "9999px", border: `1.5px solid ${dark ? "rgba(22,196,201,0.3)" : "rgba(255,255,255,0.6)"}`, background: dark ? "var(--card-bg)" : "rgba(255,255,255,0.9)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 4px 14px rgba(0,0,0,0.25)" }}
         aria-label="Toggle dark mode">
         {dark
-          ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-light)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-          : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary-dark)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg>
+          ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-light)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg>
+          : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary-dark)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z" /></svg>
         }
       </button>
 

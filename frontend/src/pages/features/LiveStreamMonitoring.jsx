@@ -248,25 +248,25 @@ const LiveStreamMonitoring = () => {
   const isParent = user?.role === 'parent';
 
   return (
-    <div className="space-y-5 animate-fade-in text-slate-100 font-sans select-none">
+    <div className="space-y-5 animate-fade-in text-slate-800 dark:text-slate-100 font-sans select-none">
       {/* ── 1. Top Header Bar ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* Left Side: Glowing Green Lock + Title + Live Badge */}
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/15 shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/30 dark:border-emerald-500/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/10 shrink-0">
             <Lock className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2.5">
-              <h1 className="text-2xl lg:text-[26px] font-bold text-white tracking-tight leading-none">
+              <h1 className="text-2xl lg:text-[26px] font-bold text-slate-900 dark:text-white tracking-tight leading-none">
                 {t('liveStream') || 'Live Stream'}
               </h1>
-              <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
                 LIVE
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
               Real-Time Live Video Streaming & Room Monitoring
             </p>
           </div>
@@ -275,14 +275,14 @@ const LiveStreamMonitoring = () => {
         {/* Right Side: Focus & Multi-Cam Switcher + Role Scope Banner */}
         <div className="flex items-center gap-3 flex-wrap">
           {/* Focus & Multi-Cam Toggle Pill */}
-          <div className="flex items-center bg-[#071f30] p-1 rounded-xl border border-teal-500/40 shadow-inner">
+          <div className="flex items-center bg-slate-100 dark:bg-[#071f30] p-1 rounded-xl border border-slate-200 dark:border-teal-500/40 shadow-inner">
             <button
               type="button"
               onClick={() => setViewMode('single')}
               className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                 viewMode === 'single'
                   ? 'bg-[#00b4d8] text-white shadow-md shadow-cyan-500/25'
-                  : 'text-slate-400 hover:text-white'
+                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
               }`}
             >
               <Square className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -294,7 +294,7 @@ const LiveStreamMonitoring = () => {
               className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                 viewMode === 'matrix'
                   ? 'bg-[#00b4d8] text-white shadow-md shadow-cyan-500/25'
-                  : 'text-slate-400 hover:text-white'
+                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
               }`}
             >
               <Grid className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -303,23 +303,23 @@ const LiveStreamMonitoring = () => {
           </div>
 
           {/* Access Scope Banner matching user mockup */}
-          <div className="bg-[#071f30] border border-teal-500/40 rounded-2xl px-5 py-2.5 flex items-center gap-3.5 shadow-lg">
-            <div className="w-9 h-9 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-400 flex items-center justify-center shrink-0">
+          <div className="bg-white dark:bg-[#071f30] border border-slate-200 dark:border-teal-500/40 rounded-2xl px-5 py-2.5 flex items-center gap-3.5 shadow-sm dark:shadow-lg transition-colors">
+            <div className="w-9 h-9 rounded-full bg-teal-500/10 dark:bg-teal-500/15 border border-teal-500/20 dark:border-teal-500/30 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
               <Lock className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-xs sm:text-sm font-bold text-white leading-tight">
+              <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white leading-tight">
                 {isAdminOrReception && 'Full Campus Access'}
                 {isTeacher && 'Assigned Classroom Access'}
                 {isParent && 'Child Monitoring Access'}
               </p>
-              <p className="text-[11px] text-slate-400 mt-0.5">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                 {isAdminOrReception && 'Monitoring all active classrooms'}
                 {isTeacher && 'Monitoring your assigned classroom feeds'}
                 {isParent && (parentChildren.length > 1 ? "Monitoring your children's feeds" : "Monitoring your child's classroom")}
               </p>
             </div>
-            <div className="w-9 h-9 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-400 flex items-center justify-center ml-2 shrink-0">
+            <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/20 dark:border-teal-500/30 text-emerald-600 dark:text-teal-400 flex items-center justify-center ml-2 shrink-0">
               <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
@@ -348,7 +348,7 @@ const LiveStreamMonitoring = () => {
               key={room.roomId}
               type="button"
               onClick={() => setSelectedRoomId(room.roomId)}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${room.roomId === selectedRoom?.roomId ? 'bg-teal-600 text-white border-teal-500 shadow-md shadow-teal-500/20' : 'bg-[#081827] text-slate-300 border-teal-900/40 hover:border-teal-500/40'}`}
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${room.roomId === selectedRoom?.roomId ? 'bg-teal-600 text-white border-teal-500 shadow-md shadow-teal-500/20' : 'bg-white dark:bg-[#081827] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-teal-900/40 hover:border-teal-500/40'}`}
             >
               <span className={`w-2 h-2 rounded-full ${room.privacyMode ? 'bg-amber-400' : 'bg-emerald-400 animate-pulse'}`} />
               <span>{room.name}</span>
@@ -935,13 +935,13 @@ const LiveStreamMonitoring = () => {
           <div className="flex items-center justify-between px-1 flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
-              <span className="text-sm font-bold text-white tracking-wide">
+              <span className="text-sm font-bold text-slate-900 dark:text-white tracking-wide">
                 {isParent && (parentChildren.length > 1 ? "Multi-Cam Monitoring: All Your Children" : `Multi-Cam Angle View: ${selectedChild?.firstName || 'Your Child'}'s Room`)}
                 {isTeacher && (rooms.length > 1 ? "Multi-Cam Monitoring: Your Assigned Rooms" : `Multi-Cam Angle View: ${roomName}`)}
                 {isAdminOrReception && "Full Campus Multi-Cam Surveillance"}
               </span>
             </div>
-            <span className="text-xs text-teal-400 font-medium font-mono">
+            <span className="text-xs text-teal-600 dark:text-teal-400 font-medium font-mono">
               {formatLiveTimestamp(currentTime)}
             </span>
           </div>
@@ -1276,24 +1276,24 @@ const LiveStreamMonitoring = () => {
       )}
 
       {/* ── 3. Bottom Footer Banner matching reference mockup ── */}
-      <div className="bg-[#081d2e]/90 border border-teal-900/50 rounded-2xl px-5 py-3.5 flex flex-col md:flex-row items-center justify-between gap-3 text-xs shadow-xl">
+      <div className="bg-white dark:bg-[#081d2e]/90 border border-slate-200 dark:border-teal-900/50 rounded-2xl px-5 py-3.5 flex flex-col md:flex-row items-center justify-between gap-3 text-xs shadow-sm dark:shadow-xl transition-colors">
         {/* Left: Glowing Cyan Lock + Message */}
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-teal-500/20 text-teal-400 border border-teal-500/30 flex items-center justify-center shrink-0 shadow-sm shadow-teal-500/20">
+          <div className="w-8 h-8 rounded-full bg-teal-500/10 dark:bg-teal-500/20 text-teal-600 dark:text-teal-400 border border-teal-500/20 dark:border-teal-500/30 flex items-center justify-center shrink-0 shadow-sm shadow-teal-500/10">
             <Lock className="w-4 h-4" />
           </div>
-          <p className="text-slate-300 font-medium text-xs leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-300 font-medium text-xs leading-relaxed">
             Your assigned classroom is being monitored in real-time. &nbsp;|&nbsp; Keep children safe &nbsp;•&nbsp; Ensure a positive learning environment
           </p>
         </div>
 
         {/* Right: MinT ♡ brand typography */}
         <div className="text-right flex flex-col items-center md:items-end shrink-0">
-          <div className="flex items-center gap-1 text-teal-400 font-serif text-lg font-bold tracking-wider leading-none">
+          <div className="flex items-center gap-1 text-teal-600 dark:text-teal-400 font-serif text-lg font-bold tracking-wider leading-none">
             <span>MinT</span>
-            <Heart className="w-3.5 h-3.5 text-teal-400 fill-teal-400/20 stroke-teal-400" />
+            <Heart className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 fill-teal-500/20 stroke-teal-600 dark:stroke-teal-400" />
           </div>
-          <p className="text-[10px] text-slate-400 mt-0.5 font-light">
+          <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 font-light">
             Together for a brighter tomorrow
           </p>
         </div>

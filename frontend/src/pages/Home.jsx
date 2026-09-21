@@ -271,10 +271,10 @@ const Home = () => {
             }}
           >
             {[
-              { icon: 'bx-lock-alt',    label: t('trustSSL') },
-              { icon: 'bx-group',       label: t('trustChildren') },
+              { icon: 'bx-lock-alt', label: t('trustSSL') },
+              { icon: 'bx-group', label: t('trustChildren') },
               { icon: 'bx-bolt-circle', label: t('trustRealtime') },
-              { icon: 'bx-shield-alt-2',label: t('trustSecure') },
+              { icon: 'bx-shield-alt-2', label: t('trustSecure') },
             ].map(({ icon, label }) => (
               <div key={label} className="flex items-center gap-2" style={{ color: isDark ? 'var(--white)' : 'var(--primary-dark)' }}>
                 <i className={`bx ${icon} text-xl`} style={{ color: 'var(--primary-light)' }}></i>

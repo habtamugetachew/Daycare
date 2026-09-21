@@ -10,8 +10,10 @@ import iconImg    from "../../assets/icon.png";
  * Terms checkbox · Amber "Create Account" button · Google · Sign In link
  * Dark/Light toggle (shares theme with LoginCard via localStorage)
  */
+import { useTheme } from "../../context/ThemeContext";
+
 const RegisterCard = ({ onBackToHome, onNavigateToLogin }) => {
-  const [dark,        setDark]        = useState(() => localStorage.getItem("theme") === "dark");
+  const { isDark: dark } = useTheme();
   const [fullName,    setFullName]    = useState("");
   const [phone,       setPhone]       = useState("");
   const [email,       setEmail]       = useState("");
@@ -23,12 +25,6 @@ const RegisterCard = ({ onBackToHome, onNavigateToLogin }) => {
   const [agreed,      setAgreed]      = useState(false);
   const [loading,     setLoading]     = useState(false);
   const [error,       setError]       = useState("");
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (dark) { root.classList.add("dark");    localStorage.setItem("theme", "dark"); }
-    else       { root.classList.remove("dark"); localStorage.setItem("theme", "light"); }
-  }, [dark]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

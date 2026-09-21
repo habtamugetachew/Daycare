@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../../context/AuthContext";
-import loginBg  from "../../assets/login.png";
-import darkBg   from "../../assets/darklogin.png";
+import loginBg from "../../assets/login.png";
+import darkBg from "../../assets/darklogin.png";
 import iconImg from "../../assets/icon.png";
 
 /**
@@ -17,12 +17,12 @@ import iconImg from "../../assets/icon.png";
 const LoginCard = ({ onBackToHome, onNavigateToRegister, onForgotPassword }) => {
   const { login, googleLogin, redirectUser } = useAuth();
   // ── Dark mode state ──
-  const [dark,     setDark]     = useState(() => localStorage.getItem("theme") === "dark");
-  const [email,    setEmail]    = useState("");
+  const [dark, setDark] = useState(() => localStorage.getItem("theme") === "dark");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
-  const [loading,  setLoading]  = useState(false);
-  const [error,    setError]    = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   // Apply / remove the `dark` class on <html> and persist
   useEffect(() => {
@@ -76,38 +76,38 @@ const LoginCard = ({ onBackToHome, onNavigateToRegister, onForgotPassword }) => 
   // ── Derived theme tokens ──────────────────────────────────────
   const t = {
     // page bg — replaced by background image below
-    pageBg:       dark ? "#0f1117"        : "#e8d5b0",
+    pageBg: dark ? "#0f1117" : "#e8d5b0",
     // card
-    cardBg:       dark ? "#1e2235"        : "#f0f0f5",
-    cardBorder:   dark ? "#c9a845"        : "#c9a845",
+    cardBg: dark ? "#1e2235" : "#f0f0f5",
+    cardBorder: dark ? "#c9a845" : "#c9a845",
     // header (always stays navy-ish but slightly deeper in dark)
-    headerBg:     dark ? "#111a3a"        : "#1c3a82",
+    headerBg: dark ? "#111a3a" : "#1c3a82",
     // notch corners (must match cardBg)
-    notchBg:      dark ? "#1e2235"        : "#f0f0f5",
+    notchBg: dark ? "#1e2235" : "#f0f0f5",
     // form body
-    formBg:       dark ? "#1e2235"        : "#f0f0f5",
+    formBg: dark ? "#1e2235" : "#f0f0f5",
     // labels
-    labelColor:   dark ? "#e2e8f0"        : "#111827",
+    labelColor: dark ? "#e2e8f0" : "#111827",
     // inputs
-    inputBg:      dark ? "#2a3050"        : "#ffffff",
-    inputBorder:  dark ? "#3a4570"        : "#dde0e8",
-    inputFocus:   dark ? "#6b80e0"        : "#1c3a82",
-    inputColor:   dark ? "#e2e8f0"        : "#1a1a2e",
-    placeholderColor: dark ? "#7080a0"    : "#9ca3af",
+    inputBg: dark ? "#2a3050" : "#ffffff",
+    inputBorder: dark ? "#3a4570" : "#dde0e8",
+    inputFocus: dark ? "#6b80e0" : "#1c3a82",
+    inputColor: dark ? "#e2e8f0" : "#1a1a2e",
+    placeholderColor: dark ? "#7080a0" : "#9ca3af",
     // icon color
-    iconColor:    dark ? "#7080a0"        : "#9ca3af",
+    iconColor: dark ? "#7080a0" : "#9ca3af",
     // divider
-    dividerColor: dark ? "#2e3a58"        : "#d1d5db",
-    dividerText:  dark ? "#4a5a80"        : "#9aa0b0",
+    dividerColor: dark ? "#2e3a58" : "#d1d5db",
+    dividerText: dark ? "#4a5a80" : "#9aa0b0",
     // button outlines
-    outlineBtnBg:     dark ? "#2a3050"   : "#ffffff",
-    outlineBtnBorder: dark ? "#3a4570"   : "#dde0e8",
-    outlineBtnText:   dark ? "#e2e8f0"   : "#1a1a2e",
+    outlineBtnBg: dark ? "#2a3050" : "#ffffff",
+    outlineBtnBorder: dark ? "#3a4570" : "#dde0e8",
+    outlineBtnText: dark ? "#e2e8f0" : "#1a1a2e",
     // forgot / back
-    forgotColor:  dark ? "#7b9ef0"        : "#2a6dd9",
-    backColor:    dark ? "#c8d0e8"        : "#1a1a2e",
+    forgotColor: dark ? "#7b9ef0" : "#2a6dd9",
+    backColor: dark ? "#c8d0e8" : "#1a1a2e",
     // security note
-    noteColor:    dark ? "#4a5a80"        : "#9aa0b0",
+    noteColor: dark ? "#4a5a80" : "#9aa0b0",
   };
 
   return (
@@ -161,21 +161,21 @@ const LoginCard = ({ onBackToHome, onNavigateToRegister, onForgotPassword }) => 
           /* Sun icon */
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="#f5d060" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="5"/>
-            <line x1="12" y1="1"  x2="12" y2="3"/>
-            <line x1="12" y1="21" x2="12" y2="23"/>
-            <line x1="4.22" y1="4.22"  x2="5.64" y2="5.64"/>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-            <line x1="1"  y1="12" x2="3"  y2="12"/>
-            <line x1="21" y1="12" x2="23" y2="12"/>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            <circle cx="12" cy="12" r="5" />
+            <line x1="12" y1="1" x2="12" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="23" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+            <line x1="1" y1="12" x2="3" y2="12" />
+            <line x1="21" y1="12" x2="23" y2="12" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
           </svg>
         ) : (
           /* Moon icon */
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
             stroke="#1c3a82" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/>
+            <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z" />
           </svg>
         )}
       </button>
@@ -326,8 +326,8 @@ const LoginCard = ({ onBackToHome, onNavigateToRegister, onForgotPassword }) => 
               {loading ? (
                 <>
                   <svg width="16" height="16" className="animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                   </svg>
                   Signing in…
                 </>
@@ -346,10 +346,10 @@ const LoginCard = ({ onBackToHome, onNavigateToRegister, onForgotPassword }) => 
           <button type="button" onClick={handleGoogle}
             style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", padding: "0.8rem 1rem", borderRadius: "9999px", border: `1.5px solid ${t.outlineBtnBorder}`, background: t.outlineBtnBg, color: t.outlineBtnText, fontWeight: 600, fontSize: "14px", cursor: "pointer", marginBottom: "10px", transition: "all 0.3s" }}>
             <svg width="20" height="20" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
             </svg>
             Continue with Google
           </button>

@@ -187,10 +187,12 @@ const Login = () => {
       <div className="auth-box relative z-10 w-full max-w-[420px] rounded-[28px] overflow-visible bg-transparent border border-[var(--white-soft)] dark:border-[var(--glass-border)] shadow-[0_4px_6px_rgba(15,23,42,0.06),0_20px_60px_rgba(15,23,42,0.18),0_0_0_6px_rgba(255,255,255,0.25)] dark:shadow-[0_4px_6px_rgba(0,0,0,0.2),0_20px_60px_rgba(0,0,0,0.4)]">
 
         {/* Teal Header */}
-          <div className="auth-header rounded-t-[28px] pt-10 pb-28 px-8 text-center relative"
-            style={{ background: theme === 'dark'
+        <div className="auth-header rounded-t-[28px] pt-10 pb-28 px-8 text-center relative"
+          style={{
+            background: theme === 'dark'
               ? 'linear-gradient(135deg, #2a7a7a, #1a5c5c)'
-              : 'linear-gradient(135deg, var(--primary), var(--primary-dark))' }}>
+              : 'linear-gradient(135deg, var(--primary), var(--primary-dark))'
+          }}>
           <div className="ministry-logo w-20 h-20 mx-auto mb-4 bg-white/15 border border-white/30 rounded-2xl flex items-center justify-center p-2 shadow-lg">
             <img
               src="/assets/images/icon.png"
@@ -204,11 +206,11 @@ const Login = () => {
 
         {/* Body Container */}
         <div className="auth-body relative rounded-t-[40px] rounded-b-[28px] pt-14 pb-8 px-8 -mt-[60px] border-t-4 shadow-[0_-8px_20px_rgba(0,0,0,0.12)] z-20 transition-colors"
-             style={{ background: theme === 'dark' ? '#0B151C' : '#ffffff', borderColor: '#F5C518' }}>
+          style={{ background: theme === 'dark' ? '#0B151C' : '#ffffff', borderColor: '#F5C518' }}>
 
           {/* Teal shield badge on the seam */}
           <div className="auth-shield-badge absolute -top-[26px] left-1/2 -translate-x-1/2 w-[52px] h-[52px] rounded-full flex items-center justify-center z-30"
-               style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', border: '2.5px solid #F5C518', boxShadow: '0 4px 16px rgba(245,197,24,0.45), 0 0 0 4px rgba(245,197,24,0.18)' }}>
+            style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', border: '2.5px solid #F5C518', boxShadow: '0 4px 16px rgba(245,197,24,0.45), 0 0 0 4px rgba(245,197,24,0.18)' }}>
             <svg className="w-[22px] h-[22px] text-[var(--accent)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
               <path d="M12 11v4"></path>
@@ -219,7 +221,7 @@ const Login = () => {
           {/* Alert Message Box */}
           {errorMsg && (
             <div className="p-4 mb-4 rounded-xl text-xs leading-relaxed border text-left font-semibold"
-                 style={{ background: 'var(--danger-light)', color: 'var(--danger)', borderColor: 'var(--danger-border)' }}>
+              style={{ background: 'var(--danger-light)', color: 'var(--danger)', borderColor: 'var(--danger-border)' }}>
               {errorMsg}
             </div>
           )}
@@ -335,11 +337,11 @@ const Login = () => {
             >
               {/* Real Google logo SVG with brand colors */}
               <svg className="w-4 h-4" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-                <path fill="none" d="M0 0h48v48H0z"/>
+                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                <path fill="none" d="M0 0h48v48H0z" />
               </svg>
               {isGoogleLoading ? t('signingIn') : t('continueWithGoogle')}
             </button>
@@ -377,16 +379,16 @@ const Login = () => {
       </div>
 
       {/* Floating Theme Slide-Toggle in Bottom Right */}
-<div className="fixed bottom-6 right-6 z-55 flex items-center gap-2 bg-white/40 dark:bg-[var(--card-bg)]/40 p-2.5 rounded-full backdrop-blur-md shadow-md border border-white/50 dark:border-[var(--glass-border)]">
-            <i className={`bx ${theme === 'dark' ? 'bx-sun text-[var(--primary-light)]' : 'bx-moon text-[var(--primary-dark)]'} text-lg`}></i>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                className="sr-only peer"
-                checked={theme === 'dark'}
-                onChange={toggleTheme}
-              />
-              <div className="w-10 h-5 bg-[var(--border)] dark:bg-[var(--primary-light)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[var(--border)] after:border after:rounded-full after:h-4 after:w-4 after:transition-all shadow-inner"></div>
+      <div className="fixed bottom-6 right-6 z-55 flex items-center gap-2 bg-white/40 dark:bg-[var(--card-bg)]/40 p-2.5 rounded-full backdrop-blur-md shadow-md border border-white/50 dark:border-[var(--glass-border)]">
+        <i className={`bx ${theme === 'dark' ? 'bx-sun text-[var(--primary-light)]' : 'bx-moon text-[var(--primary-dark)]'} text-lg`}></i>
+        <label className="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            className="sr-only peer"
+            checked={theme === 'dark'}
+            onChange={toggleTheme}
+          />
+          <div className="w-10 h-5 bg-[var(--border)] dark:bg-[var(--primary-light)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[var(--border)] after:border after:rounded-full after:h-4 after:w-4 after:transition-all shadow-inner"></div>
         </label>
       </div>
 

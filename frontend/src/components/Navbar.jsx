@@ -64,9 +64,9 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
   };
   const formattedDate = new Date().toLocaleDateString(dateLocales[locale] || 'en-US', {
     weekday: 'short',
-    year:    'numeric',
-    month:   'short',
-    day:     'numeric',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
   });
 
   const roleKeyMap = {
@@ -113,11 +113,11 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
   const [profilePanelOpen, setProfilePanelOpen] = useState(false);
 
   const menuItems = [
-    { icon: 'bx-user',         label: t('myProfile'),      action: () => { setProfileOpen(false); setProfilePanelOpen(true); } },
-    { icon: 'bx-bell',         label: t('notificationsTitle'),   action: () => { setProfileOpen(false); window.dispatchEvent(new CustomEvent('openNotifications')); }, badge: null },
-    { icon: 'bx-cog',          label: t('settings'),        action: () => { setProfileOpen(false); navigate(`/dashboard/${user?.role}/settings`); } },
-    { icon: 'bx-adjust',       label: t('appearance'),      action: toggleTheme, extra: isDark ? t('darkMode') : t('lightMode') },
-    { icon: 'bx-help-circle',  label: t('helpAndSupport'),  action: () => { setProfileOpen(false); navigate(`/dashboard/${user?.role}/help`); } },
+    { icon: 'bx-user', label: t('myProfile'), action: () => { setProfileOpen(false); setProfilePanelOpen(true); } },
+    { icon: 'bx-bell', label: t('notificationsTitle'), action: () => { setProfileOpen(false); window.dispatchEvent(new CustomEvent('openNotifications')); }, badge: null },
+    { icon: 'bx-cog', label: t('settings'), action: () => { setProfileOpen(false); navigate(`/dashboard/${user?.role}/settings`); } },
+    { icon: 'bx-adjust', label: t('appearance'), action: toggleTheme, extra: isDark ? t('darkMode') : t('lightMode') },
+    { icon: 'bx-help-circle', label: t('helpAndSupport'), action: () => { setProfileOpen(false); navigate(`/dashboard/${user?.role}/help`); } },
   ];
 
   return (

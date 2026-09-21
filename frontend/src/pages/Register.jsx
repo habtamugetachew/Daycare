@@ -755,14 +755,14 @@ const Register = () => {
       <div className="min-h-screen w-full max-w-full relative flex items-center justify-center px-2 sm:px-4 py-6 sm:py-8 overflow-x-hidden">
         {/* Full screen background */}
         <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url('${theme === 'dark' ? '/assets/images/darkmode.png' : '/assets/images/registerz.png'}')`, filter: isDark ? 'brightness(0.65)' : 'none' }} />
-        
+
         {/* OVERLAPPING CARD CONTAINER */}
         <div className="relative z-10 flex items-stretch justify-center w-full max-w-[1020px] px-1 sm:px-4">
-          
+
           {/* LEFT PANEL - Glass (Slightly shorter, sits behind right panel) */}
           <div className="hidden lg:flex flex-col items-center justify-center relative z-10 w-full max-w-[420px] rounded-l-[32px] p-8 text-center my-6"
-            style={{ 
-              background: colors.leftGlassBg, 
+            style={{
+              background: colors.leftGlassBg,
               border: `1px solid ${colors.leftBorder}`,
               borderLeft: '1px solid rgba(130, 240, 255, 0.25)',
               borderTop: '1px solid rgba(130, 240, 255, 0.25)',
@@ -771,29 +771,29 @@ const Register = () => {
               maskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0.1) 85%, rgba(0, 0, 0, 0) 100%)',
               marginRight: '-40px', /* Pull it exactly under the right panel */
             }}>
-            
+
             <div className="w-[100px] h-[100px] mx-auto mb-6 rounded-[24px] overflow-hidden border border-teal-500/20 shadow-[0_10px_30px_rgba(0,0,0,0.5)] relative z-10" style={{ background: isDark ? '#0a1d24' : '#ffffff' }}>
               <img src="/assets/images/icon.png" alt="DaycareHQ" className="w-full h-full object-contain p-2" />
             </div>
-            
+
             <h1 className="font-black text-[28px] leading-[1.3] mb-4 relative z-10" style={{ color: colors.leftText }}>
-              {locale === 'en' ? 'Welcome to Daycare' : 
-               locale === 'am' ? 'እንኳን ወደ Daycare' :
-               locale === 'om' ? 'Baga nagaan dhuftan Daycare' : 'እንቋዕ ብደሓን መጻእኩም Daycare'}<br />
+              {locale === 'en' ? 'Welcome to Daycare' :
+                locale === 'am' ? 'እንኳን ወደ Daycare' :
+                  locale === 'om' ? 'Baga nagaan dhuftan Daycare' : 'እንቋዕ ብደሓን መጻእኩም Daycare'}<br />
               <span style={{ color: isDark ? '#D9B84A' : '#b4952d' }}>
-                {locale === 'en' ? '' : 
-                 locale === 'am' ? 'በደህና መጡ!' : 
-                 locale === 'om' ? '' : 'ብደሓን መጻእኩም!'}
+                {locale === 'en' ? '' :
+                  locale === 'am' ? 'በደህና መጡ!' :
+                    locale === 'om' ? '' : 'ብደሓን መጻእኩም!'}
               </span>
             </h1>
-            
+
             <p className="text-[12px] leading-[1.8] mb-8 relative z-10 px-2" style={{ color: colors.leftText }}>
               {locale === 'en' ? 'Register to manage your child\'s daycare and activities.' :
-               locale === 'am' ? 'የልጅዎን መዋዕለ ለማስተዳደር እና ምርመራን አሰላሰት ለማሻሻት እባክዎን ይመዝገቡ።' :
-               locale === 'om' ? 'Daa\'ima keessan bulchuuf galmaa\'aa.' :
-               'ውሉድኩም ንምምሕዳር ተመዝገቡ።'}
+                locale === 'am' ? 'የልጅዎን መዋዕለ ለማስተዳደር እና ምርመራን አሰላሰት ለማሻሻት እባክዎን ይመዝገቡ።' :
+                  locale === 'om' ? 'Daa\'ima keessan bulchuuf galmaa\'aa.' :
+                    'ውሉድኩም ንምምሕዳር ተመዝገቡ።'}
             </p>
-            
+
             <div className="flex items-center gap-4 relative z-10 opacity-70 w-[60%] mx-auto">
               <div className="flex-1 h-[1px]" style={{ background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }} />
               <i className="bx bxs-leaf text-base" style={{ color: isDark ? '#D9B84A' : '#b4952d' }} />
@@ -802,9 +802,9 @@ const Register = () => {
           </div>
 
           {/* RIGHT PANEL - Form Container (Taller, overlaps left panel) */}
-          <div className="flex-1 w-full max-w-[520px] px-4 sm:px-8 py-6 sm:py-8 relative z-20 rounded-[16px] shadow-[0_20px_60px_rgba(0,0,0,0.6)]" 
-               style={{ background: colors.cardBg, border: `1px solid ${colors.cardBorder}` }}>
-            
+          <div className="flex-1 w-full max-w-[520px] px-4 sm:px-8 py-6 sm:py-8 relative z-20 rounded-[16px] shadow-[0_20px_60px_rgba(0,0,0,0.6)]"
+            style={{ background: colors.cardBg, border: `1px solid ${colors.cardBorder}` }}>
+
             {/* Alerts */}
             {(errorMsg || successMsg) && (
               <div className="mb-5">
@@ -815,315 +815,315 @@ const Register = () => {
 
             <form onSubmit={handleSubmit} className="space-y-4">
 
-            {/* Row 1: Full Name + Phone */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <div>
-                <label className="block text-[11px] font-bold mb-1.5" style={{ color: colors.textMain }}>{t('fullName')}</label>
-                <div className="relative">
-                  <i className="bx bx-user absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: colors.textMuted }} />
-                  <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} required
-                    placeholder={t('fullNamePlaceholder')}
-                    className="w-full pl-9 pr-3 py-2.5 text-[11px] rounded-[12px] outline-none transition-all focus:border-teal-400"
-                    style={{ background: colors.inputBg, border: `1px solid ${colors.inputBorder}`, color: colors.textMain }} />
-                </div>
-              </div>
-              <div>
-                <label className="block text-[11px] font-bold mb-1.5" style={{ color: colors.textMain }}>{t('phoneNumber')}</label>
-                <div className="relative">
-                  <i className="bx bx-phone absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: colors.textMuted }} />
-                  <input type="tel" value={phone} onChange={handlePhoneChange}
-                    placeholder={t('phonePlaceholder')}
-                    className="w-full pl-9 pr-3 py-2.5 text-[11px] rounded-[12px] outline-none transition-all focus:border-teal-400"
-                    style={{ background: colors.inputBg, border: `1px solid ${displayPhoneError ? '#ef4444' : colors.inputBorder}`, color: colors.textMain }} />
-                </div>
-                {/* Format or duplicate error */}
-                {(displayPhoneError || checkingPhone) && (
-                  <p className="flex items-center gap-1 text-[10px] mt-1">
-                    {checkingPhone
-                      ? <><i className="bx bx-loader-alt animate-spin text-[11px]" style={{ color: '#8EA5AA' }} /><span style={{ color: '#8EA5AA' }}>Checking…</span></>
-                      : <><i className="bx bx-error-circle text-[11px]" style={{ color: '#ef4444' }} /><span style={{ color: '#ef4444' }}>{displayPhoneError}</span></>
-                    }
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Row 2: Email + Organization */}
-            <div className="flex flex-col sm:flex-row sm:items-end gap-3">
-              <div className="flex-1 sm:flex-[3] min-w-0">
-                <label className="block text-[11px] font-bold mb-1.5" style={{ color: colors.textMain }}>{t('emailLabel')} <span style={{ color: '#ef4444' }}>*</span></label>
-                <div className="flex gap-1.5">
-                  <div className="relative flex-1">
-                    <i className="bx bx-envelope absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: colors.textMuted }} />
-                    <input type="email" value={email} onChange={handleEmailChange} disabled={isEmailVerified} required
-                      placeholder={t('emailPlaceholder')}
+              {/* Row 1: Full Name + Phone */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div>
+                  <label className="block text-[11px] font-bold mb-1.5" style={{ color: colors.textMain }}>{t('fullName')}</label>
+                  <div className="relative">
+                    <i className="bx bx-user absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: colors.textMuted }} />
+                    <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} required
+                      placeholder={t('fullNamePlaceholder')}
                       className="w-full pl-9 pr-3 py-2.5 text-[11px] rounded-[12px] outline-none transition-all focus:border-teal-400"
-                      style={{ background: isEmailVerified ? 'rgba(16,185,129,0.08)' : colors.inputBg, border: `1px solid `, color: colors.textMain }} />
+                      style={{ background: colors.inputBg, border: `1px solid ${colors.inputBorder}`, color: colors.textMain }} />
                   </div>
-                  {isEmailVerified ? (
-                    <span className="shrink-0 flex items-center px-2.5 rounded-[12px] text-[10px] font-bold whitespace-nowrap"
-                      style={{ background: 'rgba(16,185,129,0.15)', color: '#6ee7b7', border: '1px solid #059669' }}>✓ Verified</span>
-                  ) : (
-                    <button type="button" onClick={handleSendOtp}
-                      disabled={otpLoading || resendCountdown > 0}
-                      className="shrink-0 px-3 py-2 rounded-[12px] text-[10px] font-bold whitespace-nowrap disabled:opacity-50 transition hover:opacity-90"
-                      style={{ background: '#0d9488', color: '#fff' }}>
-                      {otpLoading && !otpSent ? '…' : otpSent && resendCountdown > 0 ? `${resendCountdown}s` : otpSent ? 'Resend' : 'Verify Email'}
-                    </button>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold mb-1.5" style={{ color: colors.textMain }}>{t('phoneNumber')}</label>
+                  <div className="relative">
+                    <i className="bx bx-phone absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: colors.textMuted }} />
+                    <input type="tel" value={phone} onChange={handlePhoneChange}
+                      placeholder={t('phonePlaceholder')}
+                      className="w-full pl-9 pr-3 py-2.5 text-[11px] rounded-[12px] outline-none transition-all focus:border-teal-400"
+                      style={{ background: colors.inputBg, border: `1px solid ${displayPhoneError ? '#ef4444' : colors.inputBorder}`, color: colors.textMain }} />
+                  </div>
+                  {/* Format or duplicate error */}
+                  {(displayPhoneError || checkingPhone) && (
+                    <p className="flex items-center gap-1 text-[10px] mt-1">
+                      {checkingPhone
+                        ? <><i className="bx bx-loader-alt animate-spin text-[11px]" style={{ color: '#8EA5AA' }} /><span style={{ color: '#8EA5AA' }}>Checking…</span></>
+                        : <><i className="bx bx-error-circle text-[11px]" style={{ color: '#ef4444' }} /><span style={{ color: '#ef4444' }}>{displayPhoneError}</span></>
+                      }
+                    </p>
                   )}
                 </div>
-                {otpSent && !isEmailVerified && (
-                  <div className="flex gap-1.5 mt-1.5">
-                    <input type="text" inputMode="numeric" maxLength={6} value={otpValue}
-                      onChange={e => { setOtpValue(e.target.value.replace(/\D/g,'')); setOtpError(''); }}
-                      placeholder="6-digit OTP"
-                      className="flex-1 px-3 py-2 text-[11px] rounded-[12px] outline-none tracking-widest font-mono"
-                      style={{ background: colors.inputBg, border: `1px solid ${colors.inputBorder}`, color: colors.textMain }} />
-                    <button type="button" onClick={handleVerifyOtp}
-                      disabled={otpLoading || otpValue.length !== 6}
-                      className="px-3 py-2 rounded-[12px] text-[10px] font-bold disabled:opacity-50"
-                      style={{ background: '#059669', color: '#fff' }}>{otpLoading ? '…' : 'OK'}</button>
+              </div>
+
+              {/* Row 2: Email + Organization */}
+              <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+                <div className="flex-1 sm:flex-[3] min-w-0">
+                  <label className="block text-[11px] font-bold mb-1.5" style={{ color: colors.textMain }}>{t('emailLabel')} <span style={{ color: '#ef4444' }}>*</span></label>
+                  <div className="flex gap-1.5">
+                    <div className="relative flex-1">
+                      <i className="bx bx-envelope absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: colors.textMuted }} />
+                      <input type="email" value={email} onChange={handleEmailChange} disabled={isEmailVerified} required
+                        placeholder={t('emailPlaceholder')}
+                        className="w-full pl-9 pr-3 py-2.5 text-[11px] rounded-[12px] outline-none transition-all focus:border-teal-400"
+                        style={{ background: isEmailVerified ? 'rgba(16,185,129,0.08)' : colors.inputBg, border: `1px solid `, color: colors.textMain }} />
+                    </div>
+                    {isEmailVerified ? (
+                      <span className="shrink-0 flex items-center px-2.5 rounded-[12px] text-[10px] font-bold whitespace-nowrap"
+                        style={{ background: 'rgba(16,185,129,0.15)', color: '#6ee7b7', border: '1px solid #059669' }}>✓ Verified</span>
+                    ) : (
+                      <button type="button" onClick={handleSendOtp}
+                        disabled={otpLoading || resendCountdown > 0}
+                        className="shrink-0 px-3 py-2 rounded-[12px] text-[10px] font-bold whitespace-nowrap disabled:opacity-50 transition hover:opacity-90"
+                        style={{ background: '#0d9488', color: '#fff' }}>
+                        {otpLoading && !otpSent ? '…' : otpSent && resendCountdown > 0 ? `${resendCountdown}s` : otpSent ? 'Resend' : 'Verify Email'}
+                      </button>
+                    )}
                   </div>
-                )}
-                {otpError && <p className="flex items-center gap-1 text-[10px] mt-1"><i className="bx bx-error-circle text-[11px]" style={{ color: '#ef4444' }} /><span style={{ color: '#ef4444' }}>{otpError}</span></p>}
-                {otpSuccess && !isEmailVerified && <p className="flex items-center gap-1 text-[10px] mt-1"><i className="bx bx-check-circle text-[11px]" style={{ color: '#6ee7b7' }} /><span style={{ color: '#6ee7b7' }}>{otpSuccess}</span></p>}
-              </div>
-              <div className="flex-1 sm:flex-[1] min-w-0">
-                <label className="block text-[11px] font-bold mb-1.5" style={{ color: colors.textMain }}>{t('organization')}</label>
-                <div className="relative">
-                  <i className="bx bx-building absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: colors.textMuted }} />
-                  <input type="text" value={organization} onChange={e => setOrganization(e.target.value)}
-                    placeholder={t('organization')}
-                    className="w-full pl-9 pr-3 py-2.5 text-[11px] rounded-[12px] outline-none transition-all focus:border-teal-400"
-                    style={{ background: colors.inputBg, border: `1px solid ${colors.inputBorder}`, color: colors.textMain }} />
+                  {otpSent && !isEmailVerified && (
+                    <div className="flex gap-1.5 mt-1.5">
+                      <input type="text" inputMode="numeric" maxLength={6} value={otpValue}
+                        onChange={e => { setOtpValue(e.target.value.replace(/\D/g, '')); setOtpError(''); }}
+                        placeholder="6-digit OTP"
+                        className="flex-1 px-3 py-2 text-[11px] rounded-[12px] outline-none tracking-widest font-mono"
+                        style={{ background: colors.inputBg, border: `1px solid ${colors.inputBorder}`, color: colors.textMain }} />
+                      <button type="button" onClick={handleVerifyOtp}
+                        disabled={otpLoading || otpValue.length !== 6}
+                        className="px-3 py-2 rounded-[12px] text-[10px] font-bold disabled:opacity-50"
+                        style={{ background: '#059669', color: '#fff' }}>{otpLoading ? '…' : 'OK'}</button>
+                    </div>
+                  )}
+                  {otpError && <p className="flex items-center gap-1 text-[10px] mt-1"><i className="bx bx-error-circle text-[11px]" style={{ color: '#ef4444' }} /><span style={{ color: '#ef4444' }}>{otpError}</span></p>}
+                  {otpSuccess && !isEmailVerified && <p className="flex items-center gap-1 text-[10px] mt-1"><i className="bx bx-check-circle text-[11px]" style={{ color: '#6ee7b7' }} /><span style={{ color: '#6ee7b7' }}>{otpSuccess}</span></p>}
+                </div>
+                <div className="flex-1 sm:flex-[1] min-w-0">
+                  <label className="block text-[11px] font-bold mb-1.5" style={{ color: colors.textMain }}>{t('organization')}</label>
+                  <div className="relative">
+                    <i className="bx bx-building absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: colors.textMuted }} />
+                    <input type="text" value={organization} onChange={e => setOrganization(e.target.value)}
+                      placeholder={t('organization')}
+                      className="w-full pl-9 pr-3 py-2.5 text-[11px] rounded-[12px] outline-none transition-all focus:border-teal-400"
+                      style={{ background: colors.inputBg, border: `1px solid ${colors.inputBorder}`, color: colors.textMain }} />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Emergency Contact Section */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4 mb-4">
-              <div>
-                <label className="block text-[10px] font-bold mb-1" style={{ color: isDark ? '#00d8d6' : '#111827' }}>{t('contactName') || 'Emergency Name'}</label>
-                <div className="relative">
-                  <i className="bx bx-user absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: colors.textMuted }} />
-                  <input type="text" value={emergencyContactName} onChange={e => setEmergencyContactName(e.target.value)}
-                    placeholder={locale === 'am' ? 'ለምሳሌ: ሳራ' : 'e.g. Sara'}
-                    className="w-full pl-8 pr-2 py-2 text-[10px] rounded-[10px] outline-none transition-all focus:border-teal-400"
-                    style={{ background: colors.inputBgEmerg, border: `1px solid ${colors.inputBorderEmerg}`, color: colors.textMain }} />
+              {/* Emergency Contact Section */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4 mb-4">
+                <div>
+                  <label className="block text-[10px] font-bold mb-1" style={{ color: isDark ? '#00d8d6' : '#111827' }}>{t('contactName') || 'Emergency Name'}</label>
+                  <div className="relative">
+                    <i className="bx bx-user absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: colors.textMuted }} />
+                    <input type="text" value={emergencyContactName} onChange={e => setEmergencyContactName(e.target.value)}
+                      placeholder={locale === 'am' ? 'ለምሳሌ: ሳራ' : 'e.g. Sara'}
+                      className="w-full pl-8 pr-2 py-2 text-[10px] rounded-[10px] outline-none transition-all focus:border-teal-400"
+                      style={{ background: colors.inputBgEmerg, border: `1px solid ${colors.inputBorderEmerg}`, color: colors.textMain }} />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold mb-1" style={{ color: isDark ? '#00d8d6' : '#111827' }}>{t('contactPhone') || 'Emergency Phone'}</label>
+                  <div className="relative">
+                    <i className="bx bx-phone absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: colors.textMuted }} />
+                    <input type="tel" value={emergencyContactPhone} onChange={handleEmergencyPhoneChange}
+                      placeholder={locale === 'am' ? 'ለምሳሌ: 0777...' : 'e.g. 0777...'}
+                      className="w-full pl-8 pr-2 py-2 text-[10px] rounded-[10px] outline-none transition-all focus:border-teal-400"
+                      style={{ background: colors.inputBgEmerg, border: `1px solid ${displayEmergError ? '#ef4444' : colors.inputBorderEmerg}`, color: colors.textMain }} />
+                  </div>
+                  {(displayEmergError || checkingEmerg) && (
+                    <p className="flex items-center gap-1 text-[10px] mt-1">
+                      {checkingEmerg
+                        ? <><i className="bx bx-loader-alt animate-spin text-[11px]" style={{ color: '#8EA5AA' }} /><span style={{ color: '#8EA5AA' }}>Checking…</span></>
+                        : <><i className="bx bx-error-circle text-[11px]" style={{ color: '#ef4444' }} /><span style={{ color: '#ef4444' }}>{displayEmergError}</span></>
+                      }
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold mb-1" style={{ color: isDark ? '#00d8d6' : '#111827' }}>{t('relationshipLabel') || 'Relationship'}</label>
+                  <div className="relative">
+                    <i className="bx bx-group absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: colors.textMuted }} />
+                    <input type="text" value={emergencyContactRelationship} onChange={e => setEmergencyContactRelationship(e.target.value)}
+                      placeholder={locale === 'am' ? 'እናት, አባት...' : 'Mother, Father...'}
+                      className="w-full pl-8 pr-2 py-2 text-[10px] rounded-[10px] outline-none transition-all focus:border-teal-400"
+                      style={{ background: colors.inputBgEmerg, border: `1px solid ${colors.inputBorderEmerg}`, color: colors.textMain }} />
+                  </div>
                 </div>
               </div>
-              <div>
-                <label className="block text-[10px] font-bold mb-1" style={{ color: isDark ? '#00d8d6' : '#111827' }}>{t('contactPhone') || 'Emergency Phone'}</label>
-                <div className="relative">
-                  <i className="bx bx-phone absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: colors.textMuted }} />
-                  <input type="tel" value={emergencyContactPhone} onChange={handleEmergencyPhoneChange}
-                    placeholder={locale === 'am' ? 'ለምሳሌ: 0777...' : 'e.g. 0777...'}
-                    className="w-full pl-8 pr-2 py-2 text-[10px] rounded-[10px] outline-none transition-all focus:border-teal-400"
-                    style={{ background: colors.inputBgEmerg, border: `1px solid ${displayEmergError ? '#ef4444' : colors.inputBorderEmerg}`, color: colors.textMain }} />
-                </div>
-                {(displayEmergError || checkingEmerg) && (
-                  <p className="flex items-center gap-1 text-[10px] mt-1">
-                    {checkingEmerg
-                      ? <><i className="bx bx-loader-alt animate-spin text-[11px]" style={{ color: '#8EA5AA' }} /><span style={{ color: '#8EA5AA' }}>Checking…</span></>
-                      : <><i className="bx bx-error-circle text-[11px]" style={{ color: '#ef4444' }} /><span style={{ color: '#ef4444' }}>{displayEmergError}</span></>
-                    }
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold mb-1" style={{ color: isDark ? '#00d8d6' : '#111827' }}>{t('relationshipLabel') || 'Relationship'}</label>
-                <div className="relative">
-                  <i className="bx bx-group absolute left-3 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: colors.textMuted }} />
-                  <input type="text" value={emergencyContactRelationship} onChange={e => setEmergencyContactRelationship(e.target.value)}
-                    placeholder={locale === 'am' ? 'እናት, አባት...' : 'Mother, Father...'}
-                    className="w-full pl-8 pr-2 py-2 text-[10px] rounded-[10px] outline-none transition-all focus:border-teal-400"
-                    style={{ background: colors.inputBgEmerg, border: `1px solid ${colors.inputBorderEmerg}`, color: colors.textMain }} />
-                </div>
-              </div>
-            </div>
 
-            <div className="flex items-center gap-3 px-4 py-3 rounded-[14px]" style={{ background: isDark ? 'rgba(0,0,0,0.15)' : 'rgba(13,148,136,0.05)', border: '1px solid rgba(20, 184, 166, 0.15)' }}>
-              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#0d9488' }}>
-                <i className="bx bx-crown text-white text-lg" />
+              <div className="flex items-center gap-3 px-4 py-3 rounded-[14px]" style={{ background: isDark ? 'rgba(0,0,0,0.15)' : 'rgba(13,148,136,0.05)', border: '1px solid rgba(20, 184, 166, 0.15)' }}>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#0d9488' }}>
+                  <i className="bx bx-crown text-white text-lg" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-bold" style={{ color: '#14b8a6' }}>{t('idVerification') || 'Premium ID Verification'}</p>
+                  <p className="text-[10px]" style={{ color: colors.textMuted }}>{locale === 'am' ? 'መለያዎን በፈገግታ እና በማንነት ማረጋገጫ ያስጠብቁ።' : 'Secure your account with face and identity verification.'}</p>
+                  {(idFrontPreview || idBackPreview) && (
+                    <p className="text-[10px] mt-0.5" style={{ color: idFrontPreview && idBackPreview ? '#6ee7b7' : (isDark ? '#D9B84A' : '#b4952d') }}>
+                      {idFrontPreview && idBackPreview ? '✓ Both sides verified' : '⚠️ Front uploaded — upload back side'}
+                    </p>
+                  )}
+                </div>
+                <button type="button" onClick={startPremiumVerification}
+                  className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-[11px] font-bold hover:opacity-90 transition"
+                  style={{ background: '#00d8d6', color: '#001A1A' }}>
+                  <i className="bx bx-scan text-sm font-bold" />
+                  {idFrontPreview && !idBackPreview ? (locale === 'am' ? 'ቀጥል →' : 'Continue →') : (locale === 'am' ? 'ጀምር →' : 'Start →')}
+                </button>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-bold" style={{ color: '#14b8a6' }}>{t('idVerification') || 'Premium ID Verification'}</p>
-                <p className="text-[10px]" style={{ color: colors.textMuted }}>{locale === 'am' ? 'መለያዎን በፈገግታ እና በማንነት ማረጋገጫ ያስጠብቁ።' : 'Secure your account with face and identity verification.'}</p>
-                {(idFrontPreview || idBackPreview) && (
-                  <p className="text-[10px] mt-0.5" style={{ color: idFrontPreview && idBackPreview ? '#6ee7b7' : (isDark ? '#D9B84A' : '#b4952d') }}>
-                    {idFrontPreview && idBackPreview ? '✓ Both sides verified' : '⚠️ Front uploaded — upload back side'}
-                  </p>
-                )}
+
+              {/* Password Row */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[11px] font-bold mb-1.5" style={{ color: colors.textMain }}>{t('passwordLabel')} <span style={{ color: '#ef4444' }}>*</span></label>
+                  <div className="relative">
+                    <i className="bx bx-lock-alt absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: colors.textMuted }} />
+                    <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required
+                      placeholder="••••••••"
+                      className="w-full pl-9 pr-8 py-2.5 text-[11px] rounded-[12px] outline-none transition-all focus:border-teal-400"
+                      style={{ background: colors.inputBg, border: `1px solid ${colors.inputBorder}`, color: colors.textMain }} />
+                    <button type="button" onClick={() => setShowPassword(v => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: colors.textMuted }}>
+                      <i className={`bx ${showPassword ? 'bx-hide' : 'bx-show'} text-[13px]`} />
+                    </button>
+                  </div>
+                  <PasswordStrengthChecker password={password} />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold mb-1.5" style={{ color: colors.textMain }}>{locale === 'am' ? 'የይለፍ ቃል አረጋግጥ' : 'Confirm Password'} <span style={{ color: '#ef4444' }}>*</span></label>
+                  <div className="relative">
+                    <i className="bx bx-lock-alt absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: colors.textMuted }} />
+                    <input type={showPassword ? 'text' : 'password'} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required
+                      placeholder="••••••••"
+                      className="w-full pl-9 pr-8 py-2.5 text-[11px] rounded-[12px] outline-none transition-all focus:border-teal-400"
+                      style={{ background: colors.inputBg, border: `1px solid ${colors.inputBorder}`, color: colors.textMain }} />
+                    <button type="button" onClick={() => setShowPassword(v => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: colors.textMuted }}>
+                      <i className={`bx ${showPassword ? 'bx-hide' : 'bx-show'} text-[13px]`} />
+                    </button>
+                  </div>
+                </div>
               </div>
-              <button type="button" onClick={startPremiumVerification}
-                className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-[11px] font-bold hover:opacity-90 transition"
-                style={{ background: '#00d8d6', color: '#001A1A' }}>
-                <i className="bx bx-scan text-sm font-bold" />
-                {idFrontPreview && !idBackPreview ? (locale === 'am' ? 'ቀጥል →' : 'Continue →') : (locale === 'am' ? 'ጀምር →' : 'Start →')}
+
+              {/* Terms */}
+              <div className="flex items-start gap-2 pt-1">
+                <input type="checkbox" id="agree" checked={agree} onChange={e => setAgree(e.target.checked)}
+                  className="mt-0.5 w-3.5 h-3.5 cursor-pointer" style={{ accentColor: '#0d9488' }} />
+                <label htmlFor="agree" className="text-[10px] leading-relaxed cursor-pointer" style={{ color: colors.textMuted }}>
+                  {locale === 'am' ? 'እኔ እስማማለሁ በ ' : 'I agree to the '}
+                  <button type="button" onClick={() => setLegalModal('terms')} className="font-bold hover:underline" style={{ color: '#14b8a6' }}>{t('termsOfService')}</button>
+                  {locale === 'am' ? ' እና ' : ' and '}
+                  <button type="button" onClick={() => setLegalModal('privacy')} className="font-bold hover:underline" style={{ color: '#14b8a6' }}>{t('privacyPolicy')}</button>
+                  {locale === 'am' ? ' እንዲሁም ሁሉም መረጃ ትክክለኛ መሆኑን አረጋግጣለሁ።' : ' and confirm that all information provided is accurate and truthful.'}
+                </label>
+              </div>
+
+              {/* Create Account Button - Full Width */}
+              <button type="submit" disabled={isSubmitting || hasAnyPhoneError}
+                className="w-full py-3 text-[13px] font-black rounded-full flex items-center justify-center gap-2 transition disabled:opacity-50 hover:opacity-90"
+                style={{ background: 'linear-gradient(135deg, #0d9488, #0f766e)', color: '#fff', boxShadow: '0 4px 20px rgba(13, 148, 136, 0.3)' }}>
+                {isSubmitting ? t('creatingAccount') : t('createAccountBtn')}
+                <i className="bx bx-right-arrow-alt text-base" />
               </button>
-            </div>
 
-            {/* Password Row */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[11px] font-bold mb-1.5" style={{ color: colors.textMain }}>{t('passwordLabel')} <span style={{ color: '#ef4444' }}>*</span></label>
-                <div className="relative">
-                  <i className="bx bx-lock-alt absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: colors.textMuted }} />
-                  <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required
-                    placeholder="••••••••"
-                    className="w-full pl-9 pr-8 py-2.5 text-[11px] rounded-[12px] outline-none transition-all focus:border-teal-400"
-                    style={{ background: colors.inputBg, border: `1px solid ${colors.inputBorder}`, color: colors.textMain }} />
-                  <button type="button" onClick={() => setShowPassword(v => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: colors.textMuted }}>
-                    <i className={`bx ${showPassword ? 'bx-hide' : 'bx-show'} text-[13px]`} />
-                  </button>
-                </div>
-                <PasswordStrengthChecker password={password} />
+              {/* Divider */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-[1px]" style={{ background: colors.divider }} />
+                <span className="text-[10px]" style={{ color: colors.textMuted }}>{t('orContinueWith')}</span>
+                <div className="flex-1 h-[1px]" style={{ background: colors.divider }} />
               </div>
-              <div>
-                <label className="block text-[11px] font-bold mb-1.5" style={{ color: colors.textMain }}>{locale === 'am' ? 'የይለፍ ቃል አረጋግጥ' : 'Confirm Password'} <span style={{ color: '#ef4444' }}>*</span></label>
-                <div className="relative">
-                  <i className="bx bx-lock-alt absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: colors.textMuted }} />
-                  <input type={showPassword ? 'text' : 'password'} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required
-                    placeholder="••••••••"
-                    className="w-full pl-9 pr-8 py-2.5 text-[11px] rounded-[12px] outline-none transition-all focus:border-teal-400"
-                    style={{ background: colors.inputBg, border: `1px solid ${colors.inputBorder}`, color: colors.textMain }} />
-                  <button type="button" onClick={() => setShowPassword(v => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: colors.textMuted }}>
-                    <i className={`bx ${showPassword ? 'bx-hide' : 'bx-show'} text-[13px]`} />
-                  </button>
-                </div>
-              </div>
-            </div>
 
-            {/* Terms */}
-            <div className="flex items-start gap-2 pt-1">
-              <input type="checkbox" id="agree" checked={agree} onChange={e => setAgree(e.target.checked)}
-                className="mt-0.5 w-3.5 h-3.5 cursor-pointer" style={{ accentColor: '#0d9488' }} />
-              <label htmlFor="agree" className="text-[10px] leading-relaxed cursor-pointer" style={{ color: colors.textMuted }}>
-                {locale === 'am' ? 'እኔ እስማማለሁ በ ' : 'I agree to the '}
-                <button type="button" onClick={() => setLegalModal('terms')} className="font-bold hover:underline" style={{ color: '#14b8a6' }}>{t('termsOfService')}</button>
-                {locale === 'am' ? ' እና ' : ' and '}
-                <button type="button" onClick={() => setLegalModal('privacy')} className="font-bold hover:underline" style={{ color: '#14b8a6' }}>{t('privacyPolicy')}</button>
-                {locale === 'am' ? ' እንዲሁም ሁሉም መረጃ ትክክለኛ መሆኑን አረጋግጣለሁ።' : ' and confirm that all information provided is accurate and truthful.'}
-              </label>
-            </div>
+              {/* Google Button */}
+              <button type="button" onClick={handleGoogleLogin} disabled={isGoogleLoading}
+                className={`w-full py-2.5 text-[11px] font-bold rounded-[12px] flex items-center justify-center gap-2 transition ${isDark ? 'hover:bg-[#112328]' : 'hover:bg-gray-50'}`}
+                style={{ background: colors.googleBtnBg, border: `1px solid ${colors.divider}`, color: colors.textMain }}>
+                <svg className="w-3.5 h-3.5" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                  <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                  <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                  <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                  <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                </svg>
+                {isGoogleLoading ? t('signingIn') : t('continueWithGoogle')}
+              </button>
 
-            {/* Create Account Button - Full Width */}
-            <button type="submit" disabled={isSubmitting || hasAnyPhoneError}
-              className="w-full py-3 text-[13px] font-black rounded-full flex items-center justify-center gap-2 transition disabled:opacity-50 hover:opacity-90"
-              style={{ background: 'linear-gradient(135deg, #0d9488, #0f766e)', color: '#fff', boxShadow: '0 4px 20px rgba(13, 148, 136, 0.3)' }}>
-              {isSubmitting ? t('creatingAccount') : t('createAccountBtn')}
-              <i className="bx bx-right-arrow-alt text-base" />
-            </button>
+              {/* Already have account */}
+              <p className="text-center text-[10px]" style={{ color: colors.textMuted }}>{t('alreadyHaveAccount')}</p>
 
-            {/* Divider */}
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-[1px]" style={{ background: colors.divider }} />
-              <span className="text-[10px]" style={{ color: colors.textMuted }}>{t('orContinueWith')}</span>
-              <div className="flex-1 h-[1px]" style={{ background: colors.divider }} />
-            </div>
+              {/* Sign In Button */}
+              <button type="button" onClick={() => navigate('/login')}
+                className={`w-full py-2.5 text-[11px] font-bold rounded-[12px] flex items-center justify-center gap-2 transition ${isDark ? 'hover:bg-[#112328]' : 'hover:bg-gray-50'}`}
+                style={{ background: colors.googleBtnBg, border: `1px solid ${colors.divider}`, color: colors.textMain }}>
+                <i className="bx bx-log-in text-sm" />
+                {t('signIn')}
+              </button>
 
-            {/* Google Button */}
-            <button type="button" onClick={handleGoogleLogin} disabled={isGoogleLoading}
-              className={`w-full py-2.5 text-[11px] font-bold rounded-[12px] flex items-center justify-center gap-2 transition ${isDark ? 'hover:bg-[#112328]' : 'hover:bg-gray-50'}`}
-              style={{ background: colors.googleBtnBg, border: `1px solid ${colors.divider}`, color: colors.textMain }}>
-              <svg className="w-3.5 h-3.5" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
-                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
-              </svg>
-              {isGoogleLoading ? t('signingIn') : t('continueWithGoogle')}
-            </button>
+              {/* Home Link */}
+              <Link to="/" className="flex items-center justify-center gap-1 text-[10px] font-medium hover:underline" style={{ color: colors.textMuted }}>
+                ← {t('navHome')}
+              </Link>
 
-            {/* Already have account */}
-            <p className="text-center text-[10px]" style={{ color: colors.textMuted }}>{t('alreadyHaveAccount')}</p>
-
-            {/* Sign In Button */}
-            <button type="button" onClick={() => navigate('/login')}
-              className={`w-full py-2.5 text-[11px] font-bold rounded-[12px] flex items-center justify-center gap-2 transition ${isDark ? 'hover:bg-[#112328]' : 'hover:bg-gray-50'}`}
-              style={{ background: colors.googleBtnBg, border: `1px solid ${colors.divider}`, color: colors.textMain }}>
-              <i className="bx bx-log-in text-sm" />
-              {t('signIn')}
-            </button>
-
-            {/* Home Link */}
-            <Link to="/" className="flex items-center justify-center gap-1 text-[10px] font-medium hover:underline" style={{ color: colors.textMuted }}>
-              ← {t('navHome')}
-            </Link>
-
-          </form>
-        </div>
-      </div>
-
-      {/* Hidden Google button ref */}
-      <div ref={googleBtnRef} style={{ position: 'absolute', left: '-9999px', top: 0, width: '320px' }} aria-hidden="true" />
-
-      {/* Scan Method Modal */}
-      {showOptionsModal && (
-      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
-        <div className="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-[var(--card-bg)]">
-          <div className="flex items-center justify-between border-b border-slate-100 p-6 dark:border-teal-900/40">
-            <div>
-              <h3 className="font-bold text-slate-800 dark:text-slate-200">
-                {activeIdSide === 'front' ? 'Upload Front Face' : 'Upload Back Face'}
-              </h3>
-              <p className="mt-1 text-xs text-slate-500">
-                {activeIdSide === 'front' ? 'Upload the front of your ID first' : 'Now upload the back of your ID'}
-              </p>
-            </div>
-            <button type="button" onClick={() => setShowOptionsModal(false)} className="text-slate-400 hover:text-slate-600">
-              <i className="bx bx-x text-2xl"></i>
-            </button>
-          </div>
-          <div className="space-y-4 p-6">
-            <button
-              type="button"
-              onClick={() => startCamera(activeIdSide)}
-              className="flex w-full items-center gap-4 rounded-xl border border-slate-200 p-4 transition hover:bg-slate-50 dark:border-teal-900/40 dark:hover:bg-slate-700"
-            >
-              <div className="rounded-lg bg-blue-100 p-3 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400">
-                <i className="bx bx-camera text-xl"></i>
-              </div>
-              <div className="text-left">
-                <div className="font-bold text-slate-800 dark:text-slate-200">Scan by Camera</div>
-                <div className="text-xs text-slate-500">Take a photo using your device</div>
-              </div>
-            </button>
-
-            <label className="flex w-full cursor-pointer items-center gap-4 rounded-xl border border-slate-200 p-4 transition hover:bg-slate-50 dark:border-teal-900/40 dark:hover:bg-slate-700">
-              <input type="file" accept="image/*" className="hidden" onChange={handleIdUpload} />
-              <div className="rounded-lg bg-teal-100 p-3 text-teal-600 dark:bg-teal-900/50 dark:text-teal-400">
-                <i className="bx bx-upload text-xl"></i>
-              </div>
-              <div className="text-left">
-                <div className="font-bold text-slate-800 dark:text-slate-200">
-                  {activeIdSide === 'front' ? 'Upload Front Face' : 'Upload Back Face'}
-                </div>
-                <div className="text-xs text-slate-500">Choose an image from your device</div>
-              </div>
-            </label>
+            </form>
           </div>
         </div>
-      </div>
-    )
-  }
 
-      {/* Analyzing Overlay */}
-      {isAnalyzing && (
-      <div className="fixed inset-0 z-[80] flex flex-col items-center justify-center bg-[var(--bg)]/90 backdrop-blur-md">
-        <div className="w-16 h-16 border-4 border-[var(--primary-light)] border-t-transparent rounded-full animate-spin mb-4"></div>
-        <h2 className="text-xl font-bold text-white">Analyzing ID Image...</h2>
-        <p className="text-slate-300 text-sm mt-2 text-center max-w-xs">Checking for valid face positioning and extracting document details</p>
-      </div>
-    )
-  }
+        {/* Hidden Google button ref */}
+        <div ref={googleBtnRef} style={{ position: 'absolute', left: '-9999px', top: 0, width: '320px' }} aria-hidden="true" />
 
-      {/* Camera Modal */}
-      {showCameraModal && (
-      <div className="fixed inset-0 z-[70] flex flex-col bg-[var(--bg)] overflow-hidden font-sans">
-        <style>{`
+        {/* Scan Method Modal */}
+        {showOptionsModal && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
+            <div className="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-[var(--card-bg)]">
+              <div className="flex items-center justify-between border-b border-slate-100 p-6 dark:border-teal-900/40">
+                <div>
+                  <h3 className="font-bold text-slate-800 dark:text-slate-200">
+                    {activeIdSide === 'front' ? 'Upload Front Face' : 'Upload Back Face'}
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {activeIdSide === 'front' ? 'Upload the front of your ID first' : 'Now upload the back of your ID'}
+                  </p>
+                </div>
+                <button type="button" onClick={() => setShowOptionsModal(false)} className="text-slate-400 hover:text-slate-600">
+                  <i className="bx bx-x text-2xl"></i>
+                </button>
+              </div>
+              <div className="space-y-4 p-6">
+                <button
+                  type="button"
+                  onClick={() => startCamera(activeIdSide)}
+                  className="flex w-full items-center gap-4 rounded-xl border border-slate-200 p-4 transition hover:bg-slate-50 dark:border-teal-900/40 dark:hover:bg-slate-700"
+                >
+                  <div className="rounded-lg bg-blue-100 p-3 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400">
+                    <i className="bx bx-camera text-xl"></i>
+                  </div>
+                  <div className="text-left">
+                    <div className="font-bold text-slate-800 dark:text-slate-200">Scan by Camera</div>
+                    <div className="text-xs text-slate-500">Take a photo using your device</div>
+                  </div>
+                </button>
+
+                <label className="flex w-full cursor-pointer items-center gap-4 rounded-xl border border-slate-200 p-4 transition hover:bg-slate-50 dark:border-teal-900/40 dark:hover:bg-slate-700">
+                  <input type="file" accept="image/*" className="hidden" onChange={handleIdUpload} />
+                  <div className="rounded-lg bg-teal-100 p-3 text-teal-600 dark:bg-teal-900/50 dark:text-teal-400">
+                    <i className="bx bx-upload text-xl"></i>
+                  </div>
+                  <div className="text-left">
+                    <div className="font-bold text-slate-800 dark:text-slate-200">
+                      {activeIdSide === 'front' ? 'Upload Front Face' : 'Upload Back Face'}
+                    </div>
+                    <div className="text-xs text-slate-500">Choose an image from your device</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+        )
+        }
+
+        {/* Analyzing Overlay */}
+        {isAnalyzing && (
+          <div className="fixed inset-0 z-[80] flex flex-col items-center justify-center bg-[var(--bg)]/90 backdrop-blur-md">
+            <div className="w-16 h-16 border-4 border-[var(--primary-light)] border-t-transparent rounded-full animate-spin mb-4"></div>
+            <h2 className="text-xl font-bold text-white">Analyzing ID Image...</h2>
+            <p className="text-slate-300 text-sm mt-2 text-center max-w-xs">Checking for valid face positioning and extracting document details</p>
+          </div>
+        )
+        }
+
+        {/* Camera Modal */}
+        {showCameraModal && (
+          <div className="fixed inset-0 z-[70] flex flex-col bg-[var(--bg)] overflow-hidden font-sans">
+            <style>{`
             @keyframes scan {
               0% { top: 5%; opacity: 0; }
               15% { opacity: 1; }
@@ -1132,290 +1132,290 @@ const Register = () => {
             }
           `}</style>
 
-        {/* Header */}
-        <div className="w-full px-8 py-6 flex justify-between items-center z-50">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center p-1.5 border border-white/20">
-              <img src="/assets/images/icon.png" alt="logo" className="w-full h-full object-contain" />
-            </div>
-            <span className="text-white font-bold text-xl tracking-tight">DaycareHQ</span>
-          </div>
-          <button type="button" onClick={stopCamera} className="w-10 h-10 rounded-xl bg-[var(--card-bg)] border border-[var(--white)]/10 text-[var(--white)] flex items-center justify-center hover:bg-[var(--white)]/10 transition-colors">
-            <i className="bx bx-x text-xl"></i>
-          </button>
-        </div>
-
-        <div className="relative flex-grow flex w-full h-full">
-
-          {/* Left Panel */}
-          <div className="hidden lg:flex absolute left-8 top-12 w-[320px] flex-col gap-8 z-40">
-            <div>
-              <h2 className="text-white text-3xl font-bold mb-2">Scan {activeIdSide === 'front' ? 'Front' : 'Back'} Face</h2>
-              <p className="text-slate-400 text-sm mb-5">Align your ID in the frame to begin scanning</p>
-              {isAutoScanning && (
-                <div className="inline-flex items-center gap-2 bg-[var(--primary-dark)]/25 border border-[var(--primary-light)]/25 text-[var(--primary-light)] px-3 py-1.5 rounded-full text-[10px] font-bold tracking-widest">
-                  <div className="w-2 h-2 bg-[var(--primary-light)] rounded-full animate-pulse shadow-[0_0_8px_rgba(22,196,201,0.6)]"></div>
-                  AUTO-SCANNING
+            {/* Header */}
+            <div className="w-full px-8 py-6 flex justify-between items-center z-50">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center p-1.5 border border-white/20">
+                  <img src="/assets/images/icon.png" alt="logo" className="w-full h-full object-contain" />
                 </div>
-              )}
+                <span className="text-white font-bold text-xl tracking-tight">DaycareHQ</span>
+              </div>
+              <button type="button" onClick={stopCamera} className="w-10 h-10 rounded-xl bg-[var(--card-bg)] border border-[var(--white)]/10 text-[var(--white)] flex items-center justify-center hover:bg-[var(--white)]/10 transition-colors">
+                <i className="bx bx-x text-xl"></i>
+              </button>
             </div>
 
-            <div className="bg-[var(--card-bg)]/80 backdrop-blur-md rounded-2xl p-6 border border-[var(--white)]/10 flex flex-col gap-6 shadow-xl">
-              <div className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-full bg-[var(--primary-dark)]/30 flex items-center justify-center text-[var(--primary-light)] border border-[var(--primary-light)]/20 shadow-[0_0_15px_rgba(22,196,201,0.15)]">
-                  <i className="bx bx-target-lock text-xl"></i>
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-slate-200 text-sm font-semibold mb-0.5">Good Lighting</h4>
-                  <p className="text-slate-500 text-xs">Well lit environment detected</p>
-                </div>
-                <div className={scanStatus.lighting ? "text-[var(--primary-light)]" : "text-slate-600"}>
-                  <i className={scanStatus.lighting ? "bx bx-check-circle text-xl" : "bx bx-loader-alt bx-spin text-xl"}></i>
-                </div>
-              </div>
+            <div className="relative flex-grow flex w-full h-full">
 
-              <div className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-full bg-[var(--primary-dark)]/30 flex items-center justify-center text-[var(--primary-light)] border border-[var(--primary-light)]/20 shadow-[0_0_15px_rgba(22,196,201,0.15)]">
-                  <i className="bx bx-face text-xl"></i>
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-slate-200 text-sm font-semibold mb-0.5">{activeIdSide === 'front' ? 'Face Position' : 'ID Position'}</h4>
-                  <p className="text-slate-500 text-xs">{activeIdSide === 'front' ? 'Face properly aligned' : 'ID properly aligned'}</p>
-                </div>
-                <div className={scanStatus.position ? "text-[var(--primary-light)]" : "text-slate-600"}>
-                  <i className={scanStatus.position ? "bx bx-check-circle text-xl" : "bx bx-loader-alt bx-spin text-xl"}></i>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-full bg-[var(--primary-dark)]/30 flex items-center justify-center text-[var(--primary-light)] border border-[var(--primary-light)]/20 shadow-[0_0_15px_rgba(22,196,201,0.15)]">
-                  <i className="bx bx-show text-xl"></i>
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-slate-200 text-sm font-semibold mb-0.5">Clear View</h4>
-                  <p className="text-slate-500 text-xs">No obstructions detected</p>
-                </div>
-                <div className={scanStatus.clearness ? "text-[var(--primary-light)]" : "text-slate-600"}>
-                  <i className={scanStatus.clearness ? "bx bx-check-circle text-xl" : "bx bx-loader-alt bx-spin text-xl"}></i>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Panel */}
-          <div className="hidden lg:block absolute right-8 top-12 w-[320px] z-40">
-            <div className="bg-[var(--card-bg)]/80 backdrop-blur-md rounded-2xl p-6 border border-[var(--white)]/10 shadow-xl">
-              <h3 className="text-white font-semibold mb-6 flex items-center gap-2 text-sm tracking-wide">
-                <i className="bx bx-bulb text-[var(--primary-light)] text-lg"></i>
-                <span className="text-[var(--primary-light)]">Scanning</span> Tips
-              </h3>
-
-              <div className="flex flex-col gap-6">
-                <div className="flex items-start gap-4">
-                  <i className="bx bx-sun text-[var(--primary-light)] mt-0.5 text-lg"></i>
-                  <div>
-                    <h4 className="text-slate-200 text-sm font-medium mb-1">Ensure good lighting</h4>
-                    <p className="text-slate-500 text-xs leading-relaxed">Natural light works best</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <i className="bx bx-camera text-[var(--primary-light)] mt-0.5 text-lg"></i>
-                  <div>
-                    <h4 className="text-slate-200 text-sm font-medium mb-1">Look directly at the camera</h4>
-                    <p className="text-slate-500 text-xs leading-relaxed">Keep your head straight</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <i className="bx bx-glasses text-[var(--primary-light)] mt-0.5 text-lg"></i>
-                  <div>
-                    <h4 className="text-slate-200 text-sm font-medium mb-1">Remove glasses or accessories</h4>
-                    <p className="text-slate-500 text-xs leading-relaxed">For best results</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Center Camera Area */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
-            <div className="relative flex flex-col items-center justify-center">
-
-              <div className="relative w-[360px] h-[360px] md:w-[480px] md:h-[480px]">
-                {/* Corner Brackets */}
-                <div className="absolute -inset-10 pointer-events-none hidden md:block">
-                  <div className="absolute top-0 left-0 w-16 h-16 border-t-[3px] border-l-[3px] border-[var(--primary-light)] rounded-tl-3xl opacity-80 drop-shadow-[0_0_12px_rgba(22,196,201,0.6)]"></div>
-                  <div className="absolute top-0 right-0 w-16 h-16 border-t-[3px] border-r-[3px] border-[var(--primary-light)] rounded-tr-3xl opacity-80 drop-shadow-[0_0_12px_rgba(22,196,201,0.6)]"></div>
-                  <div className="absolute bottom-0 left-0 w-16 h-16 border-b-[3px] border-l-[3px] border-[var(--primary-light)] rounded-bl-3xl opacity-80 drop-shadow-[0_0_12px_rgba(22,196,201,0.6)]"></div>
-                  <div className="absolute bottom-0 right-0 w-16 h-16 border-b-[3px] border-r-[3px] border-[var(--primary-light)] rounded-br-3xl opacity-80 drop-shadow-[0_0_12px_rgba(22,196,201,0.6)]"></div>
-                </div>
-
-                {/* Inner Glowing Ring */}
-                <div className="absolute inset-0 rounded-full border-[6px] border-[var(--primary-light)]/20 shadow-[0_0_40px_rgba(22,196,201,0.25)]"></div>
-
-                {/* The actual video element clipped to a circle */}
-                <div className="absolute inset-1 rounded-full overflow-hidden bg-slate-900 shadow-inner">
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    playsInline
-                    className="w-full h-full object-cover"
-                  />
-
-                  {/* Laser Scanner */}
+              {/* Left Panel */}
+              <div className="hidden lg:flex absolute left-8 top-12 w-[320px] flex-col gap-8 z-40">
+                <div>
+                  <h2 className="text-white text-3xl font-bold mb-2">Scan {activeIdSide === 'front' ? 'Front' : 'Back'} Face</h2>
+                  <p className="text-slate-400 text-sm mb-5">Align your ID in the frame to begin scanning</p>
                   {isAutoScanning && (
-                    <div className="absolute inset-0 pointer-events-none">
-                      <div
-                        className="w-full h-[2px] bg-[var(--primary-light)]/40 absolute left-0"
-                        style={{
-                          boxShadow: '0 0 20px 6px var(--primary-glow)',
-                          animation: 'scan 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite'
-                        }}
-                      />
+                    <div className="inline-flex items-center gap-2 bg-[var(--primary-dark)]/25 border border-[var(--primary-light)]/25 text-[var(--primary-light)] px-3 py-1.5 rounded-full text-[10px] font-bold tracking-widest">
+                      <div className="w-2 h-2 bg-[var(--primary-light)] rounded-full animate-pulse shadow-[0_0_8px_rgba(22,196,201,0.6)]"></div>
+                      AUTO-SCANNING
                     </div>
                   )}
                 </div>
+
+                <div className="bg-[var(--card-bg)]/80 backdrop-blur-md rounded-2xl p-6 border border-[var(--white)]/10 flex flex-col gap-6 shadow-xl">
+                  <div className="flex items-center gap-4">
+                    <div className="w-11 h-11 rounded-full bg-[var(--primary-dark)]/30 flex items-center justify-center text-[var(--primary-light)] border border-[var(--primary-light)]/20 shadow-[0_0_15px_rgba(22,196,201,0.15)]">
+                      <i className="bx bx-target-lock text-xl"></i>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-slate-200 text-sm font-semibold mb-0.5">Good Lighting</h4>
+                      <p className="text-slate-500 text-xs">Well lit environment detected</p>
+                    </div>
+                    <div className={scanStatus.lighting ? "text-[var(--primary-light)]" : "text-slate-600"}>
+                      <i className={scanStatus.lighting ? "bx bx-check-circle text-xl" : "bx bx-loader-alt bx-spin text-xl"}></i>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="w-11 h-11 rounded-full bg-[var(--primary-dark)]/30 flex items-center justify-center text-[var(--primary-light)] border border-[var(--primary-light)]/20 shadow-[0_0_15px_rgba(22,196,201,0.15)]">
+                      <i className="bx bx-face text-xl"></i>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-slate-200 text-sm font-semibold mb-0.5">{activeIdSide === 'front' ? 'Face Position' : 'ID Position'}</h4>
+                      <p className="text-slate-500 text-xs">{activeIdSide === 'front' ? 'Face properly aligned' : 'ID properly aligned'}</p>
+                    </div>
+                    <div className={scanStatus.position ? "text-[var(--primary-light)]" : "text-slate-600"}>
+                      <i className={scanStatus.position ? "bx bx-check-circle text-xl" : "bx bx-loader-alt bx-spin text-xl"}></i>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="w-11 h-11 rounded-full bg-[var(--primary-dark)]/30 flex items-center justify-center text-[var(--primary-light)] border border-[var(--primary-light)]/20 shadow-[0_0_15px_rgba(22,196,201,0.15)]">
+                      <i className="bx bx-show text-xl"></i>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-slate-200 text-sm font-semibold mb-0.5">Clear View</h4>
+                      <p className="text-slate-500 text-xs">No obstructions detected</p>
+                    </div>
+                    <div className={scanStatus.clearness ? "text-[var(--primary-light)]" : "text-slate-600"}>
+                      <i className={scanStatus.clearness ? "bx bx-check-circle text-xl" : "bx bx-loader-alt bx-spin text-xl"}></i>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Instruction Text below camera */}
-              <div className="mt-14 text-center z-20">
-                <p className="text-white/90 font-medium tracking-wide">Position the {activeIdSide} of your ID within the frame</p>
-                <p className="text-slate-500 text-xs mt-2">Ensure good lighting and avoid glare</p>
+              {/* Right Panel */}
+              <div className="hidden lg:block absolute right-8 top-12 w-[320px] z-40">
+                <div className="bg-[var(--card-bg)]/80 backdrop-blur-md rounded-2xl p-6 border border-[var(--white)]/10 shadow-xl">
+                  <h3 className="text-white font-semibold mb-6 flex items-center gap-2 text-sm tracking-wide">
+                    <i className="bx bx-bulb text-[var(--primary-light)] text-lg"></i>
+                    <span className="text-[var(--primary-light)]">Scanning</span> Tips
+                  </h3>
+
+                  <div className="flex flex-col gap-6">
+                    <div className="flex items-start gap-4">
+                      <i className="bx bx-sun text-[var(--primary-light)] mt-0.5 text-lg"></i>
+                      <div>
+                        <h4 className="text-slate-200 text-sm font-medium mb-1">Ensure good lighting</h4>
+                        <p className="text-slate-500 text-xs leading-relaxed">Natural light works best</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-4">
+                      <i className="bx bx-camera text-[var(--primary-light)] mt-0.5 text-lg"></i>
+                      <div>
+                        <h4 className="text-slate-200 text-sm font-medium mb-1">Look directly at the camera</h4>
+                        <p className="text-slate-500 text-xs leading-relaxed">Keep your head straight</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-4">
+                      <i className="bx bx-glasses text-[var(--primary-light)] mt-0.5 text-lg"></i>
+                      <div>
+                        <h4 className="text-slate-200 text-sm font-medium mb-1">Remove glasses or accessories</h4>
+                        <p className="text-slate-500 text-xs leading-relaxed">For best results</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Center Camera Area */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
+                <div className="relative flex flex-col items-center justify-center">
+
+                  <div className="relative w-[360px] h-[360px] md:w-[480px] md:h-[480px]">
+                    {/* Corner Brackets */}
+                    <div className="absolute -inset-10 pointer-events-none hidden md:block">
+                      <div className="absolute top-0 left-0 w-16 h-16 border-t-[3px] border-l-[3px] border-[var(--primary-light)] rounded-tl-3xl opacity-80 drop-shadow-[0_0_12px_rgba(22,196,201,0.6)]"></div>
+                      <div className="absolute top-0 right-0 w-16 h-16 border-t-[3px] border-r-[3px] border-[var(--primary-light)] rounded-tr-3xl opacity-80 drop-shadow-[0_0_12px_rgba(22,196,201,0.6)]"></div>
+                      <div className="absolute bottom-0 left-0 w-16 h-16 border-b-[3px] border-l-[3px] border-[var(--primary-light)] rounded-bl-3xl opacity-80 drop-shadow-[0_0_12px_rgba(22,196,201,0.6)]"></div>
+                      <div className="absolute bottom-0 right-0 w-16 h-16 border-b-[3px] border-r-[3px] border-[var(--primary-light)] rounded-br-3xl opacity-80 drop-shadow-[0_0_12px_rgba(22,196,201,0.6)]"></div>
+                    </div>
+
+                    {/* Inner Glowing Ring */}
+                    <div className="absolute inset-0 rounded-full border-[6px] border-[var(--primary-light)]/20 shadow-[0_0_40px_rgba(22,196,201,0.25)]"></div>
+
+                    {/* The actual video element clipped to a circle */}
+                    <div className="absolute inset-1 rounded-full overflow-hidden bg-slate-900 shadow-inner">
+                      <video
+                        ref={videoRef}
+                        autoPlay
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+
+                      {/* Laser Scanner */}
+                      {isAutoScanning && (
+                        <div className="absolute inset-0 pointer-events-none">
+                          <div
+                            className="w-full h-[2px] bg-[var(--primary-light)]/40 absolute left-0"
+                            style={{
+                              boxShadow: '0 0 20px 6px var(--primary-glow)',
+                              animation: 'scan 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite'
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Instruction Text below camera */}
+                  <div className="mt-14 text-center z-20">
+                    <p className="text-white/90 font-medium tracking-wide">Position the {activeIdSide} of your ID within the frame</p>
+                    <p className="text-slate-500 text-xs mt-2">Ensure good lighting and avoid glare</p>
+                  </div>
+
+                </div>
+              </div>
+
+              <canvas ref={canvasRef} className="hidden" />
+
+              {/* Bottom Capture Button */}
+              <div className="absolute bottom-8 w-full flex justify-center items-center z-50">
+                <div className="relative flex items-center justify-center group cursor-pointer pointer-events-auto" onClick={captureImage}>
+                  <div className="absolute w-[72px] h-[72px] rounded-full border-2 border-[var(--primary-light)]/40 group-hover:border-[var(--primary-light)] transition-colors shadow-[0_0_15px_rgba(22,196,201,0.2)]"></div>
+                  <button
+                    type="button"
+                    className="w-14 h-14 rounded-full bg-[var(--card-bg)] flex items-center justify-center group-hover:bg-[var(--surface-2)] transition-all text-[var(--white)] border border-[var(--primary-light)]/30 group-active:scale-95"
+                  >
+                    <i className="bx bx-camera text-2xl drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"></i>
+                  </button>
+                </div>
               </div>
 
             </div>
           </div>
+        )
+        }
 
-          <canvas ref={canvasRef} className="hidden" />
+        {/* Legal Document Modal */}
+        {
+          legalModal && (
+            <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="legal-modal-title">
+              <div className="flex max-h-[min(720px,90vh)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-[var(--primary-dark)]/50 bg-[var(--card-bg)] text-slate-200 shadow-2xl shadow-black/40">
+                <div className="flex items-center justify-between border-b border-[var(--primary-light)]/40 px-6 py-5">
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--primary-light)]">DaycareHQ</p>
+                    <h2 id="legal-modal-title" className="mt-1 text-xl font-bold text-white">
+                      {legalModal === 'terms' ? 'Terms of Service' : 'Privacy Policy'}
+                    </h2>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setLegalModal(null)}
+                    aria-label="Close legal document"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-[var(--white)]/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-[var(--primary-light)]"
+                  >
+                    <i className="bx bx-x text-2xl"></i>
+                  </button>
+                </div>
 
-          {/* Bottom Capture Button */}
-          <div className="absolute bottom-8 w-full flex justify-center items-center z-50">
-            <div className="relative flex items-center justify-center group cursor-pointer pointer-events-auto" onClick={captureImage}>
-              <div className="absolute w-[72px] h-[72px] rounded-full border-2 border-[var(--primary-light)]/40 group-hover:border-[var(--primary-light)] transition-colors shadow-[0_0_15px_rgba(22,196,201,0.2)]"></div>
-              <button
-                type="button"
-                className="w-14 h-14 rounded-full bg-[var(--card-bg)] flex items-center justify-center group-hover:bg-[var(--surface-2)] transition-all text-[var(--white)] border border-[var(--primary-light)]/30 group-active:scale-95"
-              >
-                <i className="bx bx-camera text-2xl drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"></i>
-              </button>
+                <div className="overflow-y-auto px-6 py-5 text-sm leading-7 text-slate-300">
+                  {legalModal === 'terms' ? (
+                    <div className="space-y-5">
+                      <p className="text-slate-400">Please review these terms before creating your DaycareHQ account. By using the service, you agree to follow these rules.</p>
+                      <section>
+                        <h3 className="mb-1 font-bold text-white">1. User Account Responsibility</h3>
+                        <p>You are responsible for providing a valid email address, keeping your password confidential, and all activity performed through your account. Notify the daycare administrator promptly if you suspect unauthorized access.</p>
+                      </section>
+                      <section>
+                        <h3 className="mb-1 font-bold text-white">2. Data Accuracy</h3>
+                        <p>You agree to provide accurate, current information about yourself and the children in your care. Keep contact, emergency, health, and authorized pickup information updated so staff can support children safely.</p>
+                      </section>
+                      <section>
+                        <h3 className="mb-1 font-bold text-white">3. Service Rules</h3>
+                        <p>Use DaycareHQ only for lawful daycare administration and communication. Do not impersonate another person, misuse another user&apos;s information, interfere with the service, or upload harmful or misleading content. We may suspend access when necessary to protect children, families, staff, or the service.</p>
+                      </section>
+                      <section>
+                        <h3 className="mb-1 font-bold text-white">4. Liability Limitations</h3>
+                        <p>DaycareHQ provides digital tools for daycare operations and does not replace supervision, medical advice, or emergency services. To the extent permitted by law, DaycareHQ is not liable for indirect losses caused by outages, inaccurate information supplied by a user, or events outside our reasonable control.</p>
+                      </section>
+                      <section>
+                        <h3 className="mb-1 font-bold text-white">5. Payment Terms</h3>
+                        <p>Where paid daycare services or account features are enabled, you agree to provide accurate billing details and pay applicable charges by their due dates. Fees, refunds, and cancellations are governed by the daycare&apos;s published policies. We will not charge a payment method without the applicable authorization.</p>
+                      </section>
+                    </div>
+                  ) : (
+                    <div className="space-y-5">
+                      <p className="text-slate-400">This policy explains how DaycareHQ handles information used to provide safe and reliable daycare services.</p>
+                      <section>
+                        <h3 className="mb-1 font-bold text-white">1. Information We Handle</h3>
+                        <p>We may handle parent or guardian account details, child profiles, attendance, health and emergency details, authorized pickup information, messages, payments, and records needed to operate daycare services.</p>
+                      </section>
+                      <section>
+                        <h3 className="mb-1 font-bold text-white">2. National ID and Passport Scans</h3>
+                        <p>National ID, passport, and other identity-document scans are confidential verification data. Access is limited to authorized personnel who need it for identity, safety, or compliance purposes. We do not publish these scans or use them for advertising, and we retain them only as long as needed for the stated purpose or a legal requirement.</p>
+                      </section>
+                      <section>
+                        <h3 className="mb-1 font-bold text-white">3. Encryption and Protection</h3>
+                        <p>We use access controls and encryption in transit and at rest where supported by the service infrastructure. Passwords are stored using secure one-way hashing, and staff access is limited according to role. No online system can guarantee absolute security, so please protect your account credentials.</p>
+                      </section>
+                      <section>
+                        <h3 className="mb-1 font-bold text-white">4. How Information Is Used</h3>
+                        <p>Information is used to manage enrollment, verify identity, coordinate attendance and pickup, communicate with families, process authorized payments, maintain records, and respond to safety or legal needs. We do not sell personal or child data.</p>
+                      </section>
+                      <section>
+                        <h3 className="mb-1 font-bold text-white">5. Your Choices and Requests</h3>
+                        <p>You may ask the daycare administrator to review, correct, or delete information where permitted by law and operational recordkeeping requirements. Questions about a child&apos;s data should be raised by the parent or legal guardian through the daycare&apos;s designated contact.</p>
+                      </section>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col-reverse gap-3 border-t border-[var(--primary-light)]/40 px-6 py-4 sm:flex-row sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setLegalModal(null)}
+                    className="rounded-xl border border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAgree(true);
+                      setLegalModal(null);
+                    }}
+                    className="rounded-xl bg-[var(--primary-dark)] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-[0_20px_60px_rgba(22,196,201,0.2)] transition hover:bg-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-light)]"
+                  >
+                    Accept &amp; Close
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
+          )
+        }
 
+        {/* Floating Theme Slide-Toggle in Bottom Right */}
+        <div className="fixed bottom-6 right-6 z-55 flex items-center gap-2 bg-white/40 dark:bg-[var(--card-bg)]/40 p-2.5 rounded-full backdrop-blur-md shadow-md border border-[var(--white)]/50 dark:border-[var(--primary-dark)]/30">
+          <i className={`bx ${theme === 'dark' ? 'bx-sun text-[var(--accent)]' : 'bx-moon text-slate-600'} text-lg`}></i>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={theme === 'dark'}
+              onChange={toggleTheme}
+            />
+            <div className="w-10 h-5 bg-slate-300 dark:bg-indigo-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all shadow-inner"></div>
+          </label>
         </div>
-      </div>
-    )
-  }
-
-  {/* Legal Document Modal */ }
-  {
-    legalModal && (
-      <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="legal-modal-title">
-        <div className="flex max-h-[min(720px,90vh)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-[var(--primary-dark)]/50 bg-[var(--card-bg)] text-slate-200 shadow-2xl shadow-black/40">
-          <div className="flex items-center justify-between border-b border-[var(--primary-light)]/40 px-6 py-5">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--primary-light)]">DaycareHQ</p>
-              <h2 id="legal-modal-title" className="mt-1 text-xl font-bold text-white">
-                {legalModal === 'terms' ? 'Terms of Service' : 'Privacy Policy'}
-              </h2>
-            </div>
-            <button
-              type="button"
-              onClick={() => setLegalModal(null)}
-              aria-label="Close legal document"
-              className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-[var(--white)]/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-[var(--primary-light)]"
-            >
-              <i className="bx bx-x text-2xl"></i>
-            </button>
-          </div>
-
-          <div className="overflow-y-auto px-6 py-5 text-sm leading-7 text-slate-300">
-            {legalModal === 'terms' ? (
-              <div className="space-y-5">
-                <p className="text-slate-400">Please review these terms before creating your DaycareHQ account. By using the service, you agree to follow these rules.</p>
-                <section>
-                  <h3 className="mb-1 font-bold text-white">1. User Account Responsibility</h3>
-                  <p>You are responsible for providing a valid email address, keeping your password confidential, and all activity performed through your account. Notify the daycare administrator promptly if you suspect unauthorized access.</p>
-                </section>
-                <section>
-                  <h3 className="mb-1 font-bold text-white">2. Data Accuracy</h3>
-                  <p>You agree to provide accurate, current information about yourself and the children in your care. Keep contact, emergency, health, and authorized pickup information updated so staff can support children safely.</p>
-                </section>
-                <section>
-                  <h3 className="mb-1 font-bold text-white">3. Service Rules</h3>
-                  <p>Use DaycareHQ only for lawful daycare administration and communication. Do not impersonate another person, misuse another user&apos;s information, interfere with the service, or upload harmful or misleading content. We may suspend access when necessary to protect children, families, staff, or the service.</p>
-                </section>
-                <section>
-                  <h3 className="mb-1 font-bold text-white">4. Liability Limitations</h3>
-                  <p>DaycareHQ provides digital tools for daycare operations and does not replace supervision, medical advice, or emergency services. To the extent permitted by law, DaycareHQ is not liable for indirect losses caused by outages, inaccurate information supplied by a user, or events outside our reasonable control.</p>
-                </section>
-                <section>
-                  <h3 className="mb-1 font-bold text-white">5. Payment Terms</h3>
-                  <p>Where paid daycare services or account features are enabled, you agree to provide accurate billing details and pay applicable charges by their due dates. Fees, refunds, and cancellations are governed by the daycare&apos;s published policies. We will not charge a payment method without the applicable authorization.</p>
-                </section>
-              </div>
-            ) : (
-              <div className="space-y-5">
-                <p className="text-slate-400">This policy explains how DaycareHQ handles information used to provide safe and reliable daycare services.</p>
-                <section>
-                  <h3 className="mb-1 font-bold text-white">1. Information We Handle</h3>
-                  <p>We may handle parent or guardian account details, child profiles, attendance, health and emergency details, authorized pickup information, messages, payments, and records needed to operate daycare services.</p>
-                </section>
-                <section>
-                  <h3 className="mb-1 font-bold text-white">2. National ID and Passport Scans</h3>
-                  <p>National ID, passport, and other identity-document scans are confidential verification data. Access is limited to authorized personnel who need it for identity, safety, or compliance purposes. We do not publish these scans or use them for advertising, and we retain them only as long as needed for the stated purpose or a legal requirement.</p>
-                </section>
-                <section>
-                  <h3 className="mb-1 font-bold text-white">3. Encryption and Protection</h3>
-                  <p>We use access controls and encryption in transit and at rest where supported by the service infrastructure. Passwords are stored using secure one-way hashing, and staff access is limited according to role. No online system can guarantee absolute security, so please protect your account credentials.</p>
-                </section>
-                <section>
-                  <h3 className="mb-1 font-bold text-white">4. How Information Is Used</h3>
-                  <p>Information is used to manage enrollment, verify identity, coordinate attendance and pickup, communicate with families, process authorized payments, maintain records, and respond to safety or legal needs. We do not sell personal or child data.</p>
-                </section>
-                <section>
-                  <h3 className="mb-1 font-bold text-white">5. Your Choices and Requests</h3>
-                  <p>You may ask the daycare administrator to review, correct, or delete information where permitted by law and operational recordkeeping requirements. Questions about a child&apos;s data should be raised by the parent or legal guardian through the daycare&apos;s designated contact.</p>
-                </section>
-              </div>
-            )}
-          </div>
-
-          <div className="flex flex-col-reverse gap-3 border-t border-[var(--primary-light)]/40 px-6 py-4 sm:flex-row sm:justify-end">
-            <button
-              type="button"
-              onClick={() => setLegalModal(null)}
-              className="rounded-xl border border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
-            >
-              Close
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setAgree(true);
-                setLegalModal(null);
-              }}
-              className="rounded-xl bg-[var(--primary-dark)] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-[0_20px_60px_rgba(22,196,201,0.2)] transition hover:bg-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-light)]"
-            >
-              Accept &amp; Close
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-      {/* Floating Theme Slide-Toggle in Bottom Right */}
-      <div className="fixed bottom-6 right-6 z-55 flex items-center gap-2 bg-white/40 dark:bg-[var(--card-bg)]/40 p-2.5 rounded-full backdrop-blur-md shadow-md border border-[var(--white)]/50 dark:border-[var(--primary-dark)]/30">
-    <i className={`bx ${theme === 'dark' ? 'bx-sun text-[var(--accent)]' : 'bx-moon text-slate-600'} text-lg`}></i>
-    <label className="relative inline-flex items-center cursor-pointer">
-      <input
-        type="checkbox"
-        className="sr-only peer"
-        checked={theme === 'dark'}
-        onChange={toggleTheme}
-      />
-      <div className="w-10 h-5 bg-slate-300 dark:bg-indigo-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all shadow-inner"></div>
-    </label>
-  </div>
 
       </div>
 
