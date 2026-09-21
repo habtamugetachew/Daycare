@@ -86,11 +86,16 @@ const LiveStreamMonitoring = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Map room name to its corresponding camera feed photo
-  const getRoomImage = (name = '') => {
-    const lower = name.toLowerCase();
+  // Map room name and optional angle index to its corresponding camera feed photo
+  const getRoomImage = (name = '', angle = 1) => {
+    if (angle === 2) return '/assets/images/daycare-rainbow-room.jpg';
+    if (angle === 3) return '/assets/images/daycare-play-area.jpg';
+    const lower = (name || '').toLowerCase();
     if (lower.includes('rainbow') || lower.includes('art') || lower.includes('color')) {
       return '/assets/images/daycare-rainbow-room.jpg';
+    }
+    if (lower.includes('play') || lower.includes('activity')) {
+      return '/assets/images/daycare-play-area.jpg';
     }
     return '/assets/images/daycare-sunshine-room.jpg';
   };
@@ -267,46 +272,54 @@ const LiveStreamMonitoring = () => {
           </div>
         </div>
 
-        {/* Right Side: Role Scope Banner / Admin Switcher */}
-        <div className="flex items-center gap-3">
-          {isAdminOrReception && rooms.length > 1 && (
-            <div className="flex items-center bg-[#0b2438] p-1 rounded-xl border border-teal-500/30">
-              <button
-                type="button"
-                onClick={() => setViewMode('single')}
-                className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-lg transition-all ${viewMode === 'single' ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
-              >
-                <Square className="w-3.5 h-3.5" />
-                Focus
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('matrix')}
-                className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-lg transition-all ${viewMode === 'matrix' ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
-              >
-                <Grid className="w-3.5 h-3.5" />
-                Multi-Cam
-              </button>
-            </div>
-          )}
+        {/* Right Side: Focus & Multi-Cam Switcher + Role Scope Banner */}
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Focus & Multi-Cam Toggle Pill */}
+          <div className="flex items-center bg-[#071f30] p-1 rounded-xl border border-teal-500/40 shadow-inner">
+            <button
+              type="button"
+              onClick={() => setViewMode('single')}
+              className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                viewMode === 'single'
+                  ? 'bg-[#00b4d8] text-white shadow-md shadow-cyan-500/25'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Square className="w-3.5 h-3.5 stroke-[2.5]" />
+              Focus
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('matrix')}
+              className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                viewMode === 'matrix'
+                  ? 'bg-[#00b4d8] text-white shadow-md shadow-cyan-500/25'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Grid className="w-3.5 h-3.5 stroke-[2.5]" />
+              Multi-Cam
+            </button>
+          </div>
 
-          <div className="bg-[#0b2438]/90 border border-teal-500/30 rounded-2xl px-4 py-2.5 flex items-center gap-3.5 shadow-lg">
-            <div className="w-8 h-8 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center shrink-0">
+          {/* Access Scope Banner matching user mockup */}
+          <div className="bg-[#071f30] border border-teal-500/40 rounded-2xl px-5 py-2.5 flex items-center gap-3.5 shadow-lg">
+            <div className="w-9 h-9 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-400 flex items-center justify-center shrink-0">
               <Lock className="w-4 h-4" />
             </div>
             <div>
               <p className="text-xs sm:text-sm font-bold text-white leading-tight">
-                {isTeacher && 'Your Assigned Classroom Only'}
-                {isParent && 'Your Child’s Classroom Only'}
                 {isAdminOrReception && 'Full Campus Access'}
+                {isTeacher && 'Assigned Classroom Access'}
+                {isParent && 'Child Monitoring Access'}
               </p>
               <p className="text-[11px] text-slate-400 mt-0.5">
-                {isTeacher && 'Access limited to your assigned classroom'}
-                {isParent && 'Access limited to your enrolled child’s room'}
                 {isAdminOrReception && 'Monitoring all active classrooms'}
+                {isTeacher && 'Monitoring your assigned classroom feeds'}
+                {isParent && (parentChildren.length > 1 ? "Monitoring your children's feeds" : "Monitoring your child's classroom")}
               </p>
             </div>
-            <div className="w-8 h-8 rounded-full border border-emerald-500/40 text-emerald-400 flex items-center justify-center ml-1 shrink-0">
+            <div className="w-9 h-9 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-400 flex items-center justify-center ml-2 shrink-0">
               <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
@@ -916,46 +929,349 @@ const LiveStreamMonitoring = () => {
         </div>
       )}
 
-      {/* ── Multi-Cam Matrix Grid (Admin Only) ── */}
-      {viewMode === 'matrix' && isAdminOrReception && (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {rooms.map(room => (
-            <div
-              key={room.roomId}
-              className="bg-[#081827] rounded-2xl overflow-hidden border border-teal-900/50 shadow-xl relative group transition-all hover:border-teal-500/50"
-            >
-              <div className="p-3 bg-black/60 flex items-center justify-between text-white text-xs font-mono">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                  <span className="font-bold">{room.name}</span>
-                </div>
-                <span className="text-slate-400">{room.roomNumber}</span>
-              </div>
-              <div className="aspect-video relative bg-slate-900 overflow-hidden">
-                <img
-                  src="/assets/images/daycare-sunshine-room.jpg"
-                  alt={room.name}
-                  className="w-full h-full object-cover"
-                />
-                <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-black/60 text-[10px] text-white">
-                  Camera 01
-                </span>
-              </div>
-              <div className="p-3 bg-[#0b2438] flex items-center justify-between text-xs">
-                <span className="text-slate-300 font-medium">Present: {room.enrolledCount || 8} Children</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedRoomId(room.roomId);
-                    setViewMode('single');
-                  }}
-                  className="px-3 py-1 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-medium text-xs transition-all cursor-pointer"
-                >
-                  Focus Feed
-                </button>
-              </div>
+      {/* ── Multi-Cam Matrix Grid (Role-Based for Parent, Nanny, and Admin) ── */}
+      {viewMode === 'matrix' && (
+        <div className="space-y-4 animate-fade-in">
+          <div className="flex items-center justify-between px-1 flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
+              <span className="text-sm font-bold text-white tracking-wide">
+                {isParent && (parentChildren.length > 1 ? "Multi-Cam Monitoring: All Your Children" : `Multi-Cam Angle View: ${selectedChild?.firstName || 'Your Child'}'s Room`)}
+                {isTeacher && (rooms.length > 1 ? "Multi-Cam Monitoring: Your Assigned Rooms" : `Multi-Cam Angle View: ${roomName}`)}
+                {isAdminOrReception && "Full Campus Multi-Cam Surveillance"}
+              </span>
             </div>
-          ))}
+            <span className="text-xs text-teal-400 font-medium font-mono">
+              {formatLiveTimestamp(currentTime)}
+            </span>
+          </div>
+
+          {/* 1. PARENT MULTI-CAM: For parent its child only */}
+          {isParent && (
+            parentChildren.length >= 2 ? (
+              // Multi-child parent: show dedicated camera feed for each child
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {parentChildren.map((child) => {
+                  const childRoomName = child.classroomName || 'Classroom';
+                  const childImg = getRoomImage(childRoomName);
+                  const isCurrent = child._id === selectedChildId;
+                  return (
+                    <div
+                      key={child._id}
+                      className={`bg-[#081827] rounded-2xl overflow-hidden border transition-all shadow-xl group ${
+                        isCurrent ? 'border-teal-500 shadow-teal-500/20' : 'border-teal-900/50 hover:border-teal-500/40'
+                      }`}
+                    >
+                      <div className="p-3 bg-black/70 flex items-center justify-between text-white text-xs border-b border-white/5">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                          <Baby className="w-4 h-4 text-teal-400" />
+                          <span className="font-bold text-white">{child.firstName} {child.lastName}</span>
+                        </div>
+                        <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-medium border border-teal-500/30">
+                          {childRoomName} {child.classroomNumber ? `(${child.classroomNumber})` : ''}
+                        </span>
+                      </div>
+
+                      <div className="aspect-video relative bg-slate-900 overflow-hidden">
+                        <img
+                          src={childImg}
+                          alt={`${child.firstName}'s Classroom`}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                        <div className="absolute top-2.5 left-2.5 flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded bg-red-600/90 text-white font-bold text-[10px] flex items-center gap-1 shadow">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                            LIVE
+                          </span>
+                          <span className="px-2 py-0.5 rounded bg-black/70 backdrop-blur-md text-[10px] text-teal-300 font-mono">
+                            Camera 01
+                          </span>
+                        </div>
+                        <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded bg-black/70 backdrop-blur-md text-[10px] font-mono text-slate-200">
+                          {formatLiveTimestamp(currentTime)}
+                        </div>
+                        {/* Security Watermark HUD */}
+                        <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-25">
+                          <p className="text-[11px] font-mono font-black text-white/70 tracking-widest uppercase rotate-[-12deg] text-center select-none">
+                            PARENT: {user?.fullName || 'VERIFIED'} • CHILD: {child.firstName} {child.lastName}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="p-3.5 bg-[#0b2438] flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2 text-slate-300">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                          <span className="text-[11px] font-medium text-emerald-300">Live & Encrypted</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedChildId(child._id);
+                            if (child.classroomId) setSelectedRoomId(child.classroomId);
+                            setViewMode('single');
+                            setActionSuccess(`Focused on ${child.firstName}'s classroom feed`);
+                            setTimeout(() => setActionSuccess(''), 2500);
+                          }}
+                          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs transition-all shadow-md shadow-teal-600/20 cursor-pointer"
+                        >
+                          <Square className="w-3.5 h-3.5 stroke-[2.5]" />
+                          Focus Child
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              // Single child parent: show multiple camera angles for that child's room only
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {[
+                  { id: 'cam1', name: 'Main Activity Area', label: 'Camera 01', angle: 1 },
+                  { id: 'cam2', name: 'Play & Learning Zone', label: 'Camera 02', angle: 2 },
+                  { id: 'cam3', name: 'Rest & Reading Corner', label: 'Camera 03', angle: 3 }
+                ].map((cam) => (
+                  <div
+                    key={cam.id}
+                    className="bg-[#081827] rounded-2xl overflow-hidden border border-teal-900/50 hover:border-teal-500/40 transition-all shadow-xl group"
+                  >
+                    <div className="p-3 bg-black/70 flex items-center justify-between text-white text-xs border-b border-white/5">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                        <span className="font-bold">{cam.label} • {cam.name}</span>
+                      </div>
+                      <span className="text-[10px] text-teal-400 font-mono">{roomName}</span>
+                    </div>
+
+                    <div className="aspect-video relative bg-slate-900 overflow-hidden">
+                      <img
+                        src={getRoomImage(roomName, cam.angle)}
+                        alt={cam.name}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                        <span className="px-2 py-0.5 rounded bg-red-600/90 text-white font-bold text-[10px] flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                          LIVE
+                        </span>
+                      </div>
+                      <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded bg-black/70 backdrop-blur-md text-[10px] font-mono text-slate-200">
+                        {formatLiveTimestamp(currentTime)}
+                      </div>
+                      <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-25">
+                        <p className="text-[10px] font-mono font-black text-white/70 tracking-widest uppercase rotate-[-12deg] text-center select-none">
+                          PARENT: {user?.fullName || 'VERIFIED'} • {selectedChild?.firstName || 'CHILD'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 bg-[#0b2438] flex items-center justify-between text-xs">
+                      <span className="text-[11px] text-slate-300">Nanny: <strong className="text-white">{nannyName}</strong></span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setViewMode('single');
+                          setActionSuccess(`Focused on ${cam.label} (${cam.name})`);
+                          setTimeout(() => setActionSuccess(''), 2500);
+                        }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs transition-all shadow-md shadow-teal-600/20 cursor-pointer"
+                      >
+                        <Square className="w-3.5 h-3.5 stroke-[2.5]" />
+                        Focus Feed
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
+          )}
+
+          {/* 2. NANNY MULTI-CAM: For nanny its assigned room only */}
+          {isTeacher && (
+            rooms.length > 1 ? (
+              // Nanny with multiple assigned rooms
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                {rooms.map((room) => {
+                  const isCurrent = room.roomId === selectedRoom?.roomId;
+                  return (
+                    <div
+                      key={room.roomId}
+                      className={`bg-[#081827] rounded-2xl overflow-hidden border transition-all shadow-xl group ${
+                        isCurrent ? 'border-teal-500 shadow-teal-500/20' : 'border-teal-900/50 hover:border-teal-500/40'
+                      }`}
+                    >
+                      <div className="p-3 bg-black/70 flex items-center justify-between text-white text-xs border-b border-white/5">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                          <span className="font-bold text-white">{room.name}</span>
+                        </div>
+                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-mono">
+                          {room.roomNumber || 'Classroom'}
+                        </span>
+                      </div>
+
+                      <div className="aspect-video relative bg-slate-900 overflow-hidden">
+                        <img
+                          src={getRoomImage(room.name)}
+                          alt={room.name}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                        <div className="absolute top-2.5 left-2.5 flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded bg-red-600/90 text-white font-bold text-[10px] flex items-center gap-1 shadow">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                            LIVE
+                          </span>
+                          <span className="px-2 py-0.5 rounded bg-black/70 backdrop-blur-md text-[10px] text-teal-300 font-mono">
+                            Camera 01
+                          </span>
+                        </div>
+                        <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded bg-black/70 backdrop-blur-md text-[10px] font-mono text-slate-200">
+                          {formatLiveTimestamp(currentTime)}
+                        </div>
+                        <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-25">
+                          <p className="text-[11px] font-mono font-black text-white/70 tracking-widest uppercase rotate-[-12deg] text-center select-none">
+                            NANNY: {user?.fullName || 'STAFF'} • ROOM: {room.name}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="p-3.5 bg-[#0b2438] flex items-center justify-between text-xs">
+                        <span className="text-slate-300 font-medium">Present: <strong className="text-white">{room.enrolledCount || 8} Children</strong></span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedRoomId(room.roomId);
+                            setViewMode('single');
+                            setActionSuccess(`Switched focus to ${room.name}`);
+                            setTimeout(() => setActionSuccess(''), 2500);
+                          }}
+                          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs transition-all shadow-md shadow-teal-600/20 cursor-pointer"
+                        >
+                          <Square className="w-3.5 h-3.5 stroke-[2.5]" />
+                          Focus Room
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              // Nanny with 1 assigned room: multi-angle cameras for her room
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {[
+                  { id: 'cam1', name: 'Main Teaching & Group Area', label: 'Camera 01', angle: 1 },
+                  { id: 'cam2', name: 'Activity & Craft Zone', label: 'Camera 02', angle: 2 },
+                  { id: 'cam3', name: 'Rest & Nap Station', label: 'Camera 03', angle: 3 }
+                ].map((cam) => (
+                  <div
+                    key={cam.id}
+                    className="bg-[#081827] rounded-2xl overflow-hidden border border-teal-900/50 hover:border-teal-500/40 transition-all shadow-xl group"
+                  >
+                    <div className="p-3 bg-black/70 flex items-center justify-between text-white text-xs border-b border-white/5">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                        <span className="font-bold">{cam.label} • {cam.name}</span>
+                      </div>
+                      <span className="text-[10px] text-teal-400 font-mono">{roomName}</span>
+                    </div>
+
+                    <div className="aspect-video relative bg-slate-900 overflow-hidden">
+                      <img
+                        src={getRoomImage(roomName, cam.angle)}
+                        alt={cam.name}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                        <span className="px-2 py-0.5 rounded bg-red-600/90 text-white font-bold text-[10px] flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                          LIVE
+                        </span>
+                      </div>
+                      <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded bg-black/70 backdrop-blur-md text-[10px] font-mono text-slate-200">
+                        {formatLiveTimestamp(currentTime)}
+                      </div>
+                      <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-25">
+                        <p className="text-[10px] font-mono font-black text-white/70 tracking-widest uppercase rotate-[-12deg] text-center select-none">
+                          NANNY: {user?.fullName || 'STAFF'} • {roomName}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 bg-[#0b2438] flex items-center justify-between text-xs">
+                      <span className="text-slate-300 font-medium">Present: <strong className="text-white">{childrenCount} Children</strong></span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setViewMode('single');
+                          setActionSuccess(`Focused on ${cam.label} (${cam.name})`);
+                          setTimeout(() => setActionSuccess(''), 2500);
+                        }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs transition-all shadow-md shadow-teal-600/20 cursor-pointer"
+                      >
+                        <Square className="w-3.5 h-3.5 stroke-[2.5]" />
+                        Focus Feed
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
+          )}
+
+          {/* 3. ADMIN / RECEPTION MULTI-CAM: Full campus classrooms */}
+          {isAdminOrReception && (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              {rooms.map(room => (
+                <div
+                  key={room.roomId}
+                  className="bg-[#081827] rounded-2xl overflow-hidden border border-teal-900/50 shadow-xl relative group transition-all hover:border-teal-500/50"
+                >
+                  <div className="p-3 bg-black/60 flex items-center justify-between text-white text-xs font-mono">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                      <span className="font-bold">{room.name}</span>
+                    </div>
+                    <span className="text-slate-400">{room.roomNumber}</span>
+                  </div>
+                  <div className="aspect-video relative bg-slate-900 overflow-hidden">
+                    <img
+                      src={getRoomImage(room.name)}
+                      alt={room.name}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute top-2.5 left-2.5 flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded bg-red-600/90 text-white font-bold text-[10px] flex items-center gap-1 shadow">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                        LIVE
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-black/70 backdrop-blur-md text-[10px] text-teal-300 font-mono">
+                        Camera 01
+                      </span>
+                    </div>
+                    <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded bg-black/70 backdrop-blur-md text-[10px] font-mono text-slate-200">
+                      {formatLiveTimestamp(currentTime)}
+                    </div>
+                  </div>
+                  <div className="p-3.5 bg-[#0b2438] flex items-center justify-between text-xs">
+                    <span className="text-slate-300 font-medium">Present: {room.enrolledCount || 8} Children</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedRoomId(room.roomId);
+                        setViewMode('single');
+                        setActionSuccess(`Switched focus to ${room.name}`);
+                        setTimeout(() => setActionSuccess(''), 2500);
+                      }}
+                      className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs transition-all shadow-md shadow-teal-600/20 cursor-pointer"
+                    >
+                      <Square className="w-3.5 h-3.5 stroke-[2.5]" />
+                      Focus Feed
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
