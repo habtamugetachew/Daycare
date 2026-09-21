@@ -26,7 +26,8 @@ import {
   Grid,
   Square,
   ChevronDown,
-  Check
+  Check,
+  Baby
 } from 'lucide-react';
 
 const LiveStreamMonitoring = () => {
@@ -39,6 +40,12 @@ const LiveStreamMonitoring = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
+
+  // Parent multi-child states
+  const [parentChildren, setParentChildren] = useState([]);
+  const [selectedChildId, setSelectedChildId] = useState(null);
+  const [isChildDropdownOpen, setIsChildDropdownOpen] = useState(false);
+  const childDropdownRef = useRef(null);
 
   // Interactive video controls
   const [volume, setVolume] = useState(65);
@@ -65,11 +72,14 @@ const LiveStreamMonitoring = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Close dropdown on click outside
+  // Close dropdowns on click outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setIsRoomDropdownOpen(false);
+      }
+      if (childDropdownRef.current && !childDropdownRef.current.contains(e.target)) {
+        setIsChildDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -109,7 +119,15 @@ const LiveStreamMonitoring = () => {
       if (res.data.success) {
         const roomList = res.data.data || [];
         setRooms(roomList);
-        if (roomList.length > 0 && !selectedRoomId) {
+        const myKids = res.data.myChildren || [];
+        setParentChildren(myKids);
+
+        if (myKids.length > 0) {
+          setSelectedChildId(prev => prev || myKids[0]._id);
+          if (myKids[0].classroomId) {
+            setSelectedRoomId(prev => prev || myKids[0].classroomId);
+          }
+        } else if (roomList.length > 0 && !selectedRoomId) {
           setSelectedRoomId(roomList[0].roomId);
         }
       }
@@ -126,9 +144,10 @@ const LiveStreamMonitoring = () => {
   }, []);
 
   const selectedRoom = rooms.find(r => r.roomId === selectedRoomId) || rooms[0] || null;
+  const selectedChild = parentChildren.find(c => c._id === selectedChildId) || parentChildren[0] || null;
 
   // Derive display values matching the screenshot
-  const roomName = selectedRoom?.name || 'Sunshine Room';
+  const roomName = selectedRoom?.name || selectedChild?.classroomName || 'Sunshine Room';
   const childrenCount = selectedRoom ? (selectedRoom.enrolledCount || selectedRoom.visibleChildren?.length || 8) : 8;
   const nannyName = selectedRoom?.teacher?.fullName?.split(' ')[0] || user?.fullName?.split(' ')[0] || 'Sarah';
 
@@ -336,15 +355,15 @@ const LiveStreamMonitoring = () => {
                 {/* Left: Icon, Sun, Room Name */}
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-teal-500/20 border border-teal-500/30 text-teal-400 flex items-center justify-center shrink-0">
-                    <Users className="w-5 h-5" />
+                    {isParent ? <Baby className="w-5 h-5" /> : <Users className="w-5 h-5" />}
                   </div>
                   <Sun className="w-6 h-6 text-amber-400 shrink-0" />
                   <div>
                     <p className="text-[11px] text-slate-400 font-medium leading-none">
-                      My Assigned Classroom
+                      {isParent ? 'My Child’s Classroom' : 'My Assigned Classroom'}
                     </p>
                     <p className="text-lg font-bold text-white mt-1 leading-tight tracking-wide">
-                      {roomName}
+                      {isParent && selectedChild ? `${selectedChild.firstName}'s Classroom (${roomName})` : roomName}
                     </p>
                   </div>
                 </div>
@@ -415,9 +434,9 @@ const LiveStreamMonitoring = () => {
 
                     {/* Security Watermark for Parent Feed */}
                     {isParent && (
-                      <div className="absolute inset-0 pointer-events-none z-10 flex items-center justify-center opacity-20">
+                      <div className="absolute inset-0 pointer-events-none z-10 flex items-center justify-center opacity-20 px-4">
                         <p className="text-white text-xs sm:text-sm font-mono tracking-widest transform -rotate-12 select-none text-center">
-                          MINT DAYCARE SECURE FEED • {user?.fullName?.toUpperCase()} • {currentTime.toISOString().split('T')[0]}
+                          MINT DAYCARE SECURE FEED • PARENT: {user?.fullName?.toUpperCase()} • CHILD: {selectedChild ? `${selectedChild.firstName} ${selectedChild.lastName}`.toUpperCase() : 'STUDENT'} • {currentTime.toISOString().split('T')[0]}
                         </p>
                       </div>
                     )}
@@ -544,144 +563,320 @@ const LiveStreamMonitoring = () => {
 
           {/* ──── RIGHT COLUMN: ROOM INFO & STATUS CARDS (4 Cols) ──── */}
           <div className="lg:col-span-4 space-y-5">
-            {/* 1. Room Information Card */}
-            <div className="bg-[#081827] border border-teal-900/50 rounded-2xl p-5 shadow-2xl space-y-4">
-              <h3 className="text-base font-bold text-white">Room Information</h3>
+            {isParent ? (
+              /* ─── PARENT VIEW: CHILD & CLASSROOM INFORMATION ─── */
+              <div className="bg-[#081827] border border-teal-900/50 rounded-2xl p-5 shadow-2xl space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-bold text-white">Child & Room Information</h3>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-400 border border-teal-500/30">
+                    Parent Portal
+                  </span>
+                </div>
 
-              {/* Assigned Room Dropdown Box */}
-              <div ref={dropdownRef} className="relative">
-                <button
-                  type="button"
-                  onClick={() => setIsRoomDropdownOpen(!isRoomDropdownOpen)}
-                  className="w-full bg-[#0b2438] hover:bg-[#0c2e47] border border-teal-500/20 hover:border-teal-500/40 rounded-xl p-3.5 flex items-center justify-between gap-3.5 transition-all text-left group cursor-pointer shadow-sm"
-                  title="Click to select another assigned room"
-                >
-                  <div className="flex items-center gap-3.5 min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-sm shadow-amber-500/20 group-hover:scale-105 transition-transform">
-                      <Sun className="w-5 h-5" />
+                {/* If Parent has 2 or more children: Interactive Child Dropdown */}
+                {parentChildren.length >= 2 ? (
+                  <div ref={childDropdownRef} className="relative">
+                    <p className="text-[11px] text-slate-400 font-medium mb-1.5 flex items-center justify-between">
+                      <span>Select Child:</span>
+                      <span className="text-teal-400 text-[10px] font-semibold">{parentChildren.length} children registered</span>
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setIsChildDropdownOpen(!isChildDropdownOpen)}
+                      className="w-full bg-[#0b2438] hover:bg-[#0c2e47] border border-teal-500/30 hover:border-teal-500/50 rounded-xl p-3.5 flex items-center justify-between gap-3.5 transition-all text-left group cursor-pointer shadow-sm"
+                      title="Click to switch between your children"
+                    >
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-teal-500 to-emerald-500 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-md shadow-teal-500/20 group-hover:scale-105 transition-transform">
+                          {selectedChild?.firstName?.[0]}{selectedChild?.lastName?.[0]}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs text-teal-400 font-bold leading-none flex items-center gap-1.5">
+                            <span>{selectedChild?.firstName} {selectedChild?.lastName}</span>
+                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-normal">Active</span>
+                          </p>
+                          <p className="text-xs text-slate-300 mt-1 leading-tight truncate">
+                            Classroom: <strong>{selectedChild?.classroomName || roomName}</strong>
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1 text-slate-400 group-hover:text-teal-400 transition-colors shrink-0">
+                        <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isChildDropdownOpen ? 'rotate-180 text-teal-400' : ''}`} />
+                      </div>
+                    </button>
+
+                    {/* Dropdown Menu for Children */}
+                    {isChildDropdownOpen && (
+                      <div className="absolute top-full left-0 right-0 mt-2 z-40 bg-[#071929]/95 backdrop-blur-xl border border-teal-500/40 rounded-2xl p-2 shadow-2xl space-y-1 animate-fade-in">
+                        <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 border-b border-white/5 uppercase tracking-wider flex items-center justify-between">
+                          <span>Your Enrolled Children</span>
+                          <span className="text-teal-400 font-normal lowercase">{parentChildren.length} total</span>
+                        </div>
+
+                        <div className="max-h-56 overflow-y-auto space-y-1 pt-1 pr-1 scrollbar-thin">
+                          {parentChildren.map((child) => {
+                            const isSelected = child._id === selectedChild?._id;
+                            return (
+                              <button
+                                key={child._id}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedChildId(child._id);
+                                  if (child.classroomId) {
+                                    setSelectedRoomId(child.classroomId);
+                                  }
+                                  setIsChildDropdownOpen(false);
+                                  setActionSuccess(`Switched camera to ${child.firstName}'s classroom (${child.classroomName})`);
+                                  setTimeout(() => setActionSuccess(''), 2500);
+                                }}
+                                className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left text-xs transition-all cursor-pointer ${
+                                  isSelected
+                                    ? 'bg-teal-600/30 border border-teal-500/50 text-white font-bold'
+                                    : 'text-slate-300 hover:bg-[#0c2e47] hover:text-white border border-transparent'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  <div className="w-8 h-8 rounded-full bg-teal-500/20 text-teal-300 font-bold text-xs flex items-center justify-center shrink-0">
+                                    {child.firstName?.[0]}{child.lastName?.[0]}
+                                  </div>
+                                  <div className="min-w-0">
+                                    <p className="truncate font-semibold">{child.firstName} {child.lastName}</p>
+                                    <p className="text-[10px] text-slate-400 truncate">
+                                      {child.classroomName} • {child.classroomNumber || 'Room 1'}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-2 shrink-0">
+                                  {isSelected && <Check className="w-3.5 h-3.5 text-teal-400" />}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  /* Single Child Card for Parent */
+                  <div className="bg-[#0b2438] border border-teal-500/20 rounded-xl p-3.5 flex items-center gap-3.5">
+                    <div className="w-10 h-10 rounded-full bg-teal-500/20 text-teal-400 border border-teal-500/30 flex items-center justify-center shrink-0 shadow-sm shadow-teal-500/20">
+                      <Baby className="w-5 h-5" />
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-xs text-slate-400 font-medium leading-none flex items-center gap-1.5">
-                        <span>Assigned Room</span>
-                        {rooms.length > 1 && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-300 font-semibold">
-                            {rooms.length} rooms
-                          </span>
-                        )}
+                    <div>
+                      <p className="text-xs text-slate-400 font-medium leading-none">
+                        {selectedChild ? `${selectedChild.firstName} ${selectedChild.lastName}` : 'Enrolled Child'}
                       </p>
-                      <p className="text-base font-bold text-white mt-1 leading-tight tracking-wide truncate">
+                      <p className="text-base font-bold text-white mt-1 leading-tight tracking-wide">
                         {roomName}
                       </p>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-1 text-slate-400 group-hover:text-teal-400 transition-colors shrink-0">
-                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isRoomDropdownOpen ? 'rotate-180 text-teal-400' : ''}`} />
-                  </div>
-                </button>
-
-                {/* Interactive Dropdown Menu */}
-                {isRoomDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-2 z-40 bg-[#071929]/95 backdrop-blur-xl border border-teal-500/30 rounded-2xl p-2 shadow-2xl space-y-1 animate-fade-in">
-                    <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 border-b border-white/5 uppercase tracking-wider flex items-center justify-between">
-                      <span>Select Assigned Room</span>
-                      <span className="text-teal-400 font-normal lowercase">{rooms.length} available</span>
-                    </div>
-
-                    <div className="max-h-56 overflow-y-auto space-y-1 pt-1 pr-1 scrollbar-thin">
-                      {rooms.map((room) => {
-                        const isSelected = room.roomId === selectedRoom?.roomId;
-                        return (
-                          <button
-                            key={room.roomId}
-                            type="button"
-                            onClick={() => {
-                              setSelectedRoomId(room.roomId);
-                              setIsRoomDropdownOpen(false);
-                              setActionSuccess(`Switched camera to ${room.name}`);
-                              setTimeout(() => setActionSuccess(''), 2500);
-                            }}
-                            className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left text-xs transition-all cursor-pointer ${
-                              isSelected
-                                ? 'bg-teal-600/30 border border-teal-500/50 text-white font-bold'
-                                : 'text-slate-300 hover:bg-[#0c2e47] hover:text-white border border-transparent'
-                            }`}
-                          >
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <div className={`w-2 h-2 rounded-full shrink-0 ${room.privacyMode ? 'bg-amber-400' : 'bg-emerald-400 animate-pulse'}`} />
-                              <div className="min-w-0">
-                                <p className="truncate font-semibold">{room.name}</p>
-                                <p className="text-[10px] text-slate-400">{room.roomNumber || 'Classroom'}</p>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-2 shrink-0">
-                              <span className="text-[10px] px-2 py-0.5 rounded-md bg-white/5 text-slate-300 font-mono">
-                                {room.enrolledCount || 8} kids
-                              </span>
-                              {isSelected && <Check className="w-3.5 h-3.5 text-teal-400" />}
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
                 )}
+
+                {/* Parent Metrics Rows */}
+                <div className="space-y-3 pt-1">
+                  {/* Row 1: Selected Child */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-sm text-slate-300">
+                      <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                        <Baby className="w-3.5 h-3.5" />
+                      </div>
+                      <span>Child</span>
+                    </div>
+                    <span className="text-sm font-bold text-white">
+                      {selectedChild ? `${selectedChild.firstName} ${selectedChild.lastName}` : 'My Child'}
+                    </span>
+                  </div>
+
+                  {/* Row 2: Classroom */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-sm text-slate-300">
+                      <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                        <Sun className="w-3.5 h-3.5" />
+                      </div>
+                      <span>Classroom</span>
+                    </div>
+                    <span className="text-sm font-bold text-white">{roomName}</span>
+                  </div>
+
+                  {/* Row 3: Nanny on Duty */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-sm text-slate-300">
+                      <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                        <User className="w-3.5 h-3.5" />
+                      </div>
+                      <span>Nanny on Duty</span>
+                    </div>
+                    <span className="text-sm font-bold text-white">{nannyName}</span>
+                  </div>
+
+                  {/* Row 4: Camera Feed Status */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-sm text-slate-300">
+                      <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                        <Video className="w-3.5 h-3.5" />
+                      </div>
+                      <span>Camera</span>
+                    </div>
+                    <span className="flex items-center gap-1.5 text-emerald-400 text-sm font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                      Online
+                    </span>
+                  </div>
+
+                  {/* Row 5: Secure Watermarked Stream */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-sm text-slate-300">
+                      <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                      </div>
+                      <span>Secure Stream</span>
+                    </div>
+                    <span className="flex items-center gap-1.5 text-emerald-400 text-sm font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                      Encrypted & Watermarked
+                    </span>
+                  </div>
+                </div>
               </div>
+            ) : (
+              /* ─── NON-PARENT VIEW: EXACT SAME ROOM INFORMATION FOR NANNY / ADMIN (UNTOUCHED) ─── */
+              <div className="bg-[#081827] border border-teal-900/50 rounded-2xl p-5 shadow-2xl space-y-4">
+                <h3 className="text-base font-bold text-white">Room Information</h3>
 
-              {/* Information Rows matching mockup */}
-              <div className="space-y-3 pt-1">
-                {/* Row 1: Children Present */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 text-sm text-slate-300">
-                    <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
-                      <Users className="w-3.5 h-3.5" />
+                {/* Assigned Room Dropdown Box */}
+                <div ref={dropdownRef} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsRoomDropdownOpen(!isRoomDropdownOpen)}
+                    className="w-full bg-[#0b2438] hover:bg-[#0c2e47] border border-teal-500/20 hover:border-teal-500/40 rounded-xl p-3.5 flex items-center justify-between gap-3.5 transition-all text-left group cursor-pointer shadow-sm"
+                    title="Click to select another assigned room"
+                  >
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div className="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-sm shadow-amber-500/20 group-hover:scale-105 transition-transform">
+                        <Sun className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs text-slate-400 font-medium leading-none flex items-center gap-1.5">
+                          <span>Assigned Room</span>
+                          {rooms.length > 1 && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-300 font-semibold">
+                              {rooms.length} rooms
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-base font-bold text-white mt-1 leading-tight tracking-wide truncate">
+                          {roomName}
+                        </p>
+                      </div>
                     </div>
-                    <span>Children Present</span>
-                  </div>
-                  <span className="text-base font-bold text-white">{childrenCount}</span>
+
+                    <div className="flex items-center gap-1 text-slate-400 group-hover:text-teal-400 transition-colors shrink-0">
+                      <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isRoomDropdownOpen ? 'rotate-180 text-teal-400' : ''}`} />
+                    </div>
+                  </button>
+
+                  {/* Interactive Dropdown Menu */}
+                  {isRoomDropdownOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-2 z-40 bg-[#071929]/95 backdrop-blur-xl border border-teal-500/30 rounded-2xl p-2 shadow-2xl space-y-1 animate-fade-in">
+                      <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 border-b border-white/5 uppercase tracking-wider flex items-center justify-between">
+                        <span>Select Assigned Room</span>
+                        <span className="text-teal-400 font-normal lowercase">{rooms.length} available</span>
+                      </div>
+
+                      <div className="max-h-56 overflow-y-auto space-y-1 pt-1 pr-1 scrollbar-thin">
+                        {rooms.map((room) => {
+                          const isSelected = room.roomId === selectedRoom?.roomId;
+                          return (
+                            <button
+                              key={room.roomId}
+                              type="button"
+                              onClick={() => {
+                                setSelectedRoomId(room.roomId);
+                                setIsRoomDropdownOpen(false);
+                                setActionSuccess(`Switched camera to ${room.name}`);
+                                setTimeout(() => setActionSuccess(''), 2500);
+                              }}
+                              className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left text-xs transition-all cursor-pointer ${
+                                isSelected
+                                  ? 'bg-teal-600/30 border border-teal-500/50 text-white font-bold'
+                                  : 'text-slate-300 hover:bg-[#0c2e47] hover:text-white border border-transparent'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div className={`w-2 h-2 rounded-full shrink-0 ${room.privacyMode ? 'bg-amber-400' : 'bg-emerald-400 animate-pulse'}`} />
+                                <div className="min-w-0">
+                                  <p className="truncate font-semibold">{room.name}</p>
+                                  <p className="text-[10px] text-slate-400">{room.roomNumber || 'Classroom'}</p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2 shrink-0">
+                                <span className="text-[10px] px-2 py-0.5 rounded-md bg-white/5 text-slate-300 font-mono">
+                                  {room.enrolledCount || 8} kids
+                                </span>
+                                {isSelected && <Check className="w-3.5 h-3.5 text-teal-400" />}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Row 2: Nanny */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 text-sm text-slate-300">
-                    <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
-                      <User className="w-3.5 h-3.5" />
+                {/* Information Rows matching mockup */}
+                <div className="space-y-3 pt-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-sm text-slate-300">
+                      <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                        <Users className="w-3.5 h-3.5" />
+                      </div>
+                      <span>Children Present</span>
                     </div>
-                    <span>Nanny</span>
+                    <span className="text-base font-bold text-white">{childrenCount}</span>
                   </div>
-                  <span className="text-sm font-bold text-white">{nannyName}</span>
-                </div>
 
-                {/* Row 3: Camera */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 text-sm text-slate-300">
-                    <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
-                      <Video className="w-3.5 h-3.5" />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-sm text-slate-300">
+                      <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                        <User className="w-3.5 h-3.5" />
+                      </div>
+                      <span>Nanny</span>
                     </div>
-                    <span>Camera</span>
+                    <span className="text-sm font-bold text-white">{nannyName}</span>
                   </div>
-                  <span className="flex items-center gap-1.5 text-emerald-400 text-sm font-semibold">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Online
-                  </span>
-                </div>
 
-                {/* Row 4: Secure Encrypted Stream */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 text-sm text-slate-300">
-                    <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
-                      <ShieldCheck className="w-3.5 h-3.5" />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-sm text-slate-300">
+                      <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                        <Video className="w-3.5 h-3.5" />
+                      </div>
+                      <span>Camera</span>
                     </div>
-                    <span>Secure Encrypted Stream</span>
+                    <span className="flex items-center gap-1.5 text-emerald-400 text-sm font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                      Online
+                    </span>
                   </div>
-                  <span className="flex items-center gap-1.5 text-emerald-400 text-sm font-semibold">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Yes
-                  </span>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-sm text-slate-300">
+                      <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                      </div>
+                      <span>Secure Encrypted Stream</span>
+                    </div>
+                    <span className="flex items-center gap-1.5 text-emerald-400 text-sm font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                      Yes
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* 2. Room Monitoring Status Card */}
             <div className="bg-[#081827] border border-teal-900/50 rounded-2xl p-5 shadow-2xl space-y-4">

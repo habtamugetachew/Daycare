@@ -54,6 +54,7 @@ const getLiveStreamRooms = async (req, res) => {
         .lean();
     }
 
+    let parentAllChildren = [];
     // ── 3. Parent: Access ONLY to classroom(s) where their children are enrolled ──
     else if (role === 'parent') {
       // Find all approved children belonging to this parent
@@ -86,14 +87,35 @@ const getLiveStreamRooms = async (req, res) => {
           if (!parentChildrenMap.has(rId)) {
             parentChildrenMap.set(rId, []);
           }
-          parentChildrenMap.get(rId).push({
+          const childObj = {
             _id: child._id,
             firstName: child.firstName,
             lastName: child.lastName,
             gender: child.gender,
-            photoUrl: child.photoUrl || null
-          });
+            photoUrl: child.photoUrl || null,
+            dateOfBirth: child.dateOfBirth,
+            classroomId: rId
+          };
+          parentChildrenMap.get(rId).push(childObj);
         });
+
+        // Build flat list of all parent children with their classroom details for the dropdown
+        parentAllChildren = myChildren
+          .filter(c => c.classroom)
+          .map(c => {
+            const room = classrooms.find(r => r._id.toString() === c.classroom.toString());
+            return {
+              _id: c._id,
+              firstName: c.firstName,
+              lastName: c.lastName,
+              gender: c.gender,
+              photoUrl: c.photoUrl || null,
+              dateOfBirth: c.dateOfBirth,
+              classroomId: c.classroom.toString(),
+              classroomName: room ? room.name : 'Classroom',
+              classroomNumber: room ? (room.room || 'Room 1') : 'Room 1'
+            };
+          });
       }
     } else {
       return res.status(403).json({
@@ -181,7 +203,8 @@ const getLiveStreamRooms = async (req, res) => {
       success: true,
       count: roomData.length,
       role,
-      data: roomData
+      data: roomData,
+      myChildren: parentAllChildren
     });
   } catch (error) {
     console.error('getLiveStreamRooms error:', error);
