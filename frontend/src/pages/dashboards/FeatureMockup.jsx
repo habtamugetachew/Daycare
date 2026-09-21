@@ -42,6 +42,7 @@ const UpdateParentInfo = lazy(() => import('../features/UpdateParentInfo'));
 const ChildApprovalNotifications = lazy(() => import('../features/ChildApprovalNotifications'));
 const ChildIDGenerate = lazy(() => import('../features/ChildIDGenerate'));
 const UpdateInfoTabs = lazy(() => import('../features/UpdateInfoTabs'));
+const LiveStreamMonitoring = lazy(() => import('../features/LiveStreamMonitoring'));
 
 const FeatureMockup = () => {
   const { role: roleParam, feature } = useParams();
@@ -75,6 +76,11 @@ const FeatureMockup = () => {
     // ── Parent: Communication ─────────────────────────────────────────────────
     if (slug === 'announcements' || slug === 'communication') return <Communication />;
     if (slug === 'messages')      return <Communication />;
+
+    // ── Real-time Live Video Streaming ─────────────────────────────────────────
+    if (slug === 'live-stream' || slug === 'live-video' || slug.includes('stream') || slug.includes('cctv') || slug.includes('monitoring')) {
+      return <LiveStreamMonitoring />;
+    }
 
     // ── Children Management ───────────────────────────────────────────────────
     if (slug.includes('child') || slug.includes('student') || slug.includes('roster')) {

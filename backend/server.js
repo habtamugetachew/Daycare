@@ -90,6 +90,7 @@ app.use('/api/staff', require('./routes/staff'));
 app.use('/api/meals', require('./routes/meals'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/teacher-attendance', require('./routes/teacherAttendance'));
+app.use('/api/live-stream', require('./routes/liveStream'));
 app.use('/api/settings', require('./routes/settings'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

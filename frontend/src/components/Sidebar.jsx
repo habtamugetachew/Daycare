@@ -23,6 +23,7 @@ import {
   Sparkles,
   Moon,
   Syringe,
+  Video,
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -113,6 +114,7 @@ const Sidebar = () => {
     { titleKey: 'transportation', icon: ClipboardCheck, roles: ['staff'], subItems: [
       { labelKey: 'pickupLog', icon: ClipboardCheck }, { labelKey: 'dropOffLog', icon: ClipboardCheck }
     ]},
+    { titleKey: 'liveStream', icon: Video, path: `/dashboard/${user.role}/live-stream`, roles: ['admin', 'reception', 'teacher', 'parent'], isLiveBadge: true },
     { titleKey: 'communication', icon: MessageSquare, path: `/dashboard/${user.role}/communication`, roles: ['admin', 'teacher', 'parent', 'reception'] },
   ];
 
@@ -292,13 +294,24 @@ const Sidebar = () => {
                     <NavLink
                       to={item.path}
                       onClick={handleNavClick}
-                      className={({ isActive }) => `nav-link w-full text-left flex items-center px-3 py-2 rounded-2xl transition-all ${isActive ? 'bg-slate-900/5 text-slate-900 dark:bg-white/5 dark:text-white' : 'text-slate-500 dark:text-slate-300 hover:bg-slate-900/5 dark:hover:bg-white/10'}`}
+                      className={({ isActive }) => `nav-link w-full text-left flex items-center justify-between px-3 py-2 rounded-2xl transition-all ${isActive ? 'bg-slate-900/5 text-slate-900 dark:bg-white/5 dark:text-white' : 'text-slate-500 dark:text-slate-300 hover:bg-slate-900/5 dark:hover:bg-white/10'}`}
                       title={isCollapsed ? label : ''}
                     >
-                      <div className="nav-link-left flex items-center gap-3">
-                        <item.icon className="text-lg" />
-                        {!isCollapsed && <span className="ml-2.5 whitespace-nowrap text-sm font-medium">{label}</span>}
+                      <div className="nav-link-left flex items-center gap-3 min-w-0">
+                        <div className="relative flex items-center justify-center">
+                          <item.icon className="text-lg shrink-0" />
+                          {isCollapsed && item.isLiveBadge && (
+                            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                          )}
+                        </div>
+                        {!isCollapsed && <span className="ml-2.5 whitespace-nowrap text-sm font-medium truncate">{label}</span>}
                       </div>
+                      {!isCollapsed && item.isLiveBadge && (
+                        <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider bg-rose-500/20 text-rose-400 border border-rose-500/30">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                          LIVE
+                        </span>
+                      )}
                     </NavLink>
                   )}
 
