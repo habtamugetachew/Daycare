@@ -362,20 +362,20 @@ const LiveStreamMonitoring = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
           {/* ──── LEFT COLUMN: THE LIVE STREAM VIDEO (8 Cols) ──── */}
           <div className="lg:col-span-8">
-            <div className="bg-[#081827] border border-teal-900/50 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-4">
+            <div className="bg-white dark:bg-[#081827] border border-slate-200/80 dark:border-teal-900/50 rounded-2xl p-4 sm:p-5 shadow-sm dark:shadow-2xl space-y-4 transition-colors">
               {/* Inner Card Top Header */}
               <div className="flex items-center justify-between gap-3 flex-wrap">
                 {/* Left: Icon, Sun, Room Name */}
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-teal-500/20 border border-teal-500/30 text-teal-400 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-500/20 border border-teal-200 dark:border-teal-500/30 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 shadow-sm shadow-teal-500/10">
                     {isParent ? <Baby className="w-5 h-5" /> : <Users className="w-5 h-5" />}
                   </div>
-                  <Sun className="w-6 h-6 text-amber-400 shrink-0" />
+                  <Sun className="w-6 h-6 text-amber-500 dark:text-amber-400 shrink-0" />
                   <div>
-                    <p className="text-[11px] text-slate-400 font-medium leading-none">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-none">
                       {isParent ? 'My Child’s Classroom' : 'My Assigned Classroom'}
                     </p>
-                    <p className="text-lg font-bold text-white mt-1 leading-tight tracking-wide">
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1 leading-tight tracking-wide">
                       {isParent && selectedChild ? `${selectedChild.firstName}'s Classroom (${roomName})` : roomName}
                     </p>
                   </div>
@@ -387,11 +387,11 @@ const LiveStreamMonitoring = () => {
                     <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
                     LIVE
                   </span>
-                  <span className="flex items-center gap-1 text-teal-400 font-medium text-xs">
+                  <span className="flex items-center gap-1 text-teal-600 dark:text-teal-400 font-medium text-xs">
                     <Wifi className="w-3.5 h-3.5" />
                     Real-time
                   </span>
-                  <span className="text-slate-300 font-mono text-[11px] whitespace-nowrap">
+                  <span className="text-slate-500 dark:text-slate-300 font-mono text-[11px] whitespace-nowrap">
                     {formatLiveTimestamp(currentTime)}
                   </span>
                 </div>
@@ -578,10 +578,10 @@ const LiveStreamMonitoring = () => {
           <div className="lg:col-span-4 space-y-5">
             {isParent ? (
               /* ─── PARENT VIEW: CHILD & CLASSROOM INFORMATION ─── */
-              <div className="bg-[#081827] border border-teal-900/50 rounded-2xl p-5 shadow-2xl space-y-4">
+              <div className="bg-white dark:bg-[#081827] border border-slate-200/80 dark:border-teal-900/50 rounded-2xl p-5 shadow-sm dark:shadow-2xl space-y-4 transition-colors">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-base font-bold text-white">Child & Room Information</h3>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-400 border border-teal-500/30">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Child & Room Information</h3>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-500/15 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-500/30">
                     Parent Portal
                   </span>
                 </div>
@@ -589,14 +589,14 @@ const LiveStreamMonitoring = () => {
                 {/* If Parent has 2 or more children: Interactive Child Dropdown */}
                 {parentChildren.length >= 2 ? (
                   <div ref={childDropdownRef} className="relative">
-                    <p className="text-[11px] text-slate-400 font-medium mb-1.5 flex items-center justify-between">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mb-1.5 flex items-center justify-between">
                       <span>Select Child:</span>
-                      <span className="text-teal-400 text-[10px] font-semibold">{parentChildren.length} children registered</span>
+                      <span className="text-teal-600 dark:text-teal-400 text-[10px] font-semibold">{parentChildren.length} children registered</span>
                     </p>
                     <button
                       type="button"
                       onClick={() => setIsChildDropdownOpen(!isChildDropdownOpen)}
-                      className="w-full bg-[#0b2438] hover:bg-[#0c2e47] border border-teal-500/30 hover:border-teal-500/50 rounded-xl p-3.5 flex items-center justify-between gap-3.5 transition-all text-left group cursor-pointer shadow-sm"
+                      className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-[#0b2438] dark:hover:bg-[#0c2e47] border border-slate-200 dark:border-teal-500/30 hover:border-teal-500/40 dark:hover:border-teal-500/50 rounded-xl p-3.5 flex items-center justify-between gap-3.5 transition-all text-left group cursor-pointer shadow-sm"
                       title="Click to switch between your children"
                     >
                       <div className="flex items-center gap-3.5 min-w-0">
@@ -604,27 +604,27 @@ const LiveStreamMonitoring = () => {
                           {selectedChild?.firstName?.[0]}{selectedChild?.lastName?.[0]}
                         </div>
                         <div className="min-w-0">
-                          <p className="text-xs text-teal-400 font-bold leading-none flex items-center gap-1.5">
+                          <p className="text-xs text-teal-700 dark:text-teal-400 font-bold leading-none flex items-center gap-1.5">
                             <span>{selectedChild?.firstName} {selectedChild?.lastName}</span>
-                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-normal">Active</span>
+                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-normal">Active</span>
                           </p>
-                          <p className="text-xs text-slate-300 mt-1 leading-tight truncate">
-                            Classroom: <strong>{selectedChild?.classroomName || roomName}</strong>
+                          <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-tight truncate">
+                            Classroom: <strong className="text-slate-900 dark:text-white">{selectedChild?.classroomName || roomName}</strong>
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1 text-slate-400 group-hover:text-teal-400 transition-colors shrink-0">
-                        <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isChildDropdownOpen ? 'rotate-180 text-teal-400' : ''}`} />
+                      <div className="flex items-center gap-1 text-slate-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors shrink-0">
+                        <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isChildDropdownOpen ? 'rotate-180 text-teal-600 dark:text-teal-400' : ''}`} />
                       </div>
                     </button>
 
                     {/* Dropdown Menu for Children */}
                     {isChildDropdownOpen && (
-                      <div className="absolute top-full left-0 right-0 mt-2 z-40 bg-[#071929]/95 backdrop-blur-xl border border-teal-500/40 rounded-2xl p-2 shadow-2xl space-y-1 animate-fade-in">
-                        <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 border-b border-white/5 uppercase tracking-wider flex items-center justify-between">
+                      <div className="absolute top-full left-0 right-0 mt-2 z-40 bg-white dark:bg-[#071929]/95 backdrop-blur-xl border border-slate-200 dark:border-teal-500/40 rounded-2xl p-2 shadow-2xl space-y-1 animate-fade-in">
+                        <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-white/5 uppercase tracking-wider flex items-center justify-between">
                           <span>Your Enrolled Children</span>
-                          <span className="text-teal-400 font-normal lowercase">{parentChildren.length} total</span>
+                          <span className="text-teal-600 dark:text-teal-400 font-normal lowercase">{parentChildren.length} total</span>
                         </div>
 
                         <div className="max-h-56 overflow-y-auto space-y-1 pt-1 pr-1 scrollbar-thin">
@@ -645,24 +645,24 @@ const LiveStreamMonitoring = () => {
                                 }}
                                 className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left text-xs transition-all cursor-pointer ${
                                   isSelected
-                                    ? 'bg-teal-600/30 border border-teal-500/50 text-white font-bold'
-                                    : 'text-slate-300 hover:bg-[#0c2e47] hover:text-white border border-transparent'
+                                    ? 'bg-teal-50 dark:bg-teal-600/30 border border-teal-300 dark:border-teal-500/50 text-teal-900 dark:text-white font-bold'
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#0c2e47] hover:text-slate-900 dark:hover:text-white border border-transparent'
                                 }`}
                               >
                                 <div className="flex items-center gap-2.5 min-w-0">
-                                  <div className="w-8 h-8 rounded-full bg-teal-500/20 text-teal-300 font-bold text-xs flex items-center justify-center shrink-0">
+                                  <div className="w-8 h-8 rounded-full bg-teal-500/10 dark:bg-teal-500/20 text-teal-600 dark:text-teal-300 font-bold text-xs flex items-center justify-center shrink-0">
                                     {child.firstName?.[0]}{child.lastName?.[0]}
                                   </div>
                                   <div className="min-w-0">
                                     <p className="truncate font-semibold">{child.firstName} {child.lastName}</p>
-                                    <p className="text-[10px] text-slate-400 truncate">
+                                    <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
                                       {child.classroomName} • {child.classroomNumber || 'Room 1'}
                                     </p>
                                   </div>
                                 </div>
 
                                 <div className="flex items-center gap-2 shrink-0">
-                                  {isSelected && <Check className="w-3.5 h-3.5 text-teal-400" />}
+                                  {isSelected && <Check className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />}
                                 </div>
                               </button>
                             );
@@ -673,15 +673,15 @@ const LiveStreamMonitoring = () => {
                   </div>
                 ) : (
                   /* Single Child Card for Parent */
-                  <div className="bg-[#0b2438] border border-teal-500/20 rounded-xl p-3.5 flex items-center gap-3.5">
-                    <div className="w-10 h-10 rounded-full bg-teal-500/20 text-teal-400 border border-teal-500/30 flex items-center justify-center shrink-0 shadow-sm shadow-teal-500/20">
+                  <div className="bg-slate-50 dark:bg-[#0b2438] border border-slate-200 dark:border-teal-500/20 rounded-xl p-3.5 flex items-center gap-3.5">
+                    <div className="w-10 h-10 rounded-full bg-teal-500/10 dark:bg-teal-500/20 text-teal-600 dark:text-teal-400 border border-teal-500/20 dark:border-teal-500/30 flex items-center justify-center shrink-0 shadow-sm shadow-teal-500/20">
                       <Baby className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="text-xs text-slate-400 font-medium leading-none">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-none">
                         {selectedChild ? `${selectedChild.firstName} ${selectedChild.lastName}` : 'Enrolled Child'}
                       </p>
-                      <p className="text-base font-bold text-white mt-1 leading-tight tracking-wide">
+                      <p className="text-base font-bold text-slate-900 dark:text-white mt-1 leading-tight tracking-wide">
                         {roomName}
                       </p>
                     </div>
@@ -692,111 +692,111 @@ const LiveStreamMonitoring = () => {
                 <div className="space-y-3 pt-1">
                   {/* Row 1: Selected Child */}
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-sm text-slate-300">
-                      <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                    <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+                      <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400">
                         <Baby className="w-3.5 h-3.5" />
                       </div>
                       <span>Child</span>
                     </div>
-                    <span className="text-sm font-bold text-white">
+                    <span className="text-sm font-bold text-slate-900 dark:text-white">
                       {selectedChild ? `${selectedChild.firstName} ${selectedChild.lastName}` : 'My Child'}
                     </span>
                   </div>
 
                   {/* Row 2: Classroom */}
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-sm text-slate-300">
-                      <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                    <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+                      <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400">
                         <Sun className="w-3.5 h-3.5" />
                       </div>
                       <span>Classroom</span>
                     </div>
-                    <span className="text-sm font-bold text-white">{roomName}</span>
+                    <span className="text-sm font-bold text-slate-900 dark:text-white">{roomName}</span>
                   </div>
 
                   {/* Row 3: Nanny on Duty */}
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-sm text-slate-300">
-                      <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                    <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+                      <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400">
                         <User className="w-3.5 h-3.5" />
                       </div>
                       <span>Nanny on Duty</span>
                     </div>
-                    <span className="text-sm font-bold text-white">{nannyName}</span>
+                    <span className="text-sm font-bold text-slate-900 dark:text-white">{nannyName}</span>
                   </div>
 
                   {/* Row 4: Camera Feed Status */}
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-sm text-slate-300">
-                      <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                    <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+                      <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400">
                         <Video className="w-3.5 h-3.5" />
                       </div>
                       <span>Camera</span>
                     </div>
-                    <span className="flex items-center gap-1.5 text-emerald-400 text-sm font-semibold">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-sm font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
                       Online
                     </span>
                   </div>
 
                   {/* Row 5: Secure Watermarked Stream */}
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-sm text-slate-300">
-                      <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                    <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+                      <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400">
                         <ShieldCheck className="w-3.5 h-3.5" />
                       </div>
                       <span>Secure Stream</span>
                     </div>
-                    <span className="flex items-center gap-1.5 text-emerald-400 text-sm font-semibold">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-sm font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
                       Encrypted & Watermarked
                     </span>
                   </div>
                 </div>
               </div>
             ) : (
-              /* ─── NON-PARENT VIEW: EXACT SAME ROOM INFORMATION FOR NANNY / ADMIN (UNTOUCHED) ─── */
-              <div className="bg-[#081827] border border-teal-900/50 rounded-2xl p-5 shadow-2xl space-y-4">
-                <h3 className="text-base font-bold text-white">Room Information</h3>
+              /* ─── NON-PARENT VIEW: ROOM INFORMATION FOR NANNY / ADMIN ─── */
+              <div className="bg-white dark:bg-[#081827] border border-slate-200/80 dark:border-teal-900/50 rounded-2xl p-5 shadow-sm dark:shadow-2xl space-y-4 transition-colors">
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">Room Information</h3>
 
                 {/* Assigned Room Dropdown Box */}
                 <div ref={dropdownRef} className="relative">
                   <button
                     type="button"
                     onClick={() => setIsRoomDropdownOpen(!isRoomDropdownOpen)}
-                    className="w-full bg-[#0b2438] hover:bg-[#0c2e47] border border-teal-500/20 hover:border-teal-500/40 rounded-xl p-3.5 flex items-center justify-between gap-3.5 transition-all text-left group cursor-pointer shadow-sm"
+                    className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-[#0b2438] dark:hover:bg-[#0c2e47] border border-slate-200 dark:border-teal-500/20 hover:border-teal-500/40 dark:hover:border-teal-500/40 rounded-xl p-3.5 flex items-center justify-between gap-3.5 transition-all text-left group cursor-pointer shadow-sm"
                     title="Click to select another assigned room"
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
-                      <div className="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-sm shadow-amber-500/20 group-hover:scale-105 transition-transform">
+                      <div className="w-10 h-10 rounded-full bg-amber-500/10 dark:bg-amber-500/20 text-amber-500 dark:text-amber-400 border border-amber-500/20 dark:border-amber-500/30 flex items-center justify-center shrink-0 shadow-sm shadow-amber-500/20 group-hover:scale-105 transition-transform">
                         <Sun className="w-5 h-5" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs text-slate-400 font-medium leading-none flex items-center gap-1.5">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-none flex items-center gap-1.5">
                           <span>Assigned Room</span>
                           {rooms.length > 1 && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-300 font-semibold">
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-teal-50 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-transparent font-semibold">
                               {rooms.length} rooms
                             </span>
                           )}
                         </p>
-                        <p className="text-base font-bold text-white mt-1 leading-tight tracking-wide truncate">
+                        <p className="text-base font-bold text-slate-900 dark:text-white mt-1 leading-tight tracking-wide truncate">
                           {roomName}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1 text-slate-400 group-hover:text-teal-400 transition-colors shrink-0">
-                      <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isRoomDropdownOpen ? 'rotate-180 text-teal-400' : ''}`} />
+                    <div className="flex items-center gap-1 text-slate-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors shrink-0">
+                      <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isRoomDropdownOpen ? 'rotate-180 text-teal-600 dark:text-teal-400' : ''}`} />
                     </div>
                   </button>
 
                   {/* Interactive Dropdown Menu */}
                   {isRoomDropdownOpen && (
-                    <div className="absolute top-full left-0 right-0 mt-2 z-40 bg-[#071929]/95 backdrop-blur-xl border border-teal-500/30 rounded-2xl p-2 shadow-2xl space-y-1 animate-fade-in">
-                      <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 border-b border-white/5 uppercase tracking-wider flex items-center justify-between">
+                    <div className="absolute top-full left-0 right-0 mt-2 z-40 bg-white dark:bg-[#071929]/95 backdrop-blur-xl border border-slate-200 dark:border-teal-500/30 rounded-2xl p-2 shadow-2xl space-y-1 animate-fade-in">
+                      <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-white/5 uppercase tracking-wider flex items-center justify-between">
                         <span>Select Assigned Room</span>
-                        <span className="text-teal-400 font-normal lowercase">{rooms.length} available</span>
+                        <span className="text-teal-600 dark:text-teal-400 font-normal lowercase">{rooms.length} available</span>
                       </div>
 
                       <div className="max-h-56 overflow-y-auto space-y-1 pt-1 pr-1 scrollbar-thin">
@@ -814,23 +814,23 @@ const LiveStreamMonitoring = () => {
                               }}
                               className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left text-xs transition-all cursor-pointer ${
                                 isSelected
-                                  ? 'bg-teal-600/30 border border-teal-500/50 text-white font-bold'
-                                  : 'text-slate-300 hover:bg-[#0c2e47] hover:text-white border border-transparent'
+                                  ? 'bg-teal-50 dark:bg-teal-600/30 border border-teal-300 dark:border-teal-500/50 text-teal-900 dark:text-white font-bold'
+                                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#0c2e47] hover:text-slate-900 dark:hover:text-white border border-transparent'
                               }`}
                             >
                               <div className="flex items-center gap-2.5 min-w-0">
-                                <div className={`w-2 h-2 rounded-full shrink-0 ${room.privacyMode ? 'bg-amber-400' : 'bg-emerald-400 animate-pulse'}`} />
+                                <div className={`w-2 h-2 rounded-full shrink-0 ${room.privacyMode ? 'bg-amber-400' : 'bg-emerald-500 animate-pulse'}`} />
                                 <div className="min-w-0">
                                   <p className="truncate font-semibold">{room.name}</p>
-                                  <p className="text-[10px] text-slate-400">{room.roomNumber || 'Classroom'}</p>
+                                  <p className="text-[10px] text-slate-500 dark:text-slate-400">{room.roomNumber || 'Classroom'}</p>
                                 </div>
                               </div>
 
                               <div className="flex items-center gap-2 shrink-0">
-                                <span className="text-[10px] px-2 py-0.5 rounded-md bg-white/5 text-slate-300 font-mono">
+                                <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 font-mono">
                                   {room.enrolledCount || 8} kids
                                 </span>
-                                {isSelected && <Check className="w-3.5 h-3.5 text-teal-400" />}
+                                {isSelected && <Check className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />}
                               </div>
                             </button>
                           );
@@ -843,47 +843,47 @@ const LiveStreamMonitoring = () => {
                 {/* Information Rows matching mockup */}
                 <div className="space-y-3 pt-1">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-sm text-slate-300">
-                      <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                    <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+                      <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400">
                         <Users className="w-3.5 h-3.5" />
                       </div>
                       <span>Children Present</span>
                     </div>
-                    <span className="text-base font-bold text-white">{childrenCount}</span>
+                    <span className="text-base font-bold text-slate-900 dark:text-white">{childrenCount}</span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-sm text-slate-300">
-                      <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                    <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+                      <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400">
                         <User className="w-3.5 h-3.5" />
                       </div>
                       <span>Nanny</span>
                     </div>
-                    <span className="text-sm font-bold text-white">{nannyName}</span>
+                    <span className="text-sm font-bold text-slate-900 dark:text-white">{nannyName}</span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-sm text-slate-300">
-                      <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                    <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+                      <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400">
                         <Video className="w-3.5 h-3.5" />
                       </div>
                       <span>Camera</span>
                     </div>
-                    <span className="flex items-center gap-1.5 text-emerald-400 text-sm font-semibold">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-sm font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
                       Online
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-sm text-slate-300">
-                      <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                    <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+                      <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400">
                         <ShieldCheck className="w-3.5 h-3.5" />
                       </div>
                       <span>Secure Encrypted Stream</span>
                     </div>
-                    <span className="flex items-center gap-1.5 text-emerald-400 text-sm font-semibold">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-sm font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
                       Yes
                     </span>
                   </div>
@@ -892,36 +892,36 @@ const LiveStreamMonitoring = () => {
             )}
 
             {/* 2. Room Monitoring Status Card */}
-            <div className="bg-[#081827] border border-teal-900/50 rounded-2xl p-5 shadow-2xl space-y-4">
-              <h3 className="text-base font-bold text-white">Room Monitoring Status</h3>
+            <div className="bg-white dark:bg-[#081827] border border-slate-200/80 dark:border-teal-900/50 rounded-2xl p-5 shadow-sm dark:shadow-2xl space-y-4 transition-colors">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">Room Monitoring Status</h3>
 
               {/* 3 Status Mini Cards Grid */}
               <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
                 {/* Status 1: Camera Online */}
-                <div className="bg-[#071f30] border border-teal-500/30 rounded-xl p-3 flex flex-col items-center justify-center text-center gap-2 hover:border-teal-400/50 transition-all shadow-sm">
-                  <Video className="w-5 h-5 text-teal-400" />
-                  <p className="text-[11px] font-bold text-slate-200 leading-tight">
+                <div className="bg-slate-50 hover:bg-slate-100 dark:bg-[#071f30] border border-slate-200/80 dark:border-teal-500/30 hover:border-teal-500/40 dark:hover:border-teal-400/50 rounded-xl p-3 flex flex-col items-center justify-center text-center gap-2 transition-all shadow-sm group">
+                  <Video className="w-5 h-5 text-teal-600 dark:text-teal-400 group-hover:scale-110 transition-transform" />
+                  <p className="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">
                     Camera<br />Online
                   </p>
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50"></span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 shadow-sm shadow-emerald-400/50"></span>
                 </div>
 
                 {/* Status 2: Audio Active */}
-                <div className="bg-[#071f30] border border-teal-500/30 rounded-xl p-3 flex flex-col items-center justify-center text-center gap-2 hover:border-teal-400/50 transition-all shadow-sm">
-                  <Mic className="w-5 h-5 text-teal-400" />
-                  <p className="text-[11px] font-bold text-slate-200 leading-tight">
+                <div className="bg-slate-50 hover:bg-slate-100 dark:bg-[#071f30] border border-slate-200/80 dark:border-teal-500/30 hover:border-teal-500/40 dark:hover:border-teal-400/50 rounded-xl p-3 flex flex-col items-center justify-center text-center gap-2 transition-all shadow-sm group">
+                  <Mic className="w-5 h-5 text-teal-600 dark:text-teal-400 group-hover:scale-110 transition-transform" />
+                  <p className="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">
                     Audio<br />Active
                   </p>
-                  <span className={`w-2 h-2 rounded-full ${isMicActive ? 'bg-emerald-400 shadow-sm shadow-emerald-400/50' : 'bg-slate-500'}`}></span>
+                  <span className={`w-2 h-2 rounded-full ${isMicActive ? 'bg-emerald-500 dark:bg-emerald-400 shadow-sm shadow-emerald-400/50' : 'bg-slate-300 dark:bg-slate-500'}`}></span>
                 </div>
 
                 {/* Status 3: Secure Connection */}
-                <div className="bg-[#071f30] border border-teal-500/30 rounded-xl p-3 flex flex-col items-center justify-center text-center gap-2 hover:border-teal-400/50 transition-all shadow-sm">
-                  <ShieldCheck className="w-5 h-5 text-teal-400" />
-                  <p className="text-[11px] font-bold text-slate-200 leading-tight">
+                <div className="bg-slate-50 hover:bg-slate-100 dark:bg-[#071f30] border border-slate-200/80 dark:border-teal-500/30 hover:border-teal-500/40 dark:hover:border-teal-400/50 rounded-xl p-3 flex flex-col items-center justify-center text-center gap-2 transition-all shadow-sm group">
+                  <ShieldCheck className="w-5 h-5 text-teal-600 dark:text-teal-400 group-hover:scale-110 transition-transform" />
+                  <p className="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">
                     Secure<br />Connection
                   </p>
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50"></span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 shadow-sm shadow-emerald-400/50"></span>
                 </div>
               </div>
             </div>
@@ -958,17 +958,17 @@ const LiveStreamMonitoring = () => {
                   return (
                     <div
                       key={child._id}
-                      className={`bg-[#081827] rounded-2xl overflow-hidden border transition-all shadow-xl group ${
-                        isCurrent ? 'border-teal-500 shadow-teal-500/20' : 'border-teal-900/50 hover:border-teal-500/40'
+                      className={`bg-white dark:bg-[#081827] rounded-2xl overflow-hidden border transition-all shadow-sm dark:shadow-xl group ${
+                        isCurrent ? 'border-teal-500 shadow-teal-500/20' : 'border-slate-200/80 dark:border-teal-900/50 hover:border-teal-500/40'
                       }`}
                     >
-                      <div className="p-3 bg-black/70 flex items-center justify-between text-white text-xs border-b border-white/5">
+                      <div className="p-3 bg-slate-50 dark:bg-black/70 flex items-center justify-between text-slate-900 dark:text-white text-xs border-b border-slate-200 dark:border-white/5">
                         <div className="flex items-center gap-2">
                           <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                          <Baby className="w-4 h-4 text-teal-400" />
-                          <span className="font-bold text-white">{child.firstName} {child.lastName}</span>
+                          <Baby className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                          <span className="font-bold text-slate-900 dark:text-white">{child.firstName} {child.lastName}</span>
                         </div>
-                        <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-medium border border-teal-500/30">
+                        <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-teal-50 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 font-medium border border-teal-200 dark:border-teal-500/30">
                           {childRoomName} {child.classroomNumber ? `(${child.classroomNumber})` : ''}
                         </span>
                       </div>
@@ -999,10 +999,10 @@ const LiveStreamMonitoring = () => {
                         </div>
                       </div>
 
-                      <div className="p-3.5 bg-[#0b2438] flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-2 text-slate-300">
-                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                          <span className="text-[11px] font-medium text-emerald-300">Live & Encrypted</span>
+                      <div className="p-3.5 bg-slate-50 dark:bg-[#0b2438] flex items-center justify-between text-xs border-t border-slate-200 dark:border-white/5">
+                        <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
+                          <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-300">Live & Encrypted</span>
                         </div>
                         <button
                           type="button"
@@ -1033,14 +1033,14 @@ const LiveStreamMonitoring = () => {
                 ].map((cam) => (
                   <div
                     key={cam.id}
-                    className="bg-[#081827] rounded-2xl overflow-hidden border border-teal-900/50 hover:border-teal-500/40 transition-all shadow-xl group"
+                    className="bg-white dark:bg-[#081827] rounded-2xl overflow-hidden border border-slate-200/80 dark:border-teal-900/50 hover:border-teal-500/40 transition-all shadow-sm dark:shadow-xl group"
                   >
-                    <div className="p-3 bg-black/70 flex items-center justify-between text-white text-xs border-b border-white/5">
+                    <div className="p-3 bg-slate-50 dark:bg-black/70 flex items-center justify-between text-slate-900 dark:text-white text-xs border-b border-slate-200 dark:border-white/5">
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                        <span className="font-bold">{cam.label} • {cam.name}</span>
+                        <span className="font-bold text-slate-900 dark:text-white">{cam.label} • {cam.name}</span>
                       </div>
-                      <span className="text-[10px] text-teal-400 font-mono">{roomName}</span>
+                      <span className="text-[10px] text-teal-600 dark:text-teal-400 font-mono">{roomName}</span>
                     </div>
 
                     <div className="aspect-video relative bg-slate-900 overflow-hidden">
@@ -1065,8 +1065,8 @@ const LiveStreamMonitoring = () => {
                       </div>
                     </div>
 
-                    <div className="p-3.5 bg-[#0b2438] flex items-center justify-between text-xs">
-                      <span className="text-[11px] text-slate-300">Nanny: <strong className="text-white">{nannyName}</strong></span>
+                    <div className="p-3.5 bg-slate-50 dark:bg-[#0b2438] flex items-center justify-between text-xs border-t border-slate-200 dark:border-white/5">
+                      <span className="text-[11px] text-slate-600 dark:text-slate-300">Nanny: <strong className="text-slate-900 dark:text-white">{nannyName}</strong></span>
                       <button
                         type="button"
                         onClick={() => {
@@ -1096,16 +1096,16 @@ const LiveStreamMonitoring = () => {
                   return (
                     <div
                       key={room.roomId}
-                      className={`bg-[#081827] rounded-2xl overflow-hidden border transition-all shadow-xl group ${
-                        isCurrent ? 'border-teal-500 shadow-teal-500/20' : 'border-teal-900/50 hover:border-teal-500/40'
+                      className={`bg-white dark:bg-[#081827] rounded-2xl overflow-hidden border transition-all shadow-sm dark:shadow-xl group ${
+                        isCurrent ? 'border-teal-500 shadow-teal-500/20' : 'border-slate-200/80 dark:border-teal-900/50 hover:border-teal-500/40'
                       }`}
                     >
-                      <div className="p-3 bg-black/70 flex items-center justify-between text-white text-xs border-b border-white/5">
+                      <div className="p-3 bg-slate-50 dark:bg-black/70 flex items-center justify-between text-slate-900 dark:text-white text-xs border-b border-slate-200 dark:border-white/5">
                         <div className="flex items-center gap-2">
                           <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                          <span className="font-bold text-white">{room.name}</span>
+                          <span className="font-bold text-slate-900 dark:text-white">{room.name}</span>
                         </div>
-                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-mono">
+                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 font-mono border border-teal-200 dark:border-transparent">
                           {room.roomNumber || 'Classroom'}
                         </span>
                       </div>
@@ -1135,8 +1135,8 @@ const LiveStreamMonitoring = () => {
                         </div>
                       </div>
 
-                      <div className="p-3.5 bg-[#0b2438] flex items-center justify-between text-xs">
-                        <span className="text-slate-300 font-medium">Present: <strong className="text-white">{room.enrolledCount || 8} Children</strong></span>
+                      <div className="p-3.5 bg-slate-50 dark:bg-[#0b2438] flex items-center justify-between text-xs border-t border-slate-200 dark:border-white/5">
+                        <span className="text-slate-600 dark:text-slate-300 font-medium">Present: <strong className="text-slate-900 dark:text-white">{room.enrolledCount || 8} Children</strong></span>
                         <button
                           type="button"
                           onClick={() => {
@@ -1165,14 +1165,14 @@ const LiveStreamMonitoring = () => {
                 ].map((cam) => (
                   <div
                     key={cam.id}
-                    className="bg-[#081827] rounded-2xl overflow-hidden border border-teal-900/50 hover:border-teal-500/40 transition-all shadow-xl group"
+                    className="bg-white dark:bg-[#081827] rounded-2xl overflow-hidden border border-slate-200/80 dark:border-teal-900/50 hover:border-teal-500/40 transition-all shadow-sm dark:shadow-xl group"
                   >
-                    <div className="p-3 bg-black/70 flex items-center justify-between text-white text-xs border-b border-white/5">
+                    <div className="p-3 bg-slate-50 dark:bg-black/70 flex items-center justify-between text-slate-900 dark:text-white text-xs border-b border-slate-200 dark:border-white/5">
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                        <span className="font-bold">{cam.label} • {cam.name}</span>
+                        <span className="font-bold text-slate-900 dark:text-white">{cam.label} • {cam.name}</span>
                       </div>
-                      <span className="text-[10px] text-teal-400 font-mono">{roomName}</span>
+                      <span className="text-[10px] text-teal-600 dark:text-teal-400 font-mono">{roomName}</span>
                     </div>
 
                     <div className="aspect-video relative bg-slate-900 overflow-hidden">
@@ -1197,8 +1197,8 @@ const LiveStreamMonitoring = () => {
                       </div>
                     </div>
 
-                    <div className="p-3.5 bg-[#0b2438] flex items-center justify-between text-xs">
-                      <span className="text-slate-300 font-medium">Present: <strong className="text-white">{childrenCount} Children</strong></span>
+                    <div className="p-3.5 bg-slate-50 dark:bg-[#0b2438] flex items-center justify-between text-xs border-t border-slate-200 dark:border-white/5">
+                      <span className="text-slate-600 dark:text-slate-300 font-medium">Present: <strong className="text-slate-900 dark:text-white">{childrenCount} Children</strong></span>
                       <button
                         type="button"
                         onClick={() => {
@@ -1224,14 +1224,14 @@ const LiveStreamMonitoring = () => {
               {rooms.map(room => (
                 <div
                   key={room.roomId}
-                  className="bg-[#081827] rounded-2xl overflow-hidden border border-teal-900/50 shadow-xl relative group transition-all hover:border-teal-500/50"
+                  className="bg-white dark:bg-[#081827] rounded-2xl overflow-hidden border border-slate-200/80 dark:border-teal-900/50 shadow-sm dark:shadow-xl relative group transition-all hover:border-teal-500/50"
                 >
-                  <div className="p-3 bg-black/60 flex items-center justify-between text-white text-xs font-mono">
+                  <div className="p-3 bg-slate-50 dark:bg-black/60 flex items-center justify-between text-slate-900 dark:text-white text-xs font-mono border-b border-slate-200 dark:border-white/5">
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                      <span className="font-bold">{room.name}</span>
+                      <span className="font-bold text-slate-900 dark:text-white">{room.name}</span>
                     </div>
-                    <span className="text-slate-400">{room.roomNumber}</span>
+                    <span className="text-slate-500 dark:text-slate-400">{room.roomNumber}</span>
                   </div>
                   <div className="aspect-video relative bg-slate-900 overflow-hidden">
                     <img
@@ -1252,8 +1252,8 @@ const LiveStreamMonitoring = () => {
                       {formatLiveTimestamp(currentTime)}
                     </div>
                   </div>
-                  <div className="p-3.5 bg-[#0b2438] flex items-center justify-between text-xs">
-                    <span className="text-slate-300 font-medium">Present: {room.enrolledCount || 8} Children</span>
+                  <div className="p-3.5 bg-slate-50 dark:bg-[#0b2438] flex items-center justify-between text-xs border-t border-slate-200 dark:border-white/5">
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">Present: {room.enrolledCount || 8} Children</span>
                     <button
                       type="button"
                       onClick={() => {
