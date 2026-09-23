@@ -195,15 +195,39 @@ const Home = () => {
               : 'linear-gradient(160deg, var(--primary) 0%, var(--primary-dark) 45%, var(--primary) 100%)',
           }}
         >
+          {/* Background Video */}
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+            style={{
+              filter: isDark ? 'brightness(0.55)' : 'brightness(0.75)',
+            }}
+          >
+            <source src="/assets/images/gemini_generated_video_9f8fb85b.mp4" type="video/mp4" />
+          </video>
+
+          {/* High-contrast brand overlay to preserve text readability */}
+          <div
+            className="absolute inset-0 z-0 pointer-events-none"
+            style={{
+              background: isDark
+                ? 'linear-gradient(180deg, rgba(11,21,28,0.72) 0%, rgba(11,21,28,0.85) 100%)'
+                : 'linear-gradient(160deg, rgba(0, 107, 112, 0.78) 0%, rgba(0, 75, 80, 0.85) 50%, rgba(0, 107, 112, 0.80) 100%)',
+            }}
+          />
+
           {/* circuit pattern for light mode hero */}
           {!isDark && (
             <div
-              className="absolute inset-0 pointer-events-none"
-              style={{ backgroundImage: CIRCUIT_SVG, backgroundSize: '120px 120px', opacity: 0.07 }}
+              className="absolute inset-0 pointer-events-none z-0"
+              style={{ backgroundImage: CIRCUIT_SVG, backgroundSize: '120px 120px', opacity: 0.05 }}
             />
           )}
 
-          <div className="relative max-w-4xl mx-auto space-y-7">
+          <div className="relative max-w-4xl mx-auto space-y-7 z-10">
             {/* Badge */}
             <div
               className="inline-flex items-center gap-2 px-5 py-2 rounded-full border text-xs font-semibold"
@@ -248,7 +272,7 @@ const Home = () => {
 
           {/* White wave bottom — light mode only */}
           {!isDark && (
-            <div className="absolute bottom-0 left-0 right-0 w-full pointer-events-none" style={{ height: 70 }}>
+            <div className="absolute bottom-0 left-0 right-0 w-full pointer-events-none z-10" style={{ height: 70 }}>
               <svg viewBox="0 0 1440 70" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" className="w-full h-full block">
                 <path d="M0,35 C360,90 1080,-10 1440,35 L1440,70 L0,70 Z" fill="var(--white)" />
               </svg>
