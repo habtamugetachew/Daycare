@@ -68,10 +68,15 @@ const getStaff = async (req, res) => {
 const getStaffContacts = async (req, res) => {
   try {
     if (req.user.role === 'parent') {
-      const children = await Child.find({ parents: req.user._id }).populate({
-        path: 'classroom',
-        populate: { path: 'teacher', select: 'fullName email phone role avatar' }
-      });
+      const children = await Child.find({ parents: req.user._id })
+        .select('classroom')
+        .populate({
+          path: 'classroom',
+          select: 'teacher',
+          populate: { path: 'teacher', select: 'fullName email phone role avatar' }
+        })
+        .lean()
+        .maxTimeMS(5000);
 
       const teacherContacts = children
         .map(child => child.classroom?.teacher)
@@ -84,8 +89,10 @@ const getStaffContacts = async (req, res) => {
         }, []);
 
       const receptionAdmins = await User.find({ role: { $in: ['admin', 'reception'] } })
-        .select('-password')
-        .sort({ fullName: 1 });
+        .select('fullName email phone role avatar')
+        .sort({ fullName: 1 })
+        .lean()
+        .maxTimeMS(5000);
 
       const combined = [...teacherContacts, ...receptionAdmins];
       const uniqueContacts = combined.filter((contact, index, array) =>
@@ -96,12 +103,15 @@ const getStaffContacts = async (req, res) => {
     }
 
     const staff = await User.find({ role: { $in: ['teacher', 'reception', 'staff', 'admin'] } })
-      .select('-password')
-      .sort({ fullName: 1 });
+      .select('fullName email phone role avatar')
+      .sort({ fullName: 1 })
+      .lean()
+      .maxTimeMS(5000);
 
-    res.status(200).json({ success: true, count: staff.length, data: staff });
+    return res.status(200).json({ success: true, count: staff.length, data: staff });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('getStaffContacts error:', error);
+    return res.status(500).json({ success: false, message: error.message, data: [] });
   }
 };
 

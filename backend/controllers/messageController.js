@@ -2,6 +2,7 @@ const Message = require('../models/Message');
 const crypto = require('crypto');
 
 // @desc    Get inbox messages
+// @desc    Get inbox messages
 // @route   GET /api/messages/inbox
 // @access  Private
 const getInbox = async (req, res) => {
@@ -11,22 +12,40 @@ const getInbox = async (req, res) => {
       .populate('recipient', 'fullName role avatar')
       .populate('relatedChild', 'firstName lastName')
       .sort({ updatedAt: -1 })
-      .lean();
+      .lean()
+      .maxTimeMS(5000);
 
-    for (let msg of messages) {
-      const latestReply = await Message.findOne({ parentMessage: msg._id })
+    // ⚡ Batch-fetch latest replies in a SINGLE database query (eliminates N+1 5s loop delay)
+    if (messages.length > 0) {
+      const parentIds = messages.map(m => m._id);
+      const replies = await Message.find({ parentMessage: { $in: parentIds } })
+        .select('parentMessage body createdAt')
         .sort({ createdAt: -1 })
-        .lean();
-      if (latestReply) {
-        msg.latestMessageBody = latestReply.body;
-        msg.latestMessageCreatedAt = latestReply.createdAt;
+        .lean()
+        .maxTimeMS(5000);
+
+      const latestReplyMap = new Map();
+      for (const reply of replies) {
+        const pid = reply.parentMessage.toString();
+        if (!latestReplyMap.has(pid)) {
+          latestReplyMap.set(pid, reply);
+        }
+      }
+
+      for (let msg of messages) {
+        const latestReply = latestReplyMap.get(msg._id.toString());
+        if (latestReply) {
+          msg.latestMessageBody = latestReply.body;
+          msg.latestMessageCreatedAt = latestReply.createdAt;
+        }
       }
     }
 
     const unreadCount = messages.filter(m => !m.isRead).length;
-    res.status(200).json({ success: true, count: messages.length, unreadCount, data: messages });
+    return res.status(200).json({ success: true, count: messages.length, unreadCount, data: messages });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('getInbox error:', error);
+    return res.status(500).json({ success: false, message: error.message, data: [], count: 0, unreadCount: 0 });
   }
 };
 
@@ -40,21 +59,39 @@ const getSent = async (req, res) => {
       .populate('recipient', 'fullName role avatar')
       .populate('relatedChild', 'firstName lastName')
       .sort({ updatedAt: -1 })
-      .lean();
+      .lean()
+      .maxTimeMS(5000);
 
-    for (let msg of messages) {
-      const latestReply = await Message.findOne({ parentMessage: msg._id })
+    // ⚡ Batch-fetch latest replies in a SINGLE database query
+    if (messages.length > 0) {
+      const parentIds = messages.map(m => m._id);
+      const replies = await Message.find({ parentMessage: { $in: parentIds } })
+        .select('parentMessage body createdAt')
         .sort({ createdAt: -1 })
-        .lean();
-      if (latestReply) {
-        msg.latestMessageBody = latestReply.body;
-        msg.latestMessageCreatedAt = latestReply.createdAt;
+        .lean()
+        .maxTimeMS(5000);
+
+      const latestReplyMap = new Map();
+      for (const reply of replies) {
+        const pid = reply.parentMessage.toString();
+        if (!latestReplyMap.has(pid)) {
+          latestReplyMap.set(pid, reply);
+        }
+      }
+
+      for (let msg of messages) {
+        const latestReply = latestReplyMap.get(msg._id.toString());
+        if (latestReply) {
+          msg.latestMessageBody = latestReply.body;
+          msg.latestMessageCreatedAt = latestReply.createdAt;
+        }
       }
     }
 
-    res.status(200).json({ success: true, count: messages.length, data: messages });
+    return res.status(200).json({ success: true, count: messages.length, data: messages });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('getSent error:', error);
+    return res.status(500).json({ success: false, message: error.message, data: [], count: 0 });
   }
 };
 

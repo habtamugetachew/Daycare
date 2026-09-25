@@ -262,45 +262,46 @@ const Communication = () => {
   }, [inbox, sentMessages, user?._id, tick]);
 
   // ── Fetch data ──────────────────────────────────────────────────────────────
+  const parseAnnouncements = useCallback((msgs) => {
+    const staffRoles = ['admin', 'teacher', 'reception', 'staff'];
+    const grouped = new Map();
+    msgs.filter(m => staffRoles.includes(m.sender?.role) && m.subject?.startsWith('[Announcement]')).forEach(msg => {
+      const key = msg.broadcastId || `${msg.subject}__${Math.floor(new Date(msg.createdAt).getTime() / 5000)}`;
+      if (!grouped.has(key)) {
+        grouped.set(key, {
+          _id: msg._id,
+          broadcastId: key,
+          subject: msg.subject,
+          body: msg.body,
+          sender: msg.sender,
+          priority: msg.priority,
+          broadcastGroup: msg.broadcastGroup,
+          broadcastCount: msg.broadcastCount,
+          createdAt: msg.createdAt,
+        });
+      }
+    });
+    return Array.from(grouped.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }, []);
+
   const fetchInbox = useCallback(async () => {
     try {
       const res = await api.get('/messages/inbox');
-      setInbox(res.data.data || []);
+      const data = res.data.data || [];
+      setInbox(data);
       setUnread(res.data.unreadCount || 0);
-    } catch { /* silent */ }
-  }, []);
+      if (!canAnnounce) {
+        setAnnouncements(parseAnnouncements(data));
+      }
+      return data;
+    } catch { return []; }
+  }, [canAnnounce, parseAnnouncements]);
 
   const fetchAnnouncements = useCallback(async () => {
+    if (!canAnnounce) return;
     try {
-      if (canAnnounce) {
-        // Admin/teacher: fetch their own sent announcements (grouped by broadcast)
-        const res = await api.get('/messages/announcements');
-        setAnnouncements(res.data.data || []);
-      } else {
-        // Parents/staff: show announcements received in inbox
-        const res = await api.get('/messages/inbox');
-        const msgs = res.data.data || [];
-        const staffRoles = ['admin', 'teacher', 'reception', 'staff'];
-        // Group received announcements by broadcastId or subject+window
-        const grouped = new Map();
-        msgs.filter(m => staffRoles.includes(m.sender?.role) && m.subject?.startsWith('[Announcement]')).forEach(msg => {
-          const key = msg.broadcastId || `${msg.subject}__${Math.floor(new Date(msg.createdAt).getTime() / 5000)}`;
-          if (!grouped.has(key)) {
-            grouped.set(key, {
-              _id: msg._id,
-              broadcastId: key,
-              subject: msg.subject,
-              body: msg.body,
-              sender: msg.sender,
-              priority: msg.priority,
-              broadcastGroup: msg.broadcastGroup,
-              broadcastCount: msg.broadcastCount,
-              createdAt: msg.createdAt,
-            });
-          }
-        });
-        setAnnouncements(Array.from(grouped.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
-      }
+      const res = await api.get('/messages/announcements');
+      setAnnouncements(res.data.data || []);
     } catch { /* silent */ }
   }, [canAnnounce]);
 
@@ -401,11 +402,16 @@ const Communication = () => {
   useEffect(() => {
     const init = async () => {
       setLoading(true);
-      await Promise.all([fetchAnnouncements(), fetchInbox(), fetchSent(), fetchContacts()]);
+      await Promise.all([
+        fetchInbox(),
+        canAnnounce ? fetchAnnouncements() : Promise.resolve(),
+        fetchSent(),
+        fetchContacts()
+      ]);
       setLoading(false);
     };
     init();
-  }, [fetchAnnouncements, fetchInbox, fetchContacts]);
+  }, [fetchAnnouncements, fetchInbox, fetchSent, fetchContacts, canAnnounce]);
 
   useEffect(() => {
     if (loading) return;
