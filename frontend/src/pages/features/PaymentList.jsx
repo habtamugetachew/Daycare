@@ -101,6 +101,27 @@ const METHODS = [
   { key: 'check',         label: 'Check',                icon: 'bx-check-square' },
 ];
 
+const BANK_OPTIONS = [
+  { id: 'telebirr',    label: 'TeleBirr (Ethio Telecom)' },
+  { id: 'cbe',         label: 'CBE Birr (Commercial Bank of Ethiopia)' },
+  { id: 'amole',       label: 'Amole (Awash Bank)' },
+  { id: 'abyssinia',   label: 'Bank of Abyssinia' },
+  { id: 'awash',       label: 'Awash Bank' },
+  { id: 'dashen',      label: 'Dashen Bank' },
+  { id: 'united',      label: 'United Bank' },
+  { id: 'berhan',      label: 'Berhan Bank' },
+  { id: 'hibret',      label: 'Hibret Bank' },
+  { id: 'wegagen',     label: 'Wegagen Bank' },
+  { id: 'zemen',       label: 'Zemen Bank' },
+  { id: 'nib',         label: 'Nib International Bank' },
+  { id: 'cooperative', label: 'Cooperative Bank of Oromia' },
+  { id: 'enat',        label: 'Enat Bank' },
+  { id: 'oromia',      label: 'Oromia Bank' },
+  { id: 'abay',        label: 'Abay Bank' },
+  { id: 'adwa',        label: 'Addis International Bank' },
+  { id: 'other',       label: 'Other' },
+];
+
 const PaymentModal = ({ invoice, onClose, onSuccess }) => {
   const [method,   setMethod]   = useState('card');
   const [cardNum,  setCardNum]  = useState('');
@@ -223,7 +244,10 @@ const PaymentModal = ({ invoice, onClose, onSuccess }) => {
           )}
           {method==='bank-transfer' && (
             <div className="space-y-3">
-              <input type="text" placeholder="Bank / Institution Name *" value={bankName} onChange={e=>setBankName(e.target.value)} className={INPUT}/>
+              <select value={bankName} onChange={e=>setBankName(e.target.value)} className={INPUT}>
+                <option value="">Select a bank or mobile money…</option>
+                {BANK_OPTIONS.map(b=><option key={b.id} value={b.label}>{b.label}</option>)}
+              </select>
               <input type="text" placeholder="Transfer Reference (optional)" value={bankRef} onChange={e=>setBankRef(e.target.value)} className={INPUT}/>
             </div>
           )}

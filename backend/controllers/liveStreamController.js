@@ -35,6 +35,7 @@ const getLiveStreamRooms = async (req, res) => {
 
     let classrooms = [];
     let parentChildrenMap = new Map(); // For parent role: maps roomId -> list of user's children
+    let parentAllChildren = [];
 
     // ── 1. Admin & Reception: Full Access to ALL active classrooms ──
     if (role === 'admin' || role === 'reception') {
@@ -54,7 +55,6 @@ const getLiveStreamRooms = async (req, res) => {
         .lean();
     }
 
-    let parentAllChildren = [];
     // ── 3. Parent: Access ONLY to classroom(s) where their children are enrolled ──
     else if (role === 'parent') {
       // Find all approved children belonging to this parent

@@ -9,6 +9,27 @@ const METHODS = [
   { key: 'check',         label: 'Check',                icon: 'bx-check-square'},
 ];
 
+const BANK_OPTIONS = [
+  { id: 'telebirr',    label: 'TeleBirr (Ethio Telecom)' },
+  { id: 'cbe',         label: 'CBE Birr (Commercial Bank of Ethiopia)' },
+  { id: 'amole',       label: 'Amole (Awash Bank)' },
+  { id: 'abyssinia',   label: 'Bank of Abyssinia' },
+  { id: 'awash',       label: 'Awash Bank' },
+  { id: 'dashen',      label: 'Dashen Bank' },
+  { id: 'united',      label: 'United Bank' },
+  { id: 'berhan',      label: 'Berhan Bank' },
+  { id: 'hibret',      label: 'Hibret Bank' },
+  { id: 'wegagen',     label: 'Wegagen Bank' },
+  { id: 'zemen',       label: 'Zemen Bank' },
+  { id: 'nib',         label: 'Nib International Bank' },
+  { id: 'cooperative', label: 'Cooperative Bank of Oromia' },
+  { id: 'enat',        label: 'Enat Bank' },
+  { id: 'oromia',      label: 'Oromia Bank' },
+  { id: 'abay',        label: 'Abay Bank' },
+  { id: 'adwa',        label: 'Addis International Bank' },
+  { id: 'other',       label: 'Other' },
+];
+
 const INPUT = 'w-full border border-slate-200 dark:border-teal-900/40 rounded-xl px-4 py-2.5 text-sm bg-white dark:bg-[#0d1520] text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500';
 
 const PaymentModal = ({ invoice, onClose, onSuccess }) => {
@@ -250,10 +271,13 @@ const PaymentModal = ({ invoice, onClose, onSuccess }) => {
             <div className="space-y-3">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Bank Details</p>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Bank / Institution Name *</label>
-                <input type="text" placeholder="e.g. Chase Bank"
-                  value={bankName} onChange={e => setBankName(e.target.value)}
-                  className={INPUT} />
+                <label className="text-xs text-slate-400 mb-1 block">Bank / Wallet *</label>
+                <select value={bankName} onChange={e => setBankName(e.target.value)} className={INPUT}>
+                  <option value="">Select a bank or mobile money…</option>
+                  {BANK_OPTIONS.map(b => (
+                    <option key={b.id} value={b.label}>{b.label}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Transfer Reference (optional)</label>
@@ -263,10 +287,9 @@ const PaymentModal = ({ invoice, onClose, onSuccess }) => {
               </div>
               <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-xl p-4 text-xs text-slate-500 space-y-1">
                 <p className="font-semibold text-cyan-400 flex items-center gap-1.5"><i className="bx bx-info-circle" /> Transfer Instructions</p>
-                <p>Bank: <strong className="text-slate-700 dark:text-slate-200">DaycareHQ Finance</strong></p>
-                <p>Account #: <strong className="text-slate-700 dark:text-slate-200">7890-1234-56</strong></p>
-                <p>Routing #: <strong className="text-slate-700 dark:text-slate-200">021000021</strong></p>
+                <p>Send payment via <strong className="text-slate-700 dark:text-slate-200">{bankName || 'your selected bank / wallet'}</strong> to the daycare account.</p>
                 <p>Reference: <strong className="text-indigo-400">{invoice.invoiceNumber}</strong></p>
+                <p className="text-[11px] text-slate-400">Payment is confirmed once staff verify the transfer reference.</p>
               </div>
             </div>
           )}

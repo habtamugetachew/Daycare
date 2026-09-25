@@ -1,7 +1,17 @@
 const OpenAI = require('openai');
 
-// Initialise the OpenAI client — key is read from process.env.OPENAI_API_KEY
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Lazy-initialised OpenAI client.
+// The client is created ON DEMAND (inside validateId) and only when a valid
+// OPENAI_API_KEY is present, so a missing/empty key does NOT crash the server
+// at module load time. ID validation is optional when the key is unavailable.
+let openaiClient = null;
+
+const getOpenAI = () => {
+  if (!openaiClient) {
+    openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+  return openaiClient;
+};
 
 // ─── System prompts ───────────────────────────────────────────────────────────
 const SYSTEM_PROMPT_FRONT = `You are an automated ID Card Validation Assistant. Your job is to inspect user-uploaded images and determine if they are valid identity card scans based on strict criteria.
@@ -61,6 +71,7 @@ const validateId = async (req, res) => {
 
     const systemPrompt = side === 'front' ? SYSTEM_PROMPT_FRONT : SYSTEM_PROMPT_BACK;
 
+    const openai = getOpenAI();
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o',
       max_tokens: 100,
