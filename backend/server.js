@@ -94,14 +94,21 @@ app.use('/api/live-stream', require('./routes/liveStream'));
 app.use('/api/settings', require('./routes/settings'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Health check
-app.get('/health', (req, res) => {
+// ── Keep-Alive / Health Check Endpoints (Render Free Tier Ping) ──
+// Lightweight endpoint without database overhead to prevent Render sleep state
+const handleHealthCheck = (req, res) => {
+  const now = new Date();
+  const clientIp = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown';
+  console.log(`[Keep-Alive Ping] 🟢 Health check received at ${now.toISOString()} | IP: ${clientIp}`);
+
   res.status(200).json({
     status: 'ok',
-    message: 'DaycareHQ Backend is running',
-    timestamp: new Date().toISOString()
+    timestamp: now
   });
-});
+};
+
+app.get('/api/health', handleHealthCheck);
+app.get('/health', handleHealthCheck);
 
 // 404 handler
 app.use((req, res) => {
