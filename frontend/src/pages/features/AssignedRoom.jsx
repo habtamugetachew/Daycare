@@ -165,29 +165,26 @@ const AssignedRoom = () => {
                       <p className="text-xs text-slate-500 mt-1">{classroom.ageGroup} · {classroom.room}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-slate-800 dark:text-white">{enrolled.length}/{classroom.capacity}</p>
-                      <p className="text-xs text-slate-500">{t('enrolled')}</p>
+                      <p className="text-2xl font-extrabold text-[#00A884] dark:text-[#00C49A]">{classroom.capacity}</p>
+                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('capacity', 'Capacity')}</p>
                     </div>
                   </div>
 
-                  <div className="mb-4">
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="text-slate-500">{t('capacity')}</span>
-                      <span className={`font-semibold ${available <= 0 ? 'text-rose-400' : available <= 5 ? 'text-amber-400' : 'text-emerald-400'}`}>
-                        {available} {t('spotsAvailableLabel')}
+                  <div className="mb-2">
+                    <div className="flex justify-between text-xs mb-1.5">
+                      <span className="text-slate-500">{t('classroomCapacity', 'Classroom Capacity')}</span>
+                      <span className="font-bold text-[#00A884] dark:text-[#00C49A]">
+                        {classroom.capacity} {t('spots', 'Spots')}
                       </span>
                     </div>
                     <div className="w-full bg-slate-100 dark:bg-[#0d1520] rounded-full h-2">
-                      <div className={`h-2 rounded-full ${enrolled.length >= classroom.capacity ? 'bg-rose-500' : enrolled.length >= classroom.capacity * 0.8 ? 'bg-amber-500' : 'bg-emerald-500'}`} 
-                        style={{ width: `${Math.min((enrolled.length / classroom.capacity) * 100, 100)}%` }} />
+                      <div className="h-2 rounded-full bg-[#00A884] dark:bg-[#00C49A]" 
+                        style={{ width: `${Math.min(((enrolled.length || 0) / (classroom.capacity || 1)) * 100, 100)}%` }} />
                     </div>
                   </div>
 
-                  <div>
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">{t('assignedChildren')}</p>
-                    {enrolled.length === 0 ? (
-                      <p className="text-slate-400 text-sm text-center py-4">{t('noChildrenAssigned')}</p>
-                    ) : (
+                  {enrolled.length > 0 && (
+                    <div className="mt-4 pt-3 border-t border-slate-100 dark:border-teal-900/30">
                       <div className="space-y-2 max-h-48 overflow-y-auto">
                         {enrolled.map(child => (
                           <div key={child._id} className="flex items-center justify-between py-2 px-3 bg-slate-50 dark:bg-[#0d1520] rounded-lg">
@@ -213,8 +210,8 @@ const AssignedRoom = () => {
                           </div>
                         ))}
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
             );

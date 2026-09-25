@@ -151,6 +151,24 @@ body {
 .dark .border-teal-500\/20, .dark .border-teal-500\/30,
 .dark .border-emerald-500\/20, .dark .border-emerald-500\/30 { border-color: rgba(0,196,199,0.20) !important; }
 
+/* Tinted alerts and notice boxes in dark mode */
+.dark .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.12) !important;
+  border-color: rgba(16, 185, 129, 0.30) !important;
+}
+.dark .bg-amber-50 {
+  background-color: rgba(245, 180, 0, 0.12) !important;
+  border-color: rgba(245, 180, 0, 0.30) !important;
+}
+.dark .bg-rose-50 {
+  background-color: rgba(240, 79, 95, 0.12) !important;
+  border-color: rgba(240, 79, 95, 0.30) !important;
+}
+.dark .bg-blue-50 {
+  background-color: rgba(59, 130, 246, 0.12) !important;
+  border-color: rgba(59, 130, 246, 0.30) !important;
+}
+
 /* Indigo / Blue / Purple / Violet → primary */
 .dark .text-indigo-400, .dark .text-indigo-500,
 .dark .text-indigo-600, .dark .text-indigo-700 { color: var(--primary-light) !important; }

@@ -121,8 +121,8 @@ const SummarySidebar = ({ selected, user, onContactSupport }) => {
           </div>
         )}
       </div>
-      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-slate-600">
-        <div className="flex items-start gap-2"><i className="bx bx-info-circle text-amber-500 text-base flex-shrink-0 mt-0.5" />
+      <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-2xl p-4 text-xs text-slate-600 dark:text-amber-200">
+        <div className="flex items-start gap-2"><i className="bx bx-info-circle text-amber-500 dark:text-amber-400 text-base flex-shrink-0 mt-0.5" />
           <p>{t('redirectedToChapa', 'Payment is processed securely by Chapa. You will be redirected to complete your payment.')}</p>
         </div>
       </div>
@@ -175,9 +175,9 @@ const Step1 = ({ invoices, selected, setSelected, onContinue, embedded, onBack, 
           )}
         </div>
       </div>
-      <div className="flex items-start gap-4 bg-emerald-50 border border-emerald-200 rounded-2xl px-5 py-4">
-        <i className="bx bx-shield-alt-2 text-[#00A884] text-xl flex-shrink-0 mt-0.5" />
-        <p className="text-xs text-slate-600"><span className="font-bold text-slate-800 block mb-0.5">{t('yourPaymentIsSecure', 'Your payment is secure')}</span>{t('allTransactionsAreEncrypted', 'All transactions are encrypted and processed securely by Chapa.')}</p>
+      <div className="flex items-start gap-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-2xl px-5 py-4">
+        <i className="bx bx-shield-alt-2 text-[#00A884] dark:text-emerald-400 text-xl flex-shrink-0 mt-0.5" />
+        <p className="text-xs text-slate-600 dark:text-slate-200"><span className="font-bold text-slate-800 dark:text-white block mb-0.5">{t('yourPaymentIsSecure', 'Your payment is secure')}</span>{t('allTransactionsAreEncrypted', 'All transactions are encrypted and processed securely by Chapa.')}</p>
       </div>
       <div className="flex items-center justify-between pt-1">
         {!embedded ? <button onClick={onBack} className="px-6 py-3 rounded-2xl border-2 border-slate-300 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition">{t('cancel', 'Cancel')}</button> : <div />}
@@ -226,10 +226,10 @@ const Step2 = ({ selected, onContinue, onBack }) => {
             </div>
           </div>
         </div>
-        <div className="flex items-start gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl px-5 py-4">
-          <i className="bx bx-shield-alt-2 text-[#00A884] text-xl flex-shrink-0 mt-0.5" />
-          <div><p className="text-sm font-bold text-slate-800">{t('yourPaymentIsSecure', 'Your payment is secure')}</p>
-            <p className="text-xs text-slate-500 mt-0.5">{t('allTransactionsAreEncrypted', 'All transactions are encrypted and processed securely by Chapa.')}</p>
+        <div className="flex items-start gap-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-2xl px-5 py-4">
+          <i className="bx bx-shield-alt-2 text-[#00A884] dark:text-emerald-400 text-xl flex-shrink-0 mt-0.5" />
+          <div><p className="text-sm font-bold text-slate-800 dark:text-white">{t('yourPaymentIsSecure', 'Your payment is secure')}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-300 mt-0.5">{t('allTransactionsAreEncrypted', 'All transactions are encrypted and processed securely by Chapa.')}</p>
           </div>
         </div>
       </div>
@@ -276,9 +276,9 @@ const Step3 = ({ selected, paying, onPay, onBack }) => {
               <span className="text-slate-800">{t('totalLabel', 'Total')}</span><span className="text-[#00A884] text-xl">{fmtCurrency(total)}</span>
             </div>
           </div>
-          <div className="flex items-start gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
-            <i className="bx bx-lock-alt text-[#00A884] text-base flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-slate-600">{t('redirectedToChapa', "You will be redirected to Chapa's secure checkout page to complete your payment.")}</p>
+          <div className="flex items-start gap-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-xl px-4 py-3">
+            <i className="bx bx-lock-alt text-[#00A884] dark:text-emerald-400 text-base flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-slate-600 dark:text-slate-300">{t('redirectedToChapa', "You will be redirected to Chapa's secure checkout page to complete your payment.")}</p>
           </div>
         </div>
       </div>
