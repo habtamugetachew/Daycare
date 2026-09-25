@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 let mongod = null;
 
 const connectDB = async (maxRetries = 3) => {
-  const atlasUri = process.env.MONGODB_URI;
+  const atlasUri = process.env.MONGODB_URI || process.env.MONGO_URI;
 
   if (atlasUri) {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {

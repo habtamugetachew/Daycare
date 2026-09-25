@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node --max-old-space-size=380 server.js",
+    "build": "echo 'Backend build successful'",
     "dev": "nodemon server.js"
   },
   "dependencies": {
