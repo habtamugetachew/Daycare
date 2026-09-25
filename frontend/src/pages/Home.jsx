@@ -190,9 +190,7 @@ const Home = () => {
         <section
           className="pt-20 pb-32 px-4 text-center relative overflow-hidden"
           style={{
-            background: isDark
-              ? 'var(--bg)'
-              : 'linear-gradient(160deg, var(--primary) 0%, var(--primary-dark) 45%, var(--primary) 100%)',
+            background: 'linear-gradient(160deg, #006B70 0%, #004F59 45%, #006B70 100%)',
           }}
         >
           {/* Background Video */}
@@ -203,7 +201,7 @@ const Home = () => {
             playsInline
             className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
             style={{
-              filter: isDark ? 'brightness(0.55)' : 'brightness(0.75)',
+              filter: 'brightness(0.75)',
             }}
           >
             <source src="/assets/images/gemini_generated_video_9f8fb85b.mp4" type="video/mp4" />
@@ -213,19 +211,15 @@ const Home = () => {
           <div
             className="absolute inset-0 z-0 pointer-events-none"
             style={{
-              background: isDark
-                ? 'linear-gradient(180deg, rgba(11,21,28,0.72) 0%, rgba(11,21,28,0.85) 100%)'
-                : 'linear-gradient(160deg, rgba(0, 107, 112, 0.78) 0%, rgba(0, 75, 80, 0.85) 50%, rgba(0, 107, 112, 0.80) 100%)',
+              background: 'linear-gradient(160deg, rgba(0, 107, 112, 0.78) 0%, rgba(0, 75, 80, 0.85) 50%, rgba(0, 107, 112, 0.80) 100%)',
             }}
           />
 
-          {/* circuit pattern for light mode hero */}
-          {!isDark && (
-            <div
-              className="absolute inset-0 pointer-events-none z-0"
-              style={{ backgroundImage: CIRCUIT_SVG, backgroundSize: '120px 120px', opacity: 0.05 }}
-            />
-          )}
+          {/* circuit pattern for hero */}
+          <div
+            className="absolute inset-0 pointer-events-none z-0"
+            style={{ backgroundImage: CIRCUIT_SVG, backgroundSize: '120px 120px', opacity: 0.05 }}
+          />
 
           <div className="relative max-w-4xl mx-auto space-y-7 z-10">
             {/* Badge */}
@@ -254,8 +248,8 @@ const Home = () => {
                 to="/register"
                 className="w-full sm:w-auto px-9 py-4 font-bold rounded-xl text-white hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 shadow-lg flex items-center justify-center gap-2"
                 style={{
-                  background: isDark ? 'var(--primary-light)' : 'var(--accent)',
-                  boxShadow: isDark ? 'var(--shadow-glow-secondary)' : 'var(--shadow-glow-warning)',
+                  background: 'var(--accent)',
+                  boxShadow: 'var(--shadow-glow-warning)',
                 }}
               >
                 {t('heroBtnStart')}
@@ -270,14 +264,12 @@ const Home = () => {
             </div>
           </div>
 
-          {/* White wave bottom — light mode only */}
-          {!isDark && (
-            <div className="absolute bottom-0 left-0 right-0 w-full pointer-events-none z-10" style={{ height: 70 }}>
-              <svg viewBox="0 0 1440 70" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" className="w-full h-full block">
-                <path d="M0,35 C360,90 1080,-10 1440,35 L1440,70 L0,70 Z" fill="var(--white)" />
-              </svg>
-            </div>
-          )}
+          {/* Wave bottom divider */}
+          <div className="absolute bottom-0 left-0 right-0 w-full pointer-events-none z-10" style={{ height: 70 }}>
+            <svg viewBox="0 0 1440 70" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" className="w-full h-full block">
+              <path d="M0,35 C360,90 1080,-10 1440,35 L1440,70 L0,70 Z" fill={isDark ? 'var(--bg)' : 'var(--white)'} />
+            </svg>
+          </div>
         </section>
 
         {/* ════════════════════════════════════════════
@@ -285,7 +277,7 @@ const Home = () => {
         ════════════════════════════════════════════ */}
         <div
           className="px-4 py-1"
-          style={{ background: isDark ? 'var(--surface)' : 'var(--bg)' }}
+          style={{ background: isDark ? 'var(--bg)' : 'var(--white)' }}
         >
           <div
             className="max-w-5xl mx-auto rounded-2xl px-8 py-6 flex items-center justify-center gap-8 md:gap-14 flex-wrap text-sm font-semibold shadow-sm"
