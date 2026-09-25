@@ -754,7 +754,7 @@ const Register = () => {
     <>
       <div className="min-h-screen w-full max-w-full relative flex items-center justify-center px-2 sm:px-4 py-6 sm:py-8 overflow-x-hidden">
         {/* Full screen background */}
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url('${theme === 'dark' ? '/assets/images/darkmode.png' : '/assets/images/registerz.png'}')`, filter: isDark ? 'brightness(0.65)' : 'none' }} />
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url('${theme === 'dark' ? '/assets/optimized/darkmode.webp' : '/assets/optimized/registerz.webp'}')`, filter: isDark ? 'brightness(0.65)' : 'none' }} />
 
         {/* OVERLAPPING CARD CONTAINER */}
         <div className="relative z-10 flex items-stretch justify-center w-full max-w-[1020px] px-1 sm:px-4">
@@ -773,7 +773,7 @@ const Register = () => {
             }}>
 
             <div className="w-[100px] h-[100px] mx-auto mb-6 rounded-[24px] overflow-hidden border border-teal-500/20 shadow-[0_10px_30px_rgba(0,0,0,0.5)] relative z-10" style={{ background: isDark ? '#0a1d24' : '#ffffff' }}>
-              <img src="/assets/images/icon.png" alt="DaycareHQ" className="w-full h-full object-contain p-2" />
+              <img src="/assets/optimized/icon.webp" alt="DaycareHQ" className="w-full h-full object-contain p-2" />
             </div>
 
             <h1 className="font-black text-[28px] leading-[1.3] mb-4 relative z-10" style={{ color: colors.leftText }}>
@@ -1136,7 +1136,7 @@ const Register = () => {
             <div className="w-full px-8 py-6 flex justify-between items-center z-50">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center p-1.5 border border-white/20">
-                  <img src="/assets/images/icon.png" alt="logo" className="w-full h-full object-contain" />
+                  <img src="/assets/optimized/icon.webp" alt="logo" className="w-full h-full object-contain" />
                 </div>
                 <span className="text-white font-bold text-xl tracking-tight">DaycareHQ</span>
               </div>

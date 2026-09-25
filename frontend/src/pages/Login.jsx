@@ -164,7 +164,7 @@ const Login = () => {
       <div
         className="absolute inset-0 z-0 bg-cover bg-center no-repeat transition-all duration-500 scale-[1.05]"
         style={{
-          backgroundImage: `url('${theme === 'dark' ? '/assets/images/darkmode.png' : '/assets/images/login.png'}')`,
+          backgroundImage: `url('${theme === 'dark' ? '/assets/optimized/darkmode.webp' : '/assets/optimized/login.webp'}')`,
           filter: theme === 'dark' ? 'none' : 'brightness(1.15)',
         }}
       />
@@ -195,7 +195,7 @@ const Login = () => {
           }}>
           <div className="ministry-logo w-20 h-20 mx-auto mb-4 bg-white/15 border border-white/30 rounded-2xl flex items-center justify-center p-2 shadow-lg">
             <img
-              src="/assets/images/icon.png"
+              src="/assets/optimized/icon.webp"
               alt="Logo"
               className="w-full h-full object-contain rounded-lg"
             />

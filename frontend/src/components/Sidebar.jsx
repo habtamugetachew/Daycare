@@ -197,7 +197,7 @@ const Sidebar = () => {
               }}
             >
               <img
-                src="/assets/images/mint-logo.png"
+                src="/assets/optimized/mint-logo.webp"
                 alt="Daycare Logo"
                 style={{
                   height: '32px',
@@ -239,7 +239,7 @@ const Sidebar = () => {
               flexShrink: 0,
             }}>
               <img
-                src="/assets/images/mint-logo.png"
+                src="/assets/optimized/mint-logo.webp"
                 alt="Daycare Logo"
                 style={{
                   height: '44px',

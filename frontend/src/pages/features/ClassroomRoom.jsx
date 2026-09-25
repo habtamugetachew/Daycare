@@ -98,6 +98,38 @@ const ClassroomRoom = () => {
                 ))}
               </div>
 
+              {/* Live Video Camera Feed for Rainbow Room */}
+              {(room?.name || '').toLowerCase().includes('rainbow') && (
+                <div className="px-6 pb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                      Live Classroom Camera Feed
+                    </span>
+                    <span className="text-[11px] font-mono text-emerald-500 dark:text-emerald-400 font-semibold bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                      Camera Active
+                    </span>
+                  </div>
+                  <div className="relative rounded-2xl overflow-hidden aspect-video bg-black max-w-lg border border-slate-200 dark:border-teal-900/40 shadow-sm">
+                    <video
+                      src="/assets/images/rein%20bow%20room.mp4"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-2.5 left-2.5 bg-red-600/90 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                      LIVE
+                    </div>
+                    <div className="absolute bottom-2.5 left-2.5 bg-black/60 backdrop-blur-md text-white text-[10px] px-2.5 py-1 rounded-md border border-white/10">
+                      {room.name} – Camera 01
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Capacity bar */}
               {room?.capacity && (
                 <div className="px-6 pb-5">

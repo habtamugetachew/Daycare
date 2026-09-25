@@ -57,7 +57,7 @@ const Home = () => {
           {/* Logo — MiNT official logo image + text */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <img
-              src="/assets/images/mint-logo.png"
+              src="/assets/optimized/mint-logo.webp"
               alt="MiNT Logo"
               className="h-10 w-10 sm:h-14 sm:w-14 md:h-16 md:w-16 object-contain flex-shrink-0"
             />
@@ -407,7 +407,7 @@ const Home = () => {
         >
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-3">
-              <img src="/assets/images/mint-logo.png" alt="MiNT Daycare" className="h-9 w-9 rounded-full object-contain" />
+              <img src="/assets/optimized/mint-logo.webp" alt="MiNT Daycare" className="h-9 w-9 rounded-full object-contain" />
               <span className="font-bold text-lg text-white tracking-tight">MiNT Daycare</span>
             </div>
             <p className="text-xs text-slate-500">
