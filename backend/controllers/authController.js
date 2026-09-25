@@ -194,8 +194,9 @@ const loginUser = async (req, res) => {
       });
     }
 
-    // Check for user
-    const user = await User.findOne({ email });
+    // Check for user with field projection optimization
+    const user = await User.findOne({ email })
+      .select('fullName email phone role avatar password approvalStatus status');
     if (!user) {
       console.log(`[Auth] No user found for: ${email}`);
       return res.status(401).json({

@@ -5,43 +5,56 @@ import api from '../services/api';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // ⚡ 1. Synchronously initialize user from localStorage: Instant UI render (0ms delay)
+  const [user, setUser] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('user');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  // ⚡ 2. Only show loading if a token exists but user data is not yet parsed
+  const [loading, setLoading] = useState(() => {
+    const token = localStorage.getItem('token');
+    const savedUser = localStorage.getItem('user');
+    return Boolean(token && !savedUser);
+  });
+
   const navigate = useNavigate();
 
-  // Load user data from localStorage and verify validation on mount
+  // ⚡ 3. Non-blocking background session verification
   useEffect(() => {
-    const initializeAuth = async () => {
+    const verifySession = async () => {
       const token = localStorage.getItem('token');
-      const savedUser = localStorage.getItem('user');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
 
-      if (token && savedUser) {
-        try {
-          // Verify token validity with backend before trusting local storage
-          const res = await api.get('/auth/me');
-          if (res.data.success) {
-            const freshUser = res.data.user;
-            setUser(freshUser);
-            localStorage.setItem('user', JSON.stringify(freshUser));
-            localStorage.setItem('role', freshUser.role);
-          } else {
-            localStorage.removeItem('token');
-            localStorage.removeItem('role');
-            localStorage.removeItem('user');
-            setUser(null);
-          }
-        } catch (error) {
-          console.error('Failed to verify session token:', error);
+      try {
+        const res = await api.get('/auth/me');
+        if (res.data.success) {
+          const freshUser = res.data.user;
+          setUser(freshUser);
+          localStorage.setItem('user', JSON.stringify(freshUser));
+          localStorage.setItem('role', freshUser.role);
+        }
+      } catch (error) {
+        // Only clear credentials if backend explicitly rejects the token (401)
+        if (error.response?.status === 401) {
           localStorage.removeItem('token');
           localStorage.removeItem('role');
           localStorage.removeItem('user');
           setUser(null);
         }
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
-    initializeAuth();
+    verifySession();
   }, []);
 
   // Login handler

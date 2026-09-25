@@ -123,6 +123,13 @@ const Login = () => {
     }
   };
 
+  // ⚡ Preload protected dashboard bundles in the background on interaction
+  const preloadDashboards = () => {
+    import('../pages/dashboards/AdminDashboard').catch(() => {});
+    import('../pages/dashboards/ParentDashboard').catch(() => {});
+    import('../pages/dashboards/TeacherDashboard').catch(() => {});
+    import('../pages/dashboards/ReceptionDashboard').catch(() => {});
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -304,6 +311,9 @@ const Login = () => {
             <button
               type="submit"
               disabled={isSubmitting}
+              onMouseEnter={preloadDashboards}
+              onFocus={preloadDashboards}
+              onTouchStart={preloadDashboards}
               className="w-full py-3.5 text-[15px] font-bold text-white rounded-[2rem] bg-[var(--primary-dark)] border-none shadow-[0_4px_14px_rgba(0,107,112,0.35)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,107,112,0.45)] active:translate-y-0 transition-all duration-200 focus:outline-none flex items-center justify-center gap-2"
               style={{ boxShadow: 'var(--shadow-glow-secondary)' }}
             >
