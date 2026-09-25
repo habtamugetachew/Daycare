@@ -7,8 +7,9 @@
     "dev": "npx --yes concurrently -n \"BACKEND,FRONTEND\" -c \"cyan,magenta\" \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
     "dev:backend": "npm run dev --prefix backend",
     "dev:frontend": "npm run dev --prefix frontend",
-    "start": "npx --yes concurrently -n \"BACKEND,FRONTEND\" -c \"cyan,magenta\" \"npm start --prefix backend\" \"npm run preview --prefix frontend\"",
+    "start": "node --max-old-space-size=380 backend/server.js",
     "build": "node scripts/build.js",
+    "postinstall": "npm install --prefix backend",
     "install:all": "npm install --prefix backend && npm install --prefix frontend"
   }
 }
