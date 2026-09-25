@@ -37,12 +37,16 @@ const checkCorsOrigin = (origin, callback) => {
   return callback(null, true);
 };
 
-// Socket.io initialization
+const compression = require('compression');
+
+// Socket.io initialization with memory-safe timeouts
 const io = new Server(server, {
   cors: {
     origin: checkCorsOrigin,
     credentials: true
-  }
+  },
+  pingTimeout: 20000,
+  pingInterval: 25000
 });
 
 // Map to track online users: userId -> socketId
@@ -50,7 +54,9 @@ const connectedUsers = new Map();
 
 io.on('connection', (socket) => {
   socket.on('register', (userId) => {
-    connectedUsers.set(userId, socket.id);
+    if (userId) {
+      connectedUsers.set(userId.toString(), socket.id);
+    }
   });
 
   socket.on('disconnect', () => {
@@ -61,6 +67,12 @@ io.on('connection', (socket) => {
         break;
       }
     }
+    // Clean up event listeners to allow garbage collection
+    socket.removeAllListeners();
+  });
+
+  socket.on('error', () => {
+    socket.disconnect(true);
   });
 });
 
@@ -68,13 +80,33 @@ io.on('connection', (socket) => {
 app.set('io', io);
 app.set('connectedUsers', connectedUsers);
 
+// ── Performance & Memory Middlewares ───────────────────────
+// Gzip compression: drastically reduces payload sizes and egress bandwidth
+app.use(compression({
+  threshold: 1024,
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) return false;
+    return compression.filter(req, res);
+  }
+}));
+
+// Stream & Request cleanup: proactively tear down aborted connections to prevent buffer leaks
+app.use((req, res, next) => {
+  res.on('close', () => {
+    if (!res.writableEnded) {
+      res.destroy();
+    }
+  });
+  next();
+});
+
 // Middleware
 app.use(cors({
   origin: checkCorsOrigin,
   credentials: true
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
 // ── API Routes ─────────────────────────────────────────────
 app.use('/api/auth', require('./routes/auth'));

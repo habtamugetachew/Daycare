@@ -59,23 +59,44 @@ const ParentDashboard = () => {
           mealsRes,
           attendanceRes
         ] = await Promise.all([
-          api.get('/children'),
-          api.get('/payments'),
-          api.get('/reports'),
-          api.get('/appointments/upcoming'),
-          api.get('/messages/unread-count'),
-          api.get('/meals'),
-          api.get('/attendance/today')
+          api.get('/children').catch(err => {
+            console.warn('⚠️ /children failed:', err.message);
+            return { data: { data: [] } };
+          }),
+          api.get('/payments').catch(err => {
+            console.warn('⚠️ /payments failed:', err.message);
+            return { data: { data: [] } };
+          }),
+          api.get('/reports').catch(err => {
+            console.warn('⚠️ /reports failed:', err.message);
+            return { data: { data: [] } };
+          }),
+          api.get('/appointments/upcoming').catch(err => {
+            console.warn('⚠️ /appointments/upcoming failed:', err.message);
+            return { data: { data: [] } };
+          }),
+          api.get('/messages/unread-count').catch(err => {
+            console.warn('⚠️ /messages/unread-count failed:', err.message);
+            return { data: { count: 0 } };
+          }),
+          api.get('/meals').catch(err => {
+            console.warn('⚠️ /meals failed:', err.message);
+            return { data: { data: [] } };
+          }),
+          api.get('/attendance/today').catch(err => {
+            console.warn('⚠️ /attendance/today failed:', err.message);
+            return { data: { data: { records: [], summary: {} } } };
+          })
         ]);
 
-        setChildren(childrenRes.data.data   || []);
-        setPayments(paymentsRes.data.data   || []);
-        setReports(reportsRes.data.data     || []);
-        setAppointments(apptsRes.data.data  || []);
+        setChildren(childrenRes.data?.data || []);
+        setPayments(paymentsRes.data?.data || []);
+        setReports(reportsRes.data?.data || []);
+        setAppointments(apptsRes.data?.data || []);
         // API returns { success, count } — normalise to unreadCount
-        setMessages({ unreadCount: msgRes.data.count ?? msgRes.data.unreadCount ?? 0 });
-        setMeals(mealsRes.data.data         || []);
-        setAttendance(attendanceRes.data.data || { records: [], summary: {} });
+        setMessages({ unreadCount: msgRes.data?.count ?? msgRes.data?.unreadCount ?? 0 });
+        setMeals(mealsRes.data?.data || []);
+        setAttendance(attendanceRes.data?.data || { records: [], summary: {} });
       } catch (err) {
         console.error('Parent dashboard error:', err);
         setError('Some data could not be loaded. Please refresh.');

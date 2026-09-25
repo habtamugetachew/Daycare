@@ -59,4 +59,9 @@ const appointmentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Indexes for fast dashboard & upcoming appointment queries
+appointmentSchema.index({ scheduledAt: 1, status: 1 });
+appointmentSchema.index({ requestedBy: 1, scheduledAt: 1 });
+appointmentSchema.index({ withUser: 1, scheduledAt: 1 });
+
 module.exports = mongoose.model('Appointment', appointmentSchema);

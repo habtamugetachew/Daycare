@@ -237,10 +237,23 @@ const deleteMessage = async (req, res) => {
 // @access  Private
 const getUnreadCount = async (req, res) => {
   try {
-    const count = await Message.countDocuments({ recipient: req.user._id, isRead: false });
-    res.status(200).json({ success: true, count });
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ success: false, count: 0, message: 'User not authenticated' });
+    }
+
+    const count = await Message.countDocuments({
+      recipient: req.user._id,
+      isRead: false
+    }).maxTimeMS(5000);
+
+    return res.status(200).json({ success: true, count });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('getUnreadCount error:', error);
+    return res.status(500).json({
+      success: false,
+      count: 0,
+      message: error.message || 'Failed to get unread count'
+    });
   }
 };
 
@@ -255,14 +268,18 @@ const getUrgentAnnouncements = async (req, res) => {
       priority: 'urgent',
       isRead: false
     })
+      .select('subject body priority isRead createdAt sender relatedChild attachment')
       .populate('sender', 'fullName role avatar')
       .populate('relatedChild', 'firstName lastName')
       .sort({ createdAt: -1 })
-      .limit(5);
+      .limit(5)
+      .lean()
+      .maxTimeMS(5000);
 
-    res.status(200).json({ success: true, data: urgentMsgs });
+    return res.status(200).json({ success: true, data: urgentMsgs });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('getUrgentAnnouncements error:', error);
+    return res.status(500).json({ success: false, message: error.message, data: [] });
   }
 };
 

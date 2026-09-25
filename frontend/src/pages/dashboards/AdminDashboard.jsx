@@ -43,19 +43,19 @@ const AdminDashboard = () => {
   const fetchData = async () => {
     try {
       const [statsRes, paymentsRes, apptsRes, classroomsRes, mealsRes, napsRes] = await Promise.all([
-        api.get('/staff/admin-stats'),
-        api.get('/payments'),
-        api.get('/appointments/upcoming'),
-        api.get('/classrooms'),
+        api.get('/staff/admin-stats').catch(() => ({ data: { data: {} } })),
+        api.get('/payments').catch(() => ({ data: { payments: [] } })),
+        api.get('/appointments/upcoming').catch(() => ({ data: { data: [] } })),
+        api.get('/classrooms').catch(() => ({ data: { data: [] } })),
         api.get('/meals').catch(() => ({ data: { data: [] } })),
         api.get('/attendance/today').catch(() => ({ data: { data: { records: [] } } }))
       ]);
-      setStats(statsRes.data.data);
-      setPayments(paymentsRes.data);
-      setAppointments(apptsRes.data.data);
-      setClassrooms(classroomsRes.data.data);
-      setMeals(mealsRes.data.data || []);
-      setNaps(napsRes.data.data.records || []);
+      setStats(statsRes.data?.data || {});
+      setPayments(paymentsRes.data || { payments: [] });
+      setAppointments(apptsRes.data?.data || []);
+      setClassrooms(classroomsRes.data?.data || []);
+      setMeals(mealsRes.data?.data || []);
+      setNaps(napsRes.data?.data?.records || []);
       // fetch recent announcements from sent messages
       try {
         const sentRes = await api.get('/messages/sent');

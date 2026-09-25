@@ -22,21 +22,21 @@ const TeacherDashboard = () => {
     const fetchData = async () => {
       try {
         const [classroomRes, attendanceRes, reportsRes, apptsRes, mealsRes, napsRes, paymentsRes] = await Promise.all([
-          api.get('/classrooms/my-classroom'),
-          api.get('/attendance/today'),
-          api.get('/reports'),
-          api.get('/appointments/upcoming'),
-          api.get('/meals'),
-          api.get('/attendance/today'),
-          api.get('/payments')
+          api.get('/classrooms/my-classroom').catch(() => ({ data: { data: null } })),
+          api.get('/attendance/today').catch(() => ({ data: { data: { records: [], absentChildren: [], summary: {} } } })),
+          api.get('/reports').catch(() => ({ data: { data: [] } })),
+          api.get('/appointments/upcoming').catch(() => ({ data: { data: [] } })),
+          api.get('/meals').catch(() => ({ data: { data: [] } })),
+          api.get('/attendance/today').catch(() => ({ data: { data: { records: [] } } })),
+          api.get('/payments').catch(() => ({ data: { data: [] } }))
         ]);
-        setClassroom(classroomRes.data.data);
-        setAttendance(attendanceRes.data.data);
-        setReports(reportsRes.data.data);
-        setAppointments(apptsRes.data.data);
-        setMeals(mealsRes.data.data || []);
-        setNaps(napsRes.data.data.records || []);
-        setPayments(paymentsRes.data.data || []);
+        setClassroom(classroomRes.data?.data || null);
+        setAttendance(attendanceRes.data?.data || { records: [], absentChildren: [], summary: {} });
+        setReports(reportsRes.data?.data || []);
+        setAppointments(apptsRes.data?.data || []);
+        setMeals(mealsRes.data?.data || []);
+        setNaps(napsRes.data?.data?.records || []);
+        setPayments(paymentsRes.data?.data || []);
       } catch (err) {
         console.error('Teacher dashboard error:', err);
       } finally {

@@ -27,7 +27,11 @@ const connectDB = async (maxRetries = 3) => {
     console.warn('⚠️  Could not connect to MongoDB Atlas after retries.\n');
   }
 
-  // 2. Fall back to in-memory MongoDB only if Atlas is not reachable
+  // 2. Fall back to in-memory MongoDB only in local development if Atlas is not reachable
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Could not connect to MongoDB Atlas in production. In-memory fallback disabled to protect 512MB RAM limit.');
+  }
+
   try {
     console.log('📦 Attempting in-memory MongoDB fallback...');
     const { MongoMemoryServer } = require('mongodb-memory-server');
