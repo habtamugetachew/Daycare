@@ -367,7 +367,27 @@ const Communication = () => {
 
     try {
       const res = await api.get('/staff/contacts');
-      setContacts(filterParentContacts(res.data.data || []));
+      let loadedContacts = filterParentContacts(res.data.data || []);
+
+      // If user is admin/reception and parents are not present in contacts yet, merge them from /staff/parents
+      if (['admin', 'reception'].includes(user?.role) && !loadedContacts.some(c => c.role === 'parent')) {
+        try {
+          const parentsRes = await api.get('/staff/parents');
+          const parentsList = (parentsRes.data.data || []).map(p => ({
+            _id: p._id,
+            fullName: p.fullName,
+            email: p.email,
+            phone: p.phone,
+            role: 'parent',
+            avatar: p.avatar
+          }));
+          loadedContacts = [...loadedContacts, ...parentsList].filter((contact, index, array) =>
+            array.findIndex(item => item._id?.toString() === contact._id?.toString()) === index && contact._id !== user._id
+          );
+        } catch { /* silent fallback */ }
+      }
+
+      setContacts(loadedContacts);
     } catch {
       try {
         const res = await api.get('/classrooms');
@@ -378,11 +398,13 @@ const Communication = () => {
 
         const receptionRes = await api.get('/staff?role=reception');
         const adminRes = await api.get('/staff?role=admin');
+        const parentsRes = ['admin', 'reception'].includes(user?.role) ? await api.get('/staff/parents').catch(() => ({ data: { data: [] } })) : { data: { data: [] } };
 
         const fallbackContacts = [
           ...teachers,
           ...(receptionRes.data.data || []),
-          ...(adminRes.data.data || [])
+          ...(adminRes.data.data || []),
+          ...(parentsRes.data.data || []).map(p => ({ ...p, role: 'parent' }))
         ].filter((contact, index, array) =>
           array.findIndex(item => item._id.toString() === contact._id.toString()) === index
         );

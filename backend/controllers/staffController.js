@@ -102,13 +102,18 @@ const getStaffContacts = async (req, res) => {
       return res.status(200).json({ success: true, count: uniqueContacts.length, data: uniqueContacts });
     }
 
-    const staff = await User.find({ role: { $in: ['teacher', 'reception', 'staff', 'admin'] } })
+    // For admin and reception, include all registered users (including parents) so announcements and messages reach all parents
+    const query = ['admin', 'reception'].includes(req.user.role)
+      ? { _id: { $ne: req.user._id } }
+      : { role: { $in: ['teacher', 'reception', 'staff', 'admin'] }, _id: { $ne: req.user._id } };
+
+    const contacts = await User.find(query)
       .select('fullName email phone role avatar')
       .sort({ fullName: 1 })
       .lean()
       .maxTimeMS(5000);
 
-    return res.status(200).json({ success: true, count: staff.length, data: staff });
+    return res.status(200).json({ success: true, count: contacts.length, data: contacts });
   } catch (error) {
     console.error('getStaffContacts error:', error);
     return res.status(500).json({ success: false, message: error.message, data: [] });
