@@ -13,7 +13,7 @@ const AdminDashboard = () => {
   const { t } = useLanguage();
   const { isFreeMode, togglePaymentMode } = useSettings();
   const [stats, setStats] = useState(null);
-  const [payments, setPayments] = useState({ stats: {}, data: [] });
+  const [payments, setPayments] = useState({ stats: { totalPaid: 0, totalPending: 0, totalOverdue: 0 }, data: [] });
   const [appointments, setAppointments] = useState([]);
   const [classrooms, setClassrooms] = useState([]);
   const [meals, setMeals] = useState([]);
@@ -51,7 +51,14 @@ const AdminDashboard = () => {
         api.get('/attendance/today').catch(() => ({ data: { data: { records: [] } } }))
       ]);
       setStats(statsRes.data?.data || {});
-      setPayments(paymentsRes.data || { payments: [] });
+      const pData = paymentsRes.data || {};
+      const pList = Array.isArray(pData.data) ? pData.data : (Array.isArray(pData.payments) ? pData.payments : []);
+      const pStats = pData.stats || {
+        totalPaid: pList.filter(p => p.status === 'paid').reduce((s, p) => s + (p.amount || 0), 0),
+        totalPending: pList.filter(p => p.status === 'pending').reduce((s, p) => s + (p.amount || 0), 0),
+        totalOverdue: pList.filter(p => p.status === 'overdue').reduce((s, p) => s + (p.amount || 0), 0),
+      };
+      setPayments({ stats: pStats, data: pList });
       setAppointments(apptsRes.data?.data || []);
       setClassrooms(classroomsRes.data?.data || []);
       setMeals(mealsRes.data?.data || []);
@@ -119,7 +126,7 @@ const AdminDashboard = () => {
         { label: t('childcareProviders'), value: stats.totalTeachers, icon: 'bxs-graduation', color: 'cyan', path: '/dashboard/admin/staff' },
         { label: t('supportStaff'), value: stats.totalStaff, icon: 'bx-id-card', color: 'amber', path: '/dashboard/admin/staff' },
         { label: t('classrooms'), value: stats.totalClassrooms, icon: 'bx-buildings', color: 'rose', path: '/dashboard/admin/classrooms' },
-        { label: t('monthlyRevenue'), value: `ETB ${(payments.stats.totalPaid || 0).toLocaleString()}`, icon: 'bx-wallet', color: 'emerald', path: '/dashboard/admin/payments' }
+        { label: t('monthlyRevenue'), value: `ETB ${(payments?.stats?.totalPaid || 0).toLocaleString()}`, icon: 'bx-wallet', color: 'emerald', path: '/dashboard/admin/payments' }
       ]
     : [];
 
@@ -178,9 +185,9 @@ const AdminDashboard = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
             {[
-              { label: t('collected'), amount: payments.stats.totalPaid || 0, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-              { label: t('pending'), amount: payments.stats.totalPending || 0, color: 'text-amber-400', bg: 'bg-amber-500/10' },
-              { label: t('overdue'), amount: payments.stats.totalOverdue || 0, color: 'text-rose-400', bg: 'bg-rose-500/10' }
+              { label: t('collected'), amount: payments?.stats?.totalPaid || 0, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+              { label: t('pending'), amount: payments?.stats?.totalPending || 0, color: 'text-amber-400', bg: 'bg-amber-500/10' },
+              { label: t('overdue'), amount: payments?.stats?.totalOverdue || 0, color: 'text-rose-400', bg: 'bg-rose-500/10' }
             ].map(p => (
               <div key={p.label} className={`${p.bg} rounded-xl p-3 text-center`}>
                 <p className={`text-base sm:text-lg font-bold ${p.color}`}>ETB {p.amount.toLocaleString()}</p>
@@ -190,7 +197,7 @@ const AdminDashboard = () => {
           </div>
           {/* Recent payments */}
           <div className="mt-4 space-y-2">
-            {payments.data.slice(0, 4).map(p => (
+            {(payments?.data || []).slice(0, 4).map(p => (
               <div key={p._id} className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-teal-900/30 last:border-0 gap-2">
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{p.child?.firstName} {p.child?.lastName}</p>
