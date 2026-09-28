@@ -368,7 +368,9 @@ const Communication = () => {
       .filter(c => userRole === 'parent' ? parentContactRoles.includes(c.role) : true);
 
     try {
+      console.log('[Communication] Fetching /api/staff/contacts...');
       const res = await api.get('/staff/contacts');
+      console.log('[Communication] /api/staff/contacts response:', res.data);
       let loadedContacts = filterParentContacts(res.data?.data || []);
 
       // If user is admin/reception and parents are not present in contacts yet, merge them from /staff/parents
@@ -386,11 +388,14 @@ const Communication = () => {
           loadedContacts = [...loadedContacts, ...parentsList].filter((contact, index, array) =>
             array.findIndex(item => item._id?.toString() === contact._id?.toString()) === index && String(contact._id) !== String(currentUserId)
           );
-        } catch { /* silent fallback */ }
+        } catch (pErr) {
+          console.warn('[Communication] fallback parents fetch:', pErr);
+        }
       }
 
       setContacts(loadedContacts);
-    } catch {
+    } catch (err) {
+      console.error('[Communication] primary fetchContacts failed:', err);
       try {
         const res = await api.get('/classrooms');
         const teachers = (res.data?.data || [])
@@ -412,7 +417,10 @@ const Communication = () => {
         );
 
         setContacts(filterParentContacts(fallbackContacts));
-      } catch { setContacts([]); }
+      } catch (fallbackErr) {
+        console.error('[Communication] fallback contacts failed:', fallbackErr);
+        setContacts([]);
+      }
     }
   }, [user?._id, user?.id, user?.role]);
 
@@ -810,7 +818,17 @@ const Communication = () => {
           {/* New Announcement — announcements tab + admin/teacher only */}
           {tab === 'announcements' && canAnnounce && (
             <button
-              onClick={() => { setShowAnnounceForm(p => !p); setShowCompose(false); setError(''); if (showAnnounceForm) { setEditingAnnouncement(null); setAnnounceForm(emptyAnnounce); setAnnounceTarget('all'); } }}
+              onClick={() => {
+                setShowAnnounceForm(p => !p);
+                setShowCompose(false);
+                setError('');
+                fetchContacts();
+                if (showAnnounceForm) {
+                  setEditingAnnouncement(null);
+                  setAnnounceForm(emptyAnnounce);
+                  setAnnounceTarget('all');
+                }
+              }}
               className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl font-semibold transition-colors text-sm"
             >
               <i className={`bx ${showAnnounceForm ? 'bx-x' : 'bx-megaphone'}`} />
@@ -853,10 +871,22 @@ const Communication = () => {
             <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
               <div className="space-y-4">
                 <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1 block">{t('sendTo', 'Send To')} *</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block">{t('sendTo', 'Send To')} *</label>
+                    {contacts.length === 0 && (
+                      <button
+                        type="button"
+                        onClick={fetchContacts}
+                        className="text-xs text-amber-500 hover:underline flex items-center gap-1 font-medium"
+                      >
+                        <i className="bx bx-refresh" /> Reload Contacts
+                      </button>
+                    )}
+                  </div>
                   <select
                     value={announceTarget}
                     onChange={e => setAnnounceTarget(e.target.value)}
+                    onFocus={() => { if (contacts.length === 0) fetchContacts(); }}
                     className={INPUT}
                   >
                     <optgroup label="── Groups ──">
