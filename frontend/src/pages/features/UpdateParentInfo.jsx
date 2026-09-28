@@ -3,6 +3,7 @@ import api from '../../services/api';
 import { useLanguage } from '../../context/useLanguage';
 import { rv, phone as rvPhone, initials as rvInitials, organisation as rvOrg } from '../../utils/renderValue';
 import DeleteConfirmModal from '../../components/shared/DeleteConfirmModal';
+import Pagination from '../../components/shared/Pagination';
 
 /* ─── helpers ─────────────────────────────────────────────── */
 const EMPTY_FORM = {
@@ -26,6 +27,8 @@ const UpdateParentInfo = () => {
   const [parents, setParents]   = useState([]);
   const [loading, setLoading]   = useState(true);
   const [search, setSearch]     = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
   const [error, setError]       = useState('');
   const [success, setSuccess]   = useState('');
 
@@ -123,6 +126,17 @@ const UpdateParentInfo = () => {
     (p.email || '').toLowerCase().includes(search.toLowerCase())
   );
 
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedParents = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
   /* ── render ───────────────────────────────────────────────── */
   return (
     <div className="space-y-6">
@@ -143,7 +157,7 @@ const UpdateParentInfo = () => {
       <div className="relative">
         <i className="bx bx-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
         <input type="text" placeholder={t('searchParentsByNameOrEmail')}
-          value={search} onChange={e => setSearch(e.target.value)}
+          value={search} onChange={e => { setSearch(e.target.value); setCurrentPage(1); }}
           className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-teal-900/40 rounded-xl text-sm bg-white dark:bg-[#111c2d] text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" />
       </div>
 
@@ -159,7 +173,7 @@ const UpdateParentInfo = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {filtered.map(p => (
+          {paginatedParents.map(p => (
             <div key={p._id} className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 p-5">
               <div className="flex items-start justify-between gap-4">
                 {/* Info */}
@@ -199,18 +213,35 @@ const UpdateParentInfo = () => {
                 <div className="mt-4 pt-4 border-t border-slate-100 dark:border-teal-900/30">
                   <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">{t('childrenLabel')}</p>
                   <div className="flex flex-wrap gap-2">
-                    {p.children.map(c => (
+                    {p.children.slice(0, 5).map(c => (
                       <span key={c._id} className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 bg-indigo-500/10 text-indigo-400 rounded-full">
                         <i className="bx bx-child text-sm" />
                         {c.firstName} {c.lastName}
                         {c.classroom && <span className="text-indigo-300/70">· {rv(c.classroom?.name, 'Unassigned')}</span>}
                       </span>
                     ))}
+                    {p.children.length > 5 && (
+                      <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-full">
+                        +{p.children.length - 5} {t('more', 'more')}
+                      </span>
+                    )}
                   </div>
                 </div>
               )}
             </div>
           ))}
+
+          {/* Pagination */}
+          <div className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 px-5 py-4">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={filtered.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              itemLabel={t('parentsLabel', 'parents')}
+            />
+          </div>
         </div>
       )}
 

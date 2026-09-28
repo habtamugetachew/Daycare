@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { CheckCircle2, XCircle, ShieldCheck } from 'lucide-react';
 import api from '../../services/api';
 import { useLanguage } from '../../context/useLanguage';
+import Pagination from '../../components/shared/Pagination';
 
 /* ─── helpers ─────────────────────────────────────────────── */
 const initials = (name = '') => {
@@ -241,6 +242,8 @@ const AdminApprovalWizard = () => {
   const [error, setError]           = useState('');
   const [success, setSuccess]       = useState('');
   const [filterStatus, setFilterStatus] = useState('pending');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
 
   const flash = (setter, msg) => { setter(msg); setTimeout(() => setter(''), 3500); };
 
@@ -331,6 +334,17 @@ const AdminApprovalWizard = () => {
     filterStatus === 'all' ? true : (parentMatches(p, filterStatus) || childrenMatch(p, filterStatus))
   );
 
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedFamilies = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
   const counts = {
     pending:     families.filter(p => parentMatches(p, 'pending') || childrenMatch(p, 'pending')).length,
     approved:    families.filter(p => parentMatches(p, 'approved') || childrenMatch(p, 'approved')).length,
@@ -369,7 +383,7 @@ const AdminApprovalWizard = () => {
           { key: 'approved',    label: t('approved', 'Approved'),    count: counts.approved,    dot: 'bg-emerald-400', active: 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/25 dark:text-emerald-400' },
           { key: 'disapproved', label: t('disapproved', 'Disapproved'), count: counts.disapproved, dot: 'bg-amber-400',   active: 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-500/10 dark:border-amber-500/25 dark:text-amber-400' },
         ].map(tab => (
-          <button key={tab.key} onClick={() => setFilterStatus(tab.key)}
+          <button key={tab.key} onClick={() => { setFilterStatus(tab.key); setCurrentPage(1); }}
             className={`flex items-center gap-3 rounded-2xl border p-4 transition-all text-left ${
               filterStatus === tab.key
                 ? `${tab.active} shadow-sm`
@@ -403,34 +417,50 @@ const AdminApprovalWizard = () => {
               <i className="bx bx-group text-4xl opacity-30" />
               <p className="text-sm">{t('noPendingFamilies', 'No pending families')}</p>
             </div>
-          ) : filtered.map(parent => {
-            const isSelected = selected?._id === parent._id;
-            const pStatus = parent.approvalStatus || 'pending';
-            return (
-              <button key={parent._id} onClick={() => openWizard(parent)}
-                className={`w-full rounded-2xl border p-4 text-left transition-all ${
-                  isSelected
-                    ? 'border-[#00ADB5] bg-[#00ADB5]/5 shadow-sm ring-2 ring-[#00ADB5]/20'
-                    : 'bg-white dark:bg-[#0d1929] border-slate-200 dark:border-slate-700 hover:border-[#00ADB5]/40 hover:bg-slate-50 dark:hover:bg-slate-800/40'
-                }`}>
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0 ${
-                      pStatus === 'approved' ? 'bg-emerald-400' : pStatus === 'disapproved' ? 'bg-amber-400' : 'bg-[#00ADB5]'
-                    }`}>{initials(parent.fullName)}</div>
-                    <div>
-                      <p className="text-sm font-bold text-slate-800 dark:text-white">{parent.fullName}</p>
-                      <p className="text-xs text-slate-400">{parent.email}</p>
+          ) : (
+            <>
+              {paginatedFamilies.map(parent => {
+                const isSelected = selected?._id === parent._id;
+                const pStatus = parent.approvalStatus || 'pending';
+                return (
+                  <button key={parent._id} onClick={() => openWizard(parent)}
+                    className={`w-full rounded-2xl border p-4 text-left transition-all ${
+                      isSelected
+                        ? 'border-[#00ADB5] bg-[#00ADB5]/5 shadow-sm ring-2 ring-[#00ADB5]/20'
+                        : 'bg-white dark:bg-[#0d1929] border-slate-200 dark:border-slate-700 hover:border-[#00ADB5]/40 hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                    }`}>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0 ${
+                          pStatus === 'approved' ? 'bg-emerald-400' : pStatus === 'disapproved' ? 'bg-amber-400' : 'bg-[#00ADB5]'
+                        }`}>{initials(parent.fullName)}</div>
+                        <div>
+                          <p className="text-sm font-bold text-slate-800 dark:text-white">{parent.fullName}</p>
+                          <p className="text-xs text-slate-400">{parent.email}</p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1.5">
+                        <StatusPill status={t(pStatus, pStatus)} />
+                        <p className="text-[10px] text-slate-400">{parent.children?.length || 0} {t('children', 'children')}</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1.5">
-                    <StatusPill status={t(pStatus, pStatus)} />
-                    <p className="text-[10px] text-slate-400">{parent.children?.length || 0} {t('children', 'children')}</p>
-                  </div>
-                </div>
-              </button>
-            );
-          })}
+                  </button>
+                );
+              })}
+
+              {/* Pagination */}
+              <div className="bg-white dark:bg-[#0d1929] rounded-2xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                  totalItems={filtered.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  itemLabel={t('familiesLabel', 'families')}
+                />
+              </div>
+            </>
+          )}
         </div>
 
         {/* Right: wizard panel */}
