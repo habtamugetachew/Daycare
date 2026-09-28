@@ -9,7 +9,10 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     try {
       const savedUser = localStorage.getItem('user');
-      return savedUser ? JSON.parse(savedUser) : null;
+      if (!savedUser) return null;
+      const parsed = JSON.parse(savedUser);
+      const uid = parsed._id || parsed.id;
+      return { ...parsed, _id: uid, id: uid };
     } catch {
       return null;
     }
@@ -36,7 +39,9 @@ export const AuthProvider = ({ children }) => {
       try {
         const res = await api.get('/auth/me');
         if (res.data.success) {
-          const freshUser = res.data.user;
+          const u = res.data.user;
+          const uid = u._id || u.id;
+          const freshUser = { ...u, _id: uid, id: uid };
           setUser(freshUser);
           localStorage.setItem('user', JSON.stringify(freshUser));
           localStorage.setItem('role', freshUser.role);
@@ -64,7 +69,9 @@ export const AuthProvider = ({ children }) => {
       const res = await api.post('/auth/login', { email: normalizedEmail, password });
       
       if (res.data.success) {
-        const { token, user: loggedUser } = res.data;
+        const { token, user: rawUser } = res.data;
+        const uid = rawUser._id || rawUser.id;
+        const loggedUser = { ...rawUser, _id: uid, id: uid };
         
         // Save in localStorage
         localStorage.setItem('token', token);
