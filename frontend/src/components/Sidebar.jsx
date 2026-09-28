@@ -24,6 +24,17 @@ import {
   Moon,
   Syringe,
   Video,
+  DoorOpen,
+  GraduationCap,
+  Gauge,
+  FileEdit,
+  IdCard,
+  ListTodo,
+  ListChecks,
+  ChefHat,
+  Apple,
+  Bus,
+  MapPin,
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -81,8 +92,9 @@ const Sidebar = () => {
       { labelKey: 'assign', icon: UserCheck, path: `/dashboard/admin/assign` }
     ]},
     { titleKey: 'classroom', icon: Users, roles: ['teacher'], subItems: [
-      { labelKey: 'assignedRoom', icon: Users }, { labelKey: 'studentList', icon: Users },
-      { labelKey: 'capacity', icon: Users }
+      { labelKey: 'assignedRoom', icon: DoorOpen },
+      { labelKey: 'studentList', icon: GraduationCap },
+      { labelKey: 'capacity', icon: Gauge }
     ]},
     { titleKey: 'attendance', icon: CalendarCheck, path: `/dashboard/${user.role}/attendance`, roles: ['teacher', 'admin'] },
     { titleKey: 'myChildren', icon: Baby, roles: ['parent'], subItems: [
@@ -98,21 +110,24 @@ const Sidebar = () => {
       { labelKey: 'vaccinationLog', icon: Syringe }
     ]},
     { titleKey: 'registration', icon: UserCheck, roles: ['reception'], subItems: [
-      { labelKey: 'newRegister', icon: ClipboardCheck, path: '/dashboard/reception/new-child-registry' },
-      { labelKey: 'updateInfo', icon: ClipboardCheck, path: '/dashboard/reception/update-info' },
-      { labelKey: 'childIdGenerate', icon: ClipboardCheck, path: '/dashboard/reception/child-id-generate' }
+      { labelKey: 'newRegister', icon: UserPlus, path: '/dashboard/reception/new-child-registry' },
+      { labelKey: 'updateInfo', icon: FileEdit, path: '/dashboard/reception/update-info' },
+      { labelKey: 'childIdGenerate', icon: IdCard, path: '/dashboard/reception/child-id-generate' }
     ]},
     { titleKey: 'providerAttendance', icon: CalendarCheck, path: '/dashboard/reception/teacher-attendance', roles: ['reception'] },
     { titleKey: 'childAttendance', icon: Baby, path: '/dashboard/reception/child-attendance', roles: ['reception'] },
     { titleKey: 'registrationUpdates', icon: ClipboardCheck, path: '/dashboard/reception/registration-updates', roles: ['reception'] },
     { titleKey: 'assignedDuties', icon: ClipboardCheck, roles: ['staff'], subItems: [
-      { labelKey: 'viewTasks', icon: ClipboardCheck }, { labelKey: 'dailyChecklist', icon: ClipboardCheck }
+      { labelKey: 'viewTasks', icon: ListTodo },
+      { labelKey: 'dailyChecklist', icon: ListChecks }
     ]},
     { titleKey: 'mealsPrep', icon: ClipboardCheck, roles: ['staff'], subItems: [
-      { labelKey: 'mealPreparation', icon: ClipboardCheck }, { labelKey: 'dietaryRequirements', icon: ClipboardCheck }
+      { labelKey: 'mealPreparation', icon: ChefHat },
+      { labelKey: 'dietaryRequirements', icon: Apple }
     ]},
     { titleKey: 'transportation', icon: ClipboardCheck, roles: ['staff'], subItems: [
-      { labelKey: 'pickupLog', icon: ClipboardCheck }, { labelKey: 'dropOffLog', icon: ClipboardCheck }
+      { labelKey: 'pickupLog', icon: Bus },
+      { labelKey: 'dropOffLog', icon: MapPin }
     ]},
     { titleKey: 'liveStream', icon: Video, path: `/dashboard/${user.role}/live-stream`, roles: ['admin', 'reception', 'teacher', 'parent'], isLiveBadge: true },
     { titleKey: 'communication', icon: MessageSquare, path: `/dashboard/${user.role}/communication`, roles: ['admin', 'teacher', 'parent', 'reception'] },
