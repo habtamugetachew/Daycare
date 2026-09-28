@@ -172,6 +172,8 @@ const Communication = () => {
   const [inbox, setInbox] = useState([]);
   const [sentMessages, setSentMessages] = useState([]);
   const [contacts, setContacts] = useState([]);
+  const [contactsLoading, setContactsLoading] = useState(false);
+  const [contactsError, setContactsError] = useState('');
   const [selected, setSelected] = useState(null);
   const [thread, setThread] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -360,21 +362,41 @@ const Communication = () => {
 
 
   const fetchContacts = useCallback(async () => {
+    setContactsLoading(true);
+    setContactsError('');
     const currentUserId = user?._id || user?.id;
     const userRole = user?.role;
     const parentContactRoles = ['teacher', 'reception', 'admin'];
-    const filterParentContacts = (contactsList) => (contactsList || [])
-      .filter(c => String(c._id) !== String(currentUserId))
-      .filter(c => userRole === 'parent' ? parentContactRoles.includes(c.role) : true);
+
+    const normalizeAndFilter = (list) => {
+      const seen = new Set();
+      return (list || []).filter(c => {
+        if (!c || !c._id) return false;
+        const idStr = String(c._id);
+        if (idStr === String(currentUserId)) return false;
+        if (userRole === 'parent' && !parentContactRoles.includes(c.role)) return false;
+        if (seen.has(idStr)) return false;
+        seen.add(idStr);
+        return true;
+      });
+    };
 
     try {
-      console.log('[Communication] Fetching /api/staff/contacts...');
-      const res = await api.get('/staff/contacts');
-      console.log('[Communication] /api/staff/contacts response:', res.data);
-      let loadedContacts = filterParentContacts(res.data?.data || []);
+      console.log('[Communication] Fetching contacts for role:', userRole);
+      let rawContacts = [];
 
-      // If user is admin/reception and parents are not present in contacts yet, merge them from /staff/parents
-      if (['admin', 'reception'].includes(userRole) && !loadedContacts.some(c => c.role === 'parent')) {
+      // 1. Fetch from /staff/contacts
+      try {
+        const res = await api.get('/staff/contacts');
+        const list = Array.isArray(res.data?.data) ? res.data.data : (Array.isArray(res.data) ? res.data : []);
+        console.log('[Communication] /api/staff/contacts returned:', list.length);
+        rawContacts.push(...list);
+      } catch (cErr) {
+        console.warn('[Communication] /staff/contacts fetch error:', cErr.message);
+      }
+
+      // 2. For admin and reception, also fetch from /staff/parents to guarantee all parents are loaded
+      if (['admin', 'reception'].includes(userRole)) {
         try {
           const parentsRes = await api.get('/staff/parents');
           const parentsList = (parentsRes.data?.data || []).map(p => ({
@@ -385,42 +407,35 @@ const Communication = () => {
             role: 'parent',
             avatar: p.avatar
           }));
-          loadedContacts = [...loadedContacts, ...parentsList].filter((contact, index, array) =>
-            array.findIndex(item => item._id?.toString() === contact._id?.toString()) === index && String(contact._id) !== String(currentUserId)
-          );
+          console.log('[Communication] /api/staff/parents returned:', parentsList.length);
+          rawContacts.push(...parentsList);
         } catch (pErr) {
-          console.warn('[Communication] fallback parents fetch:', pErr);
+          console.warn('[Communication] /staff/parents fetch error:', pErr.message);
+        }
+
+        // 3. Also fetch all staff members from /staff
+        try {
+          const staffRes = await api.get('/staff');
+          const staffList = staffRes.data?.data || [];
+          console.log('[Communication] /api/staff returned:', staffList.length);
+          rawContacts.push(...staffList);
+        } catch (sErr) {
+          console.warn('[Communication] /staff fetch error:', sErr.message);
         }
       }
 
-      setContacts(loadedContacts);
-    } catch (err) {
-      console.error('[Communication] primary fetchContacts failed:', err);
-      try {
-        const res = await api.get('/classrooms');
-        const teachers = (res.data?.data || [])
-          .filter(c => c.teacher)
-          .map(c => c.teacher)
-          .filter((t, i, arr) => arr.findIndex(x => x._id === t._id) === i);
+      const finalContacts = normalizeAndFilter(rawContacts);
+      console.log('[Communication] Final combined contacts count:', finalContacts.length);
+      setContacts(finalContacts);
 
-        const receptionRes = await api.get('/staff?role=reception');
-        const adminRes = await api.get('/staff?role=admin');
-        const parentsRes = ['admin', 'reception'].includes(userRole) ? await api.get('/staff/parents').catch(() => ({ data: { data: [] } })) : { data: { data: [] } };
-
-        const fallbackContacts = [
-          ...teachers,
-          ...(receptionRes.data?.data || []),
-          ...(adminRes.data?.data || []),
-          ...(parentsRes.data?.data || []).map(p => ({ ...p, role: 'parent' }))
-        ].filter((contact, index, array) =>
-          array.findIndex(item => item._id?.toString() === contact._id?.toString()) === index
-        );
-
-        setContacts(filterParentContacts(fallbackContacts));
-      } catch (fallbackErr) {
-        console.error('[Communication] fallback contacts failed:', fallbackErr);
-        setContacts([]);
+      if (finalContacts.length === 0) {
+        setContactsError('No user contacts could be loaded. Please click "Reload Contacts" to retry.');
       }
+    } catch (err) {
+      console.error('[Communication] fetchContacts fatal error:', err);
+      setContactsError(err.response?.data?.message || err.message || 'Failed to load contacts');
+    } finally {
+      setContactsLoading(false);
     }
   }, [user?._id, user?.id, user?.role]);
 
@@ -873,16 +888,21 @@ const Communication = () => {
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block">{t('sendTo', 'Send To')} *</label>
-                    {contacts.length === 0 && (
-                      <button
-                        type="button"
-                        onClick={fetchContacts}
-                        className="text-xs text-amber-500 hover:underline flex items-center gap-1 font-medium"
-                      >
-                        <i className="bx bx-refresh" /> Reload Contacts
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      onClick={fetchContacts}
+                      disabled={contactsLoading}
+                      className="text-xs text-amber-500 hover:text-amber-600 dark:hover:text-amber-400 hover:underline flex items-center gap-1 font-medium disabled:opacity-50 cursor-pointer"
+                    >
+                      <i className={`bx bx-refresh text-base ${contactsLoading ? 'animate-spin' : ''}`} />
+                      {contactsLoading ? 'Loading users...' : contacts.length > 0 ? `✓ ${contacts.length} users ready` : 'Reload Contacts'}
+                    </button>
                   </div>
+                  {contactsError && (
+                    <p className="text-xs text-rose-500 font-medium mb-1.5 flex items-center gap-1">
+                      <i className="bx bx-error-circle" /> {contactsError}
+                    </p>
+                  )}
                   <select
                     value={announceTarget}
                     onChange={e => setAnnounceTarget(e.target.value)}
