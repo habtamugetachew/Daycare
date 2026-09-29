@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../../services/api';
+import Pagination from '../../components/shared/Pagination';
 
 const ReceiptsHistory = () => {
   const [payments,  setPayments]  = useState([]);
@@ -8,6 +9,8 @@ const ReceiptsHistory = () => {
   const [error,     setError]     = useState('');
   const [search,    setSearch]    = useState('');
   const [yearFilter, setYearFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
   const [printing,  setPrinting]  = useState(null); // receipt id being printed
   const printRef = useRef();
 
@@ -44,6 +47,7 @@ const ReceiptsHistory = () => {
       );
     }
     setFiltered(list);
+    setCurrentPage(1);
   }, [payments, search, yearFilter]);
 
   const years = [...new Set(
@@ -54,6 +58,8 @@ const ReceiptsHistory = () => {
   )].sort((a, b) => b - a);
 
   const totalFiltered = filtered.reduce((s, p) => s + (p.amount || 0), 0);
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+  const paginatedReceipts = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const handlePrint = (payment) => {
     setPrinting(payment._id);
@@ -163,7 +169,7 @@ const ReceiptsHistory = () => {
           </div>
 
           <div className="divide-y divide-slate-100 dark:divide-teal-900/30">
-            {filtered.map(p => (
+            {paginatedReceipts.map(p => (
               <div
                 key={p._id}
                 className={`flex flex-col md:grid md:grid-cols-[1fr_1fr_1fr_auto_auto_auto] gap-3 md:gap-4 px-5 py-4 hover:bg-slate-50 dark:hover:bg-[#162030]/30 transition-colors items-start md:items-center ${
@@ -220,6 +226,20 @@ const ReceiptsHistory = () => {
               </div>
             ))}
           </div>
+
+          {/* Pagination */}
+          {filtered.length > ITEMS_PER_PAGE && (
+            <div className="px-5 py-3 border-t border-slate-100 dark:border-teal-900/30 bg-white dark:bg-[#111c2d]">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                totalItems={filtered.length}
+                itemsPerPage={ITEMS_PER_PAGE}
+                itemLabel="receipts"
+              />
+            </div>
+          )}
 
           {/* Footer total */}
           <div className="px-5 py-3 bg-slate-50 dark:bg-[#0d1520]/50 border-t border-slate-100 dark:border-teal-900/30 flex justify-between items-center">

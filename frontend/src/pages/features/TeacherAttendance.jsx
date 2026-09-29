@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import api from '../../services/api';
 import { useLanguage } from '../../context/useLanguage';
+import Pagination from '../../components/shared/Pagination';
 
 /* ── status config — moved inside component to support t() ── */
 
@@ -46,6 +47,8 @@ const TeacherAttendance = () => {
   const [search, setSearch]                 = useState('');
   const [classroomFilter, setClassroomFilter] = useState('__ALL__');
   const [statusFilter, setStatusFilter]     = useState('__ALL__');
+  const [currentPage, setCurrentPage]       = useState(1);
+  const ITEMS_PER_PAGE = 5;
 
   /* modal */
   const [modalOpen, setModalOpen]           = useState(false);
@@ -122,6 +125,13 @@ const TeacherAttendance = () => {
     const matchS = statusFilter === '__ALL__' || STATUS_CONFIG[teacher.status]?.label === statusFilter;
     return matchQ && matchC && matchS;
   }), [teachers, search, classroomFilter, statusFilter, STATUS_CONFIG]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, classroomFilter, statusFilter, currentDate]);
+
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+  const paginatedTeachers = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const totals = useMemo(() => ({
     total:   teachers.length,
@@ -342,7 +352,7 @@ const TeacherAttendance = () => {
               </tr>
             </thead>
             <tbody>
-              {filtered.map(teacher => {
+              {paginatedTeachers.map(teacher => {
                 const cfg = STATUS_CONFIG[teacher.status] || STATUS_CONFIG.absent;
                 return (
                   <tr key={teacher.id} className="border-t border-slate-100 hover:bg-slate-50 transition-colors">
@@ -386,6 +396,18 @@ const TeacherAttendance = () => {
               })}
             </tbody>
           </table>
+        )}
+        {filtered.length > ITEMS_PER_PAGE && (
+          <div className="border-t border-slate-100 p-4">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={filtered.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              itemLabel={t('roleProvider', 'providers')}
+            />
+          </div>
         )}
       </div>
 

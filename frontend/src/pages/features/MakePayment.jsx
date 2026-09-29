@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/useLanguage';
 import { useSettings } from '../../context/SettingsContext';
 import SupportModal from '../../components/SupportModal';
+import Pagination from '../../components/shared/Pagination';
 
 const fmtCurrency = (n) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'ETB' }).format(n || 0);
@@ -83,7 +84,7 @@ const InvoiceCard = ({ invoice, isSelected, onToggle }) => {
 };
 
 /* ── Summary sidebar shared across steps ─────────── */
-const SummarySidebar = ({ selected, user, onContactSupport }) => {
+const SummarySidebar = ({ selected, user, onContactSupport, step, onContinue }) => {
   const { t } = useLanguage();
   const total = selected.reduce((s, i) => s + (i.amount || 0), 0);
   return (
@@ -114,6 +115,16 @@ const SummarySidebar = ({ selected, user, onContactSupport }) => {
               <span className="font-bold text-slate-800">{t('totalAmount', 'Total Amount')}</span>
               <span className="text-2xl font-extrabold text-[#00A884]">{fmtCurrency(total)}</span>
             </div>
+            {onContinue && (
+              <button
+                onClick={onContinue}
+                className="w-full mt-4 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-white text-sm shadow-md shadow-[#00A884]/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+                style={{ background: 'linear-gradient(135deg,#00A884,#00C49A)' }}
+              >
+                <span>{step === 1 ? t('nextPaymentMethod', 'Next: Payment Method') : t('nextReviewAndPay', 'Next: Review & Pay')}</span>
+                <i className="bx bx-right-arrow-alt text-lg" />
+              </button>
+            )}
           </>
         ) : (
           <div className="text-center py-8 text-slate-400 text-sm">
@@ -143,15 +154,32 @@ const SummarySidebar = ({ selected, user, onContactSupport }) => {
 /* ── STEP 1: Select Invoice ────────────────────────── */
 const Step1 = ({ invoices, selected, setSelected, onContinue, embedded, onBack, onGenerateTest }) => {
   const { t } = useLanguage();
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
+  const totalPages = Math.ceil(invoices.length / ITEMS_PER_PAGE) || 1;
+  const paginatedInvoices = invoices.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
   const toggleInvoice = (inv) =>
     setSelected(prev => prev.some(s => s._id === inv._id) ? prev.filter(s => s._id !== inv._id) : [...prev, inv]);
 
   return (
     <div className="space-y-5">
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="px-6 py-5 border-b border-slate-100">
-          <h2 className="text-lg font-bold text-slate-800">{t('selectInvoice', 'Select Invoice')}</h2>
-          <p className="text-xs text-[#00A884] mt-0.5">{t('chooseInvoiceToPay', 'Choose an invoice to pay')}</p>
+        <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-slate-800">{t('selectInvoice', 'Select Invoice')}</h2>
+            <p className="text-xs text-[#00A884] mt-0.5">{t('chooseInvoiceToPay', 'Choose an invoice to pay')}</p>
+          </div>
+          {selected.length > 0 && (
+            <button
+              onClick={onContinue}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white shadow-sm hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              style={{ background: 'linear-gradient(135deg,#00A884,#00C49A)' }}
+            >
+              <span>{t('next', 'Next')}</span>
+              <i className="bx bx-right-arrow-alt text-base" />
+            </button>
+          )}
         </div>
         <div className="p-6 space-y-3">
           {invoices.length === 0 ? (
@@ -170,7 +198,19 @@ const Step1 = ({ invoices, selected, setSelected, onContinue, embedded, onBack, 
           ) : (
             <>
               <p className="text-xs text-[#00A884] mb-3">{t('youCanSelectOneOrMoreInvoices', 'You can select one or more invoices.')}</p>
-              {invoices.map(inv => <InvoiceCard key={inv._id} invoice={inv} isSelected={selected.some(s => s._id === inv._id)} onToggle={toggleInvoice} />)}
+              {paginatedInvoices.map(inv => <InvoiceCard key={inv._id} invoice={inv} isSelected={selected.some(s => s._id === inv._id)} onToggle={toggleInvoice} />)}
+              {invoices.length > ITEMS_PER_PAGE && (
+                <div className="pt-2">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    totalItems={invoices.length}
+                    itemsPerPage={ITEMS_PER_PAGE}
+                    itemLabel={t('invoices', 'invoices')}
+                  />
+                </div>
+              )}
             </>
           )}
         </div>
@@ -405,7 +445,13 @@ const MakePayment = ({ embedded = false }) => {
             {step === 2 && <Step2 selected={selected} onContinue={() => setStep(3)} onBack={() => setStep(1)} />}
             {step === 3 && <Step3 selected={selected} paying={paying} onPay={handlePay} onBack={() => setStep(2)} />}
           </div>
-          <SummarySidebar selected={selected} user={user} onContactSupport={() => setIsSupportModalOpen(true)} />
+          <SummarySidebar
+            selected={selected}
+            user={user}
+            onContactSupport={() => setIsSupportModalOpen(true)}
+            step={step}
+            onContinue={step < 3 && selected.length > 0 ? () => setStep(s => s + 1) : null}
+          />
         </div>
 
       {!embedded && step < 4 && (

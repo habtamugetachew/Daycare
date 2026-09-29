@@ -6,6 +6,7 @@ import { useLanguage } from '../../context/useLanguage';
 import { useSettings } from '../../context/SettingsContext';
 import MakePayment from './MakePayment';
 import AdminPaymentHistory from './AdminPaymentHistory';
+import Pagination from '../../components/shared/Pagination';
 
 const INPUT = 'w-full border border-slate-200 dark:border-teal-900/40 rounded-xl px-4 py-2.5 text-sm bg-white dark:bg-[#0d1520] text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500';
 
@@ -279,6 +280,8 @@ const InvoicesTab = ({ canManage }) => {
   const [stats,        setStats]        = useState({});
   const [loading,      setLoading]      = useState(true);
   const [filterStatus, setFilterStatus] = useState('all');
+  const [currentPage,  setCurrentPage]  = useState(1);
+  const ITEMS_PER_PAGE = 5;
   const [error,        setError]        = useState('');
   const [success,      setSuccess]      = useState('');
   const errorText = formatErrorMessage(error);
@@ -358,6 +361,21 @@ const InvoicesTab = ({ canManage }) => {
     const interval = setInterval(() => fetch(true), 15000);
     return () => clearInterval(interval);
   }, [fetch]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterStatus]);
+
+  const totalPages = Math.ceil(payments.length / ITEMS_PER_PAGE) || 1;
+
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedPayments = payments.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const handleMarkPaid = async (id) => {
     try { await api.put(`/payments/${id}/pay`, { method: 'cash' }); setSuccess('Payment recorded!'); fetch(true); setTimeout(() => setSuccess(''), 2000); }
@@ -566,8 +584,9 @@ const InvoicesTab = ({ canManage }) => {
       ) : payments.length === 0 ? (
         <div className="text-center py-16 text-slate-400"><i className="bx bx-receipt text-4xl"/><p className="mt-2">{t('noPaymentsFound', 'No payments found.')}</p></div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="rounded-2xl border border-slate-200 dark:border-teal-900/30 bg-white dark:bg-[#111c2d] overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-teal-900/30">
                   {[t('invoiceCol','Invoice'),t('childCol','Child'),t('parentCol','Parent'),t('typeCol','Type'),t('amountCol','Amount'),t('dueDateCol','Due Date'),t('statusCol','Status'),t('actionsCol','Actions')].map(h=>(
@@ -576,7 +595,7 @@ const InvoicesTab = ({ canManage }) => {
                 </tr>
               </thead>
               <tbody>
-                {payments.map(p=>(
+                {paginatedPayments.map(p=>(
                   <tr key={p._id} className="border-b border-slate-100 dark:border-teal-900/30 last:border-0 hover:bg-slate-50 dark:hover:bg-[#162030]/30 transition-colors">
                     <td className="px-5 py-4 font-mono text-xs text-slate-500">{p.invoiceNumber}</td>
                     <td className="px-5 py-4 font-semibold text-slate-800 dark:text-white whitespace-nowrap">{p.child?.firstName} {p.child?.lastName}</td>
@@ -624,6 +643,19 @@ const InvoicesTab = ({ canManage }) => {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="px-5 py-3 border-t border-slate-100 dark:border-teal-900/30 bg-white dark:bg-[#0d1520]">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={payments.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              itemLabel={t('invoices', 'invoices')}
+            />
+          </div>
         </div>
       )}
     </div>
@@ -767,6 +799,8 @@ const ReceiptsTab = () => {
   const [error,      setError]      = useState('');
   const [search,     setSearch]     = useState('');
   const [yearFilter, setYearFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
 
   useEffect(()=>{
     api.get('/payments?status=paid').then(r=>setPayments(r.data.data||[])).catch(()=>setError('Could not load receipts.')).finally(()=>setLoading(false));
@@ -777,10 +811,22 @@ const ReceiptsTab = () => {
     if (yearFilter!=='all') list = list.filter(p=>{ const d=p.paidDate||p.createdAt; return d&&new Date(d).getFullYear().toString()===yearFilter; });
     if (search.trim()) { const q=search.toLowerCase(); list=list.filter(p=>p.invoiceNumber?.toLowerCase().includes(q)||p.child?.firstName?.toLowerCase().includes(q)||p.child?.lastName?.toLowerCase().includes(q)||p.type?.toLowerCase().includes(q)); }
     setFiltered(list);
+    setCurrentPage(1);
   },[payments,search,yearFilter]);
 
   const years = [...new Set(payments.map(p=>p.paidDate||p.createdAt).filter(Boolean).map(d=>new Date(d).getFullYear()))].sort((a,b)=>b-a);
   const totalFiltered = filtered.reduce((s,p)=>s+(p.amount||0),0);
+
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedReceipts = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const handleCSV = () => {
     const rows = [['Invoice #','Child','Type','Amount','Paid Date','Method'],...filtered.map(p=>[p.invoiceNumber||'—',`${p.child?.firstName||''} ${p.child?.lastName||''}`.trim(),p.type?.replace(/-/g,' ')||'—',`ETB ${p.amount}`,p.paidDate?new Date(p.paidDate).toLocaleDateString():'—',p.method||'cash'])];
@@ -821,12 +867,12 @@ const ReceiptsTab = () => {
           <i className="bx bx-receipt text-5xl opacity-30"/><p className="mt-3 font-semibold">{t('noReceiptsFound', 'No receipts found')}</p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 overflow-hidden">
+        <div className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 overflow-hidden shadow-sm">
           <div className="hidden md:grid grid-cols-[1fr_1fr_1fr_auto_auto_auto] gap-4 px-5 py-3.5 bg-slate-50 dark:bg-[#0d1520]/50 border-b border-slate-100 dark:border-teal-900/30">
             {['Invoice #','Child','Type','Amount','Paid Date',''].map(h=><span key={h} className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{h}</span>)}
           </div>
           <div className="divide-y divide-slate-100 dark:divide-teal-900/30">
-            {filtered.map(p=>(
+            {paginatedReceipts.map(p=>(
               <div key={p._id} className="flex flex-col md:grid md:grid-cols-[1fr_1fr_1fr_auto_auto_auto] gap-3 md:gap-4 px-5 py-4 hover:bg-slate-50 dark:hover:bg-[#162030]/30 transition-colors items-start md:items-center">
                 <span className="font-mono text-xs text-slate-500 bg-slate-100 dark:bg-[#0d1520] px-2 py-1 rounded-lg">{p.invoiceNumber||'—'}</span>
                 <div className="flex items-center gap-2">
@@ -845,6 +891,19 @@ const ReceiptsTab = () => {
               </div>
             ))}
           </div>
+
+          {/* Pagination */}
+          <div className="px-5 py-3 border-t border-slate-100 dark:border-teal-900/30 bg-white dark:bg-[#0d1520]">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={filtered.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              itemLabel={t('receiptsCount', 'receipts')}
+            />
+          </div>
+
           <div className="px-5 py-3 bg-slate-50 dark:bg-[#0d1520]/50 border-t border-slate-100 dark:border-teal-900/30 flex justify-between items-center">
             <span className="text-sm text-slate-500 font-semibold">{t('totalReceipts', 'Total')} ({filtered.length} {t('receiptsCount', 'receipts')})</span>
             <span className="text-xl font-bold text-emerald-400">ETB {totalFiltered.toLocaleString()}</span>

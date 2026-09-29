@@ -24,9 +24,12 @@ const UrgentAnnouncementBanner = () => {
     }
   });
 
-  // Only display for nanny/teachers, parents, reception, staff
-  const allowedRoles = ['parent', 'teacher', 'reception', 'staff'];
+  // Display for admin, nanny/teachers, parents, reception, staff
+  const allowedRoles = ['admin', 'parent', 'teacher', 'reception', 'staff'];
   const isAllowed = user && allowedRoles.includes(user.role);
+
+  const [timeLeft, setTimeLeft] = useState(10);
+  const [isPaused, setIsPaused] = useState(false);
 
   const fetchUrgentAnnouncements = useCallback(async () => {
     if (!isAllowed) return;
@@ -68,6 +71,7 @@ const UrgentAnnouncementBanner = () => {
           if (exists) return prev;
           return [newMsg, ...prev];
         });
+        setTimeLeft(10);
       }
     };
 
@@ -84,23 +88,21 @@ const UrgentAnnouncementBanner = () => {
   const activeAnnouncements = announcements.filter(a => !dismissedIds.includes(a._id));
   const current = activeAnnouncements[currentIndex] || activeAnnouncements[0];
 
-  if (!isAllowed || !current) return null;
-
-  const cleanSubject = current.subject?.replace(/^\[Announcement\]\s*/i, '') || 'Urgent Notice';
-  const cleanBody = current.body || '';
-
-  const handleDismiss = async (e) => {
-    e?.stopPropagation();
+  const handleDismiss = useCallback(async (e) => {
+    e?.stopPropagation?.();
+    if (!current) return;
     const idToDismiss = current._id;
 
     // Update dismissed IDs in state and session storage
-    const updated = [...dismissedIds, idToDismiss];
-    setDismissedIds(updated);
-    try {
-      sessionStorage.setItem('dismissed_urgent_announcements', JSON.stringify(updated));
-    } catch {
-      // Ignore storage errors
-    }
+    setDismissedIds(prev => {
+      const updated = [...prev, idToDismiss];
+      try {
+        sessionStorage.setItem('dismissed_urgent_announcements', JSON.stringify(updated));
+      } catch {
+        // Ignore storage errors
+      }
+      return updated;
+    });
 
     // Mark as read in backend
     try {
@@ -110,7 +112,35 @@ const UrgentAnnouncementBanner = () => {
     }
 
     setShowModal(false);
-  };
+  }, [current]);
+
+  // Reset timer whenever current announcement changes
+  useEffect(() => {
+    setTimeLeft(10);
+  }, [current?._id, currentIndex]);
+
+  // 10-second countdown timer
+  useEffect(() => {
+    if (!current || isPaused || showModal) return;
+
+    const interval = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          handleDismiss();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [current, isPaused, showModal, handleDismiss]);
+
+  if (!isAllowed || !current) return null;
+
+  const cleanSubject = current.subject?.replace(/^\[Announcement\]\s*/i, '') || 'Urgent Notice';
+  const cleanBody = current.body || '';
 
   const handleOpenDetails = () => {
     setShowModal(true);
@@ -124,14 +154,17 @@ const UrgentAnnouncementBanner = () => {
 
   return (
     <>
-      {/* ── Urgent Announcement Banner ─────────────────────────────────── */}
+      {/* ── Urgent Announcement Banner (10s auto-dismiss) ─────────── */}
       <div
-        className="w-full relative overflow-hidden rounded-2xl mb-5 p-4 sm:p-5 transition-all duration-300 shadow-xl border animate-fade-in"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        className="w-full relative overflow-hidden rounded-2xl mb-5 p-4 sm:p-5 transition-all duration-300 shadow-xl border animate-fade-in group cursor-pointer"
         style={{
           background: 'linear-gradient(135deg, rgba(38, 8, 16, 0.96) 0%, rgba(24, 5, 10, 0.98) 100%)',
           borderColor: 'rgba(244, 63, 94, 0.55)',
           boxShadow: '0 8px 30px rgba(225, 29, 72, 0.22), 0 0 1px rgba(244, 63, 94, 0.6)',
         }}
+        onClick={handleOpenDetails}
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           {/* Left section: Icon + Content */}
@@ -157,6 +190,13 @@ const UrgentAnnouncementBanner = () => {
                   <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
                   {t('urgent', 'URGENT')}
                 </span>
+
+                {/* 10-second countdown badge */}
+                <span className="text-[10px] font-semibold text-rose-200 bg-rose-950/70 px-2 py-0.5 rounded-full border border-rose-500/30 flex items-center gap-1">
+                  <i className="bx bx-time-five text-xs text-rose-400" />
+                  {isPaused ? t('paused', 'Paused') : `${timeLeft}s`}
+                </span>
+
                 {activeAnnouncements.length > 1 && (
                   <span className="text-[11px] font-medium text-rose-300/80 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20">
                     {currentIndex + 1} of {activeAnnouncements.length}
@@ -175,24 +215,32 @@ const UrgentAnnouncementBanner = () => {
           </div>
 
           {/* Right section: Action Button & Dismiss */}
-          <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+          <div className="flex items-center gap-2 self-end sm:self-center shrink-0" onClick={e => e.stopPropagation()}>
             {activeAnnouncements.length > 1 && (
               <div className="flex items-center mr-1 gap-1">
                 <button
                   type="button"
-                  onClick={() => setCurrentIndex(prev => (prev > 0 ? prev - 1 : activeAnnouncements.length - 1))}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg text-rose-300 hover:text-white hover:bg-white/10 transition-colors"
+                  onClick={() => {
+                    setCurrentIndex(prev => (prev > 0 ? prev - 1 : activeAnnouncements.length - 1));
+                    setTimeLeft(10);
+                  }}
+                  className="px-2 py-1 rounded-lg text-xs font-semibold text-rose-300 hover:text-white bg-white/5 hover:bg-white/10 transition-colors flex items-center gap-0.5"
                   title="Previous"
                 >
-                  <i className="bx bx-chevron-left text-lg" />
+                  <i className="bx bx-chevron-left text-base" />
+                  <span>{t('prev', 'Prev')}</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => setCurrentIndex(prev => (prev < activeAnnouncements.length - 1 ? prev + 1 : 0))}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg text-rose-300 hover:text-white hover:bg-white/10 transition-colors"
+                  onClick={() => {
+                    setCurrentIndex(prev => (prev < activeAnnouncements.length - 1 ? prev + 1 : 0));
+                    setTimeLeft(10);
+                  }}
+                  className="px-2.5 py-1 rounded-lg text-xs font-bold text-rose-200 hover:text-white bg-white/10 hover:bg-white/20 transition-colors flex items-center gap-0.5 border border-rose-500/30"
                   title="Next"
                 >
-                  <i className="bx bx-chevron-right text-lg" />
+                  <span>{t('next', 'Next')}</span>
+                  <i className="bx bx-chevron-right text-base" />
                 </button>
               </div>
             )}
@@ -221,6 +269,14 @@ const UrgentAnnouncementBanner = () => {
               <i className="bx bx-x text-2xl" />
             </button>
           </div>
+        </div>
+
+        {/* 10-second countdown animated progress bar */}
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/40 overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-rose-500 to-amber-400 transition-all duration-1000 ease-linear"
+            style={{ width: `${(timeLeft / 10) * 100}%` }}
+          />
         </div>
       </div>
 

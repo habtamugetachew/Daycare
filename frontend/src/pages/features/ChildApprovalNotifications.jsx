@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/useLanguage';
+import Pagination from '../../components/shared/Pagination';
 
 /* ── helpers ─────────────────────────────────────────────── */
 const mkInitials = (first = '', last = '') =>
@@ -60,6 +61,8 @@ const ChildApprovalNotifications = () => {
   const [error, setError]         = useState('');
   const [filter, setFilter]       = useState('all');
   const [search, setSearch]       = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
 
   const isReception = user?.role === 'reception';
   const isParent    = user?.role === 'parent';
@@ -88,6 +91,10 @@ const ChildApprovalNotifications = () => {
 
   useEffect(() => { load(); }, [load]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, search]);
+
   /* ── filter + search ─────────────────────────────────────── */
   const filtered = children.filter(c => {
     const matchFilter =
@@ -103,6 +110,9 @@ const ChildApprovalNotifications = () => {
 
     return matchFilter && matchSearch;
   });
+
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+  const paginatedChildren = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const approvedCount    = children.filter(c => c.status === 'approved' || c.status === 'active').length;
   const disapprovedCount = children.filter(c => c.status === 'disapproved').length;
@@ -263,7 +273,7 @@ const ChildApprovalNotifications = () => {
       {/* ── Child cards ──────────────────────────────────── */}
       {!loading && filtered.length > 0 && (
         <div className="space-y-4">
-          {filtered.map(child => {
+          {paginatedChildren.map(child => {
             const isApproved    = child.status === 'approved' || child.status === 'active';
             const isDisapproved = child.status === 'disapproved';
 
@@ -351,6 +361,19 @@ const ChildApprovalNotifications = () => {
               </div>
             );
           })}
+
+          {filtered.length > ITEMS_PER_PAGE && (
+            <div className="pt-2">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                totalItems={filtered.length}
+                itemsPerPage={ITEMS_PER_PAGE}
+                itemLabel={t('children', 'children')}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>
