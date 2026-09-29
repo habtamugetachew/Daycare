@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/useLanguage';
@@ -38,6 +38,7 @@ const ChildList = () => {
   const [loading, setLoading]       = useState(true);
   const [search, setSearch]         = useState('');
   const [filterStatus, setFilter]   = useState('all');
+  const [sortBy, setSortBy]         = useState('nameAsc');
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 5;
   const [error, setError]           = useState('');
@@ -227,15 +228,56 @@ const ChildList = () => {
     }
   };
 
-  /* filter ─────────────────────────────────────────────────── */
+  /* filter & sort ───────────────────────────────────────────── */
   const filtered = children.filter(c => {
-    const name = `${c.firstName} ${c.lastName}`.toLowerCase();
+    const name = `${c.firstName || ''} ${c.lastName || ''}`.toLowerCase();
     const matchSearch = name.includes(search.toLowerCase());
     const matchStatus = filterStatus === 'all' || c.status === filterStatus;
     return matchSearch && matchStatus;
   });
 
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+  const sorted = useMemo(() => {
+    const list = [...filtered];
+    list.sort((a, b) => {
+      if (sortBy === 'nameAsc') {
+        const nameA = `${a.firstName || ''} ${a.lastName || ''}`.trim();
+        const nameB = `${b.firstName || ''} ${b.lastName || ''}`.trim();
+        return nameA.localeCompare(nameB);
+      }
+      if (sortBy === 'nameDesc') {
+        const nameA = `${a.firstName || ''} ${a.lastName || ''}`.trim();
+        const nameB = `${b.firstName || ''} ${b.lastName || ''}`.trim();
+        return nameB.localeCompare(nameA);
+      }
+      if (sortBy === 'dateNewest' || sortBy === 'dateOldest') {
+        const getTs = (item) => {
+          if (item.createdAt) return new Date(item.createdAt).getTime();
+          if (item.enrollmentDate) return new Date(item.enrollmentDate).getTime();
+          const idStr = String(item._id || '');
+          if (idStr.length === 24) return parseInt(idStr.substring(0, 8), 16) * 1000;
+          return 0;
+        };
+        const diff = getTs(b) - getTs(a);
+        return sortBy === 'dateNewest' ? diff : -diff;
+      }
+      if (sortBy === 'yearYoungest' || sortBy === 'yearOldest') {
+        const getDob = (item) => {
+          if (item.dateOfBirth) return new Date(item.dateOfBirth).getTime();
+          return 0;
+        };
+        const dobA = getDob(a);
+        const dobB = getDob(b);
+        if (!dobA && !dobB) return 0;
+        if (!dobA) return 1;
+        if (!dobB) return -1;
+        return sortBy === 'yearYoungest' ? dobB - dobA : dobA - dobB;
+      }
+      return 0;
+    });
+    return list;
+  }, [filtered, sortBy]);
+
+  const totalPages = Math.ceil(sorted.length / ITEMS_PER_PAGE) || 1;
 
   useEffect(() => {
     if (currentPage > totalPages && totalPages > 0) {
@@ -244,12 +286,12 @@ const ChildList = () => {
   }, [totalPages, currentPage]);
 
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedChildren = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const paginatedChildren = sorted.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   /* export ─────────────────────────────────────────────────── */
   const handleExport = () => {
     const headers = ['First Name', 'Last Name', 'Age', 'Classroom', 'Allergies', 'Vaccination', 'Status'];
-    const rows = filtered.map(c => [
+    const rows = sorted.map(c => [
       rv(c.firstName), rv(c.lastName), rvAge(c.age, 'yrs', 'N/A'),
       rvClassroom(c.classroom, 'Unassigned'),
       rv(c.allergies, 'None'), rv(c.vaccinationStatus, 'unknown'), rv(c.status, 'active'),
@@ -309,6 +351,22 @@ const ChildList = () => {
             <option value="disapproved">{t('disapproved')}</option>
           </select>
         )}
+        <div className="relative min-w-[200px]">
+          <select
+            value={sortBy}
+            onChange={e => { setSortBy(e.target.value); setCurrentPage(1); }}
+            className="w-full appearance-none pl-9 pr-8 py-2.5 border border-slate-200 dark:border-teal-900/40 rounded-xl text-sm bg-white dark:bg-[#111c2d] text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+          >
+            <option value="nameAsc">{t('sortNameAsc', 'Name (A–Z)')}</option>
+            <option value="nameDesc">{t('sortNameDesc', 'Name (Z–A)')}</option>
+            <option value="dateNewest">{t('sortDateNewest', 'Registered (Newest)')}</option>
+            <option value="dateOldest">{t('sortDateOldest', 'Registered (Oldest)')}</option>
+            <option value="yearYoungest">{t('sortYearYoungest', 'Birth Year (Youngest)')}</option>
+            <option value="yearOldest">{t('sortYearOldest', 'Birth Year (Oldest)')}</option>
+          </select>
+          <i className="bx bx-sort absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          <i className="bx bx-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+        </div>
       </div>
 
       {/* Table */}
@@ -352,8 +410,20 @@ const ChildList = () => {
                           {rvInitials(`${child.firstName} ${child.lastName}`)}
                         </div>
                         <div>
-                          <p className="font-semibold text-slate-800 dark:text-white">{rv(child.firstName)} {rv(child.lastName)}</p>
-                          <p className="text-xs text-slate-400 capitalize">{t(child.gender?.toLowerCase() || 'other', child.gender || 'Other')}</p>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <p className="font-semibold text-slate-800 dark:text-white">{rv(child.firstName)} {rv(child.lastName)}</p>
+                            {child.dateOfBirth && (
+                              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40">
+                                {new Date(child.dateOfBirth).getFullYear()}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
+                            <span className="capitalize">{t(child.gender?.toLowerCase() || 'other', child.gender || 'Other')}</span>
+                            {(child.createdAt || child.enrollmentDate) && (
+                              <span>• {t('registered', 'Reg')}: {new Date(child.createdAt || child.enrollmentDate).toLocaleDateString()}</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -424,7 +494,7 @@ const ChildList = () => {
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={setCurrentPage}
-              totalItems={filtered.length}
+              totalItems={sorted.length}
               itemsPerPage={ITEMS_PER_PAGE}
               itemLabel={t('childrenLabel', 'children')}
             />

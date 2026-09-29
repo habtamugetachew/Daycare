@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/useLanguage';
 import PasswordStrengthChecker, { validatePassword } from '../../components/shared/PasswordStrengthChecker';
 import { rv, phone as rvPhone, emergency as rvEmergency, initials as rvInitials } from '../../utils/renderValue';
+import Pagination from '../../components/shared/Pagination';
 
 const StaffList = () => {
   const { user } = useAuth();
@@ -18,6 +19,9 @@ const StaffList = () => {
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState('');
   const [filterRole, setFilterRole] = useState('all');
+  const [sortBy, setSortBy] = useState('nameAsc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
   const [showPassword, setShowPassword] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteForEveryone, setDeleteForEveryone] = useState(false);
@@ -124,11 +128,46 @@ const StaffList = () => {
   }[role] || 'bg-slate-500/10 text-slate-400');
 
   const filtered = staff.filter(s => {
-    const matchSearch = s.fullName.toLowerCase().includes(search.toLowerCase()) ||
+    const matchSearch = s.fullName?.toLowerCase().includes(search.toLowerCase()) ||
       s.email?.toLowerCase().includes(search.toLowerCase());
     const matchRole = filterRole === 'all' || s.role === filterRole;
     return matchSearch && matchRole;
   });
+
+  const sorted = useMemo(() => {
+    const list = [...filtered];
+    list.sort((a, b) => {
+      if (sortBy === 'nameAsc') {
+        return (a.fullName || '').localeCompare(b.fullName || '');
+      }
+      if (sortBy === 'nameDesc') {
+        return (b.fullName || '').localeCompare(a.fullName || '');
+      }
+      if (sortBy === 'dateNewest' || sortBy === 'dateOldest') {
+        const getTs = (item) => {
+          if (item.createdAt) return new Date(item.createdAt).getTime();
+          const idStr = String(item._id || '');
+          if (idStr.length === 24) return parseInt(idStr.substring(0, 8), 16) * 1000;
+          return 0;
+        };
+        const diff = getTs(b) - getTs(a);
+        return sortBy === 'dateNewest' ? diff : -diff;
+      }
+      return 0;
+    });
+    return list;
+  }, [filtered, sortBy]);
+
+  const totalPages = Math.ceil(sorted.length / ITEMS_PER_PAGE) || 1;
+
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedStaff = sorted.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
     <div className="space-y-6">
@@ -364,13 +403,13 @@ const StaffList = () => {
             type="text"
             placeholder={t('searchStaff', 'Search by name or email...')}
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={e => { setSearch(e.target.value); setCurrentPage(1); }}
             className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-teal-900/40 rounded-xl text-sm bg-white dark:bg-[#111c2d] text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
         <select
           value={filterRole}
-          onChange={e => setFilterRole(e.target.value)}
+          onChange={e => { setFilterRole(e.target.value); setCurrentPage(1); }}
           className="border border-slate-200 dark:border-teal-900/40 rounded-xl px-4 py-2.5 text-sm bg-white dark:bg-[#111c2d] text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           <option value="all">{t('allRoles', 'All Roles')}</option>
@@ -379,6 +418,20 @@ const StaffList = () => {
           <option value="reception">{t('reception', 'Reception')}</option>
           <option value="staff">{t('supportStaff', 'Support Staff')}</option>
         </select>
+        <div className="relative min-w-[200px]">
+          <select
+            value={sortBy}
+            onChange={e => { setSortBy(e.target.value); setCurrentPage(1); }}
+            className="w-full appearance-none pl-9 pr-8 py-2.5 border border-slate-200 dark:border-teal-900/40 rounded-xl text-sm bg-white dark:bg-[#111c2d] text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+          >
+            <option value="nameAsc">{t('sortNameAsc', 'Name (A–Z)')}</option>
+            <option value="nameDesc">{t('sortNameDesc', 'Name (Z–A)')}</option>
+            <option value="dateNewest">{t('sortDateNewest', 'Registered (Newest)')}</option>
+            <option value="dateOldest">{t('sortDateOldest', 'Registered (Oldest)')}</option>
+          </select>
+          <i className="bx bx-sort absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          <i className="bx bx-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+        </div>
       </div>
 
       {/* Staff Grid */}
@@ -386,56 +439,77 @@ const StaffList = () => {
         <div className="flex justify-center py-16">
           <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
         </div>
-      ) : filtered.length === 0 ? (
+      ) : paginatedStaff.length === 0 ? (
         <div className="text-center py-16 text-slate-400 bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30">
           <i className="bx bx-user-x text-4xl" />
           <p className="text-sm mt-2">{t('noStaffFound', 'No staff found.')}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map(s => (
-            <div key={s._id} className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 p-6 flex flex-col items-center text-center relative group hover:shadow-lg transition-shadow">
-              {user?.role === 'admin' && user._id !== s._id && (
-                <div className="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => openEdit(s)} className="p-1.5 bg-slate-100 dark:bg-[#0d1520] rounded-lg text-slate-500 hover:text-indigo-500 transition-colors">
-                    <i className="bx bx-edit text-lg" />
-                  </button>
-                  <button onClick={() => setDeleteTarget(s._id)} className="p-1.5 bg-slate-100 dark:bg-[#0d1520] rounded-lg text-slate-500 hover:text-rose-500 transition-colors">
-                    <i className="bx bx-trash text-lg" />
-                  </button>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paginatedStaff.map(s => (
+              <div key={s._id} className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 p-6 flex flex-col items-center text-center relative group hover:shadow-lg transition-shadow">
+                {user?.role === 'admin' && user._id !== s._id && (
+                  <div className="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => openEdit(s)} className="p-1.5 bg-slate-100 dark:bg-[#0d1520] rounded-lg text-slate-500 hover:text-indigo-500 transition-colors">
+                      <i className="bx bx-edit text-lg" />
+                    </button>
+                    <button onClick={() => setDeleteTarget(s._id)} className="p-1.5 bg-slate-100 dark:bg-[#0d1520] rounded-lg text-slate-500 hover:text-rose-500 transition-colors">
+                      <i className="bx bx-trash text-lg" />
+                    </button>
+                  </div>
+                )}
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg mb-4">
+                  {rvInitials(s.fullName)}
                 </div>
-              )}
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg mb-4">
-                {rvInitials(s.fullName)}
-              </div>
-              <h3 className="font-bold text-lg text-slate-800 dark:text-white">{rv(s.fullName)}</h3>
-              <p className="text-xs text-slate-400 mb-3">{rv(s.email)}</p>
-              <div className="flex items-center gap-2">
-                <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${roleColor(s.role)}`}>{t(s.role, s.role)}</span>
-                <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${s.status === 'active' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
-                  {t(s.status || 'active', s.status || 'active')}
-                </span>
-              </div>
-              {/* Phone — always shown, N/A if missing */}
-              <div className="w-full border-t border-slate-100 dark:border-teal-900/30 mt-4 pt-3 flex items-center justify-center gap-2 text-xs text-slate-500">
-                <i className="bx bx-phone" /> {rvPhone(s)}
-              </div>
-              {/* Emergency contact if present */}
-              {(s.emergencyContact?.name || s.emergencyContact?.phone) && (
-                <div className="w-full flex items-center justify-center gap-2 text-xs text-slate-400 mt-1">
-                  <i className="bx bx-user-check" />
-                  <span>{rvEmergency(s.emergencyContact)}</span>
+                <h3 className="font-bold text-lg text-slate-800 dark:text-white">{rv(s.fullName)}</h3>
+                <p className="text-xs text-slate-400 mb-3">{rv(s.email)}</p>
+                <div className="flex items-center gap-2">
+                  <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${roleColor(s.role)}`}>{t(s.role, s.role)}</span>
+                  <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${s.status === 'active' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                    {t(s.status || 'active', s.status || 'active')}
+                  </span>
                 </div>
-              )}
-              {/* Classroom for teachers */}
-              {s.classroom && (
-                <div className="w-full flex items-center justify-center gap-2 text-xs text-indigo-400 mt-1">
-                  <i className="bx bx-door-open" />
-                  <span>{rv(s.classroom.name, 'Unassigned')}</span>
+                {/* Phone — always shown, N/A if missing */}
+                <div className="w-full border-t border-slate-100 dark:border-teal-900/30 mt-4 pt-3 flex items-center justify-center gap-2 text-xs text-slate-500">
+                  <i className="bx bx-phone" /> {rvPhone(s)}
                 </div>
-              )}
-            </div>
-          ))}
+                {/* Emergency contact if present */}
+                {(s.emergencyContact?.name || s.emergencyContact?.phone) && (
+                  <div className="w-full flex items-center justify-center gap-2 text-xs text-slate-400 mt-1">
+                    <i className="bx bx-user-check" />
+                    <span>{rvEmergency(s.emergencyContact)}</span>
+                  </div>
+                )}
+                {/* Classroom for teachers */}
+                {s.classroom && (
+                  <div className="w-full flex items-center justify-center gap-2 text-xs text-indigo-400 mt-1">
+                    <i className="bx bx-door-open" />
+                    <span>{rv(s.classroom.name, 'Unassigned')}</span>
+                  </div>
+                )}
+                {/* Date registered */}
+                {s.createdAt && (
+                  <div className="w-full flex items-center justify-center gap-1.5 text-xs text-slate-400 mt-1.5">
+                    <i className="bx bx-calendar" />
+                    <span>{t('registered', 'Reg')}: {new Date(s.createdAt).toLocaleDateString()}</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          <div className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 px-6 py-4 shadow-sm">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={sorted.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              itemLabel={t('staffMembers', 'staff members')}
+            />
+          </div>
         </div>
       )}
     </div>

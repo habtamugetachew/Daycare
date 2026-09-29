@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import api from '../../services/api';
 import { useLanguage } from '../../context/useLanguage';
+import Pagination from '../../components/shared/Pagination';
 
 /* ── seed data (used when API is unavailable) ─────────────── */
 const SEED = [
@@ -37,11 +38,14 @@ const AdminTeacherAttendance = () => {
   const [success, setSuccess]       = useState('');
   const [lastSync, setLastSync]     = useState(null);
 
-  /* filters */
+  /* filters & pagination */
   const [search, setSearch]         = useState('');
   const [filterClassroom, setFilterClassroom] = useState('all');
   const [filterStatus, setFilterStatus]       = useState('all');
   const [filterDate, setFilterDate] = useState(new Date().toISOString().slice(0, 10));
+  const [sortBy, setSortBy]         = useState('nameAsc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
 
   /* ── fetch ─────────────────────────────────────────────── */
   const load = useCallback(async () => {
@@ -75,6 +79,41 @@ const AdminTeacherAttendance = () => {
     const matchS = filterStatus === 'all' || t.status === filterStatus;
     return matchQ && matchC && matchS;
   }), [teachers, search, filterClassroom, filterStatus]);
+
+  const sorted = useMemo(() => {
+    const list = [...filtered];
+    list.sort((a, b) => {
+      if (sortBy === 'nameAsc') {
+        return (a.fullName || '').localeCompare(b.fullName || '');
+      }
+      if (sortBy === 'nameDesc') {
+        return (b.fullName || '').localeCompare(a.fullName || '');
+      }
+      if (sortBy === 'dateNewest' || sortBy === 'dateOldest') {
+        const getTs = (item) => {
+          if (item.createdAt) return new Date(item.createdAt).getTime();
+          const idStr = String(item.id || item._id || '');
+          if (idStr.length === 24) return parseInt(idStr.substring(0, 8), 16) * 1000;
+          return 0;
+        };
+        const diff = getTs(b) - getTs(a);
+        return sortBy === 'dateNewest' ? diff : -diff;
+      }
+      return 0;
+    });
+    return list;
+  }, [filtered, sortBy]);
+
+  const totalPages = Math.ceil(sorted.length / ITEMS_PER_PAGE) || 1;
+
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedTeachers = sorted.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const totals = useMemo(() => ({
     total:   teachers.length,
@@ -125,7 +164,15 @@ const AdminTeacherAttendance = () => {
         </button>
       </div>
 
-      {/* ── Alerts ─────────────────────────────────────────── */}
+      {/* ── Alerts & View Only notice ──────────────────────── */}
+      <div className="flex items-center gap-3 bg-cyan-50/80 dark:bg-cyan-950/30 border border-cyan-200/80 dark:border-cyan-800/40 rounded-2xl px-4 py-3 text-xs text-cyan-800 dark:text-cyan-300">
+        <i className="bx bx-show text-lg text-[#00B4D8] flex-shrink-0" />
+        <p>
+          <strong className="font-semibold">{t('viewOnlyAttendance', 'View Only')}:</strong>{' '}
+          {t('providerAttendanceNotice', 'Nanny attendance is recorded live by the Reception Desk. Admin view is synchronized and read-only.')}
+        </p>
+      </div>
+
       {error   && <div className="flex items-center gap-2 bg-rose-500/10 border border-rose-500/25 text-rose-400 rounded-xl p-4 text-sm"><i className="bx bx-error-circle text-lg"/>{error}</div>}
       {success && <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 rounded-xl p-4 text-sm"><i className="bx bx-check-circle text-lg"/>{success}</div>}
 
@@ -153,7 +200,7 @@ const AdminTeacherAttendance = () => {
 
       {/* ── Filters ────────────────────────────────────────── */}
       <div className="bg-white dark:bg-[#0d1929] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
           {/* Search */}
           <div className="relative">
             <i className="bx bx-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -161,7 +208,7 @@ const AdminTeacherAttendance = () => {
               type="text"
               placeholder={t('searchTeacher', 'Search teacher, role, classroom...')}
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={e => { setSearch(e.target.value); setCurrentPage(1); }}
               className="w-full pl-9 pr-4 py-2.5 border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm bg-slate-50 dark:bg-[#0d1929] text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#00B4D8]/30 focus:border-[#00B4D8] transition-all"
             />
           </div>
@@ -169,14 +216,14 @@ const AdminTeacherAttendance = () => {
           <input
             type="date"
             value={filterDate}
-            onChange={e => setFilterDate(e.target.value)}
+            onChange={e => { setFilterDate(e.target.value); setCurrentPage(1); }}
             className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm bg-slate-50 dark:bg-[#0d1929] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00B4D8]/30 focus:border-[#00B4D8] [color-scheme:dark] transition-all"
           />
           {/* Classroom */}
           <div className="relative">
             <select
               value={filterClassroom}
-              onChange={e => setFilterClassroom(e.target.value)}
+              onChange={e => { setFilterClassroom(e.target.value); setCurrentPage(1); }}
               className="w-full appearance-none px-4 py-2.5 border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm bg-slate-50 dark:bg-[#0d1929] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00B4D8]/30 focus:border-[#00B4D8] transition-all"
             >
               <option value="all">{t('allClassrooms', 'All Classrooms')}</option>
@@ -188,12 +235,27 @@ const AdminTeacherAttendance = () => {
           <div className="relative">
             <select
               value={filterStatus}
-              onChange={e => setFilterStatus(e.target.value)}
+              onChange={e => { setFilterStatus(e.target.value); setCurrentPage(1); }}
               className="w-full appearance-none px-4 py-2.5 border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm bg-slate-50 dark:bg-[#0d1929] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00B4D8]/30 focus:border-[#00B4D8] transition-all"
             >
               <option value="all">{t('allStatuses', 'All Statuses')}</option>
               {STATUSES.map(s => <option key={s} value={s}>{t(s, STATUS[s].label)}</option>)}
             </select>
+            <i className="bx bx-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          </div>
+          {/* Sort By */}
+          <div className="relative">
+            <select
+              value={sortBy}
+              onChange={e => { setSortBy(e.target.value); setCurrentPage(1); }}
+              className="w-full appearance-none pl-9 pr-8 py-2.5 border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm bg-slate-50 dark:bg-[#0d1929] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00B4D8]/30 focus:border-[#00B4D8] transition-all font-medium"
+            >
+              <option value="nameAsc">{t('sortNameAsc', 'Name (A–Z)')}</option>
+              <option value="nameDesc">{t('sortNameDesc', 'Name (Z–A)')}</option>
+              <option value="dateNewest">{t('sortDateNewest', 'Registered (Newest)')}</option>
+              <option value="dateOldest">{t('sortDateOldest', 'Registered (Oldest)')}</option>
+            </select>
+            <i className="bx bx-sort absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
             <i className="bx bx-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           </div>
         </div>
@@ -209,7 +271,7 @@ const AdminTeacherAttendance = () => {
             </span>
             {t('providerList', 'Provider List')}
             <span className="text-xs font-semibold text-slate-400 ml-1">
-              ({filtered.length} of {teachers.length})
+              ({sorted.length} of {teachers.length})
             </span>
           </h3>
         </div>
@@ -231,14 +293,14 @@ const AdminTeacherAttendance = () => {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 ? (
+              {paginatedTeachers.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-5 py-14 text-center text-slate-400">
                     <i className="bx bx-search text-4xl opacity-30 block mb-2" />
                     {t('noTeachersMatch', 'No teachers match the current filters.')}
                   </td>
                 </tr>
-              ) : filtered.map(teacher => {
+              ) : paginatedTeachers.map(teacher => {
                 const cfg = STATUS[teacher.status] || STATUS.absent;
                 return (
                   <tr key={teacher.id || teacher._id} className="border-b border-slate-100 dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-[#060d14]/60 transition-colors">
@@ -271,6 +333,18 @@ const AdminTeacherAttendance = () => {
               })}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="px-6 py-3 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-[#0d1929]">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={sorted.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            itemLabel={t('childcareProviders', 'Nannies')}
+          />
         </div>
       </div>
 

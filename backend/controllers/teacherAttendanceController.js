@@ -98,13 +98,13 @@ exports.getTodayAttendance = async (req, res) => {
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     // Fetch all teachers from User model
-    const teachers = await User.find({ role: 'teacher' }, 'fullName email role');
+    const teachers = await User.find({ role: 'teacher' }, 'fullName email role createdAt');
 
     // Fetch today's attendance records using date range to be safe
     const records = await TeacherAttendance.find({
       date: { $gte: today, $lt: tomorrow }
     })
-      .populate('teacher', 'fullName email role')
+      .populate('teacher', 'fullName email role createdAt')
       .lean();
 
     // Build a map for quick lookup
@@ -124,7 +124,8 @@ exports.getTodayAttendance = async (req, res) => {
         status: rec?.status || 'absent',
         checkIn: rec?.checkIn || '-',
         checkOut: rec?.checkOut || '-',
-        markedAt: rec?.updatedAt || null
+        markedAt: rec?.updatedAt || null,
+        createdAt: t.createdAt || null
       };
     });
 

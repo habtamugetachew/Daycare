@@ -1,15 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/useLanguage';
 import { useSettings } from '../../context/SettingsContext';
+import Pagination from '../../components/shared/Pagination';
 
-const AttendanceTracker = () => {
+const AttendanceTracker = ({ readOnly: propReadOnly } = {}) => {
   const { user } = useAuth();
   const { t } = useLanguage();
+  const isReadOnly = Boolean(propReadOnly || user?.role === 'admin');
   const [attendance, setAttendance] = useState({ records: [], absentChildren: [], summary: {} });
   const [classrooms, setClassrooms] = useState([]);
   const [selectedClassroom, setSelectedClassroom] = useState('');
+  const [search, setSearch] = useState('');
+  const [sortBy, setSortBy] = useState('nameAsc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState('');
   const [error, setError] = useState('');
@@ -17,10 +23,12 @@ const AttendanceTracker = () => {
   const { isFreeMode } = useSettings();
   const [payments, setPayments] = useState([]);
 
+  const [filterStatus, setFilterStatus] = useState('all');
+
   const fetchAttendance = async () => {
     try {
       setLoading(true);
-      const query = selectedClassroom ? `?classroomId=${selectedClassroom}` : '';
+      const query = (selectedClassroom && selectedClassroom !== 'all') ? `?classroomId=${selectedClassroom}` : '';
       const [res, paymentsRes] = await Promise.all([
         api.get(`/attendance/today${query}`),
         api.get('/payments')
@@ -37,8 +45,12 @@ const AttendanceTracker = () => {
   useEffect(() => {
     const loadClassrooms = async () => {
       if (['admin', 'reception'].includes(user?.role)) {
-        const res = await api.get('/classrooms');
-        setClassrooms(res.data.data);
+        try {
+          const res = await api.get('/classrooms');
+          setClassrooms(res.data.data || []);
+        } catch {
+          // ignore classroom load error
+        }
       }
     };
     loadClassrooms();
@@ -82,33 +94,127 @@ const AttendanceTracker = () => {
 
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
+  // Helpers for birth year & age calculation
+  const getBirthYear = (dob) => {
+    if (!dob) return null;
+    const d = new Date(dob);
+    return isNaN(d.getTime()) ? null : d.getFullYear();
+  };
+
+  const getAge = (dob) => {
+    if (!dob) return null;
+    const d = new Date(dob);
+    if (isNaN(d.getTime())) return null;
+    const now = new Date();
+    let age = now.getFullYear() - d.getFullYear();
+    const m = now.getMonth() - d.getMonth();
+    if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+    return Math.max(0, age);
+  };
+
   // Derive unified list of all students
-  const allStudents = [];
-  if (attendance.records) {
-    attendance.records.forEach(r => {
-      if (r.child) {
-        allStudents.push({
-          _id: r.child._id,
-          firstName: r.child.firstName,
-          lastName: r.child.lastName,
-          classroom: r.classroom?._id || r.classroom,
-          record: r
-        });
-      }
-    });
-  }
-  if (attendance.absentChildren) {
-    attendance.absentChildren.forEach(c => {
-      allStudents.push({
-        _id: c._id,
-        firstName: c.firstName,
-        lastName: c.lastName,
-        classroom: c.classroom,
-        record: null
+  const allStudents = useMemo(() => {
+    const list = [];
+    if (attendance?.records) {
+      attendance.records.forEach(r => {
+        if (r.child) {
+          list.push({
+            _id: r.child._id,
+            firstName: r.child.firstName,
+            lastName: r.child.lastName,
+            dateOfBirth: r.child.dateOfBirth,
+            createdAt: r.child.createdAt || r.child.enrollmentDate,
+            classroom: r.classroom?._id || r.classroom,
+            classroomName: r.classroom?.name || (typeof r.classroom === 'string' ? r.classroom : ''),
+            record: r
+          });
+        }
       });
+    }
+    if (attendance?.absentChildren) {
+      attendance.absentChildren.forEach(c => {
+        list.push({
+          _id: c._id,
+          firstName: c.firstName,
+          lastName: c.lastName,
+          dateOfBirth: c.dateOfBirth,
+          createdAt: c.createdAt || c.enrollmentDate,
+          classroom: c.classroom,
+          classroomName: c.classroom?.name || (typeof c.classroom === 'string' ? c.classroom : ''),
+          record: null
+        });
+      });
+    }
+    return list;
+  }, [attendance]);
+
+  // Filter students by search and status
+  const filteredStudents = useMemo(() => {
+    return allStudents.filter(student => {
+      const q = search.toLowerCase().trim();
+      const fullName = `${student.firstName || ''} ${student.lastName || ''}`.toLowerCase();
+      const matchSearch = !q || fullName.includes(q);
+
+      const currentStatus = student.record?.status || 'notMarked';
+      const normalizedStatus = (currentStatus === 'authorized-absence' || currentStatus === 'excused') ? 'permission' : currentStatus;
+      const matchStatus = filterStatus === 'all' || normalizedStatus === filterStatus;
+
+      return matchSearch && matchStatus;
     });
-  }
-  allStudents.sort((a, b) => (a.firstName || '').localeCompare(b.firstName || ''));
+  }, [allStudents, search, filterStatus]);
+
+  // Sort students
+  const sortedStudents = useMemo(() => {
+    const list = [...filteredStudents];
+    list.sort((a, b) => {
+      if (sortBy === 'nameAsc') {
+        const nameA = `${a.firstName || ''} ${a.lastName || ''}`.trim();
+        const nameB = `${b.firstName || ''} ${b.lastName || ''}`.trim();
+        return nameA.localeCompare(nameB);
+      }
+      if (sortBy === 'nameDesc') {
+        const nameA = `${a.firstName || ''} ${a.lastName || ''}`.trim();
+        const nameB = `${b.firstName || ''} ${b.lastName || ''}`.trim();
+        return nameB.localeCompare(nameA);
+      }
+      if (sortBy === 'dateNewest' || sortBy === 'dateOldest') {
+        const getTs = (item) => {
+          if (item.createdAt) return new Date(item.createdAt).getTime();
+          const idStr = String(item._id || '');
+          if (idStr.length === 24) return parseInt(idStr.substring(0, 8), 16) * 1000;
+          return 0;
+        };
+        const diff = getTs(b) - getTs(a);
+        return sortBy === 'dateNewest' ? diff : -diff;
+      }
+      if (sortBy === 'yearYoungest' || sortBy === 'yearOldest') {
+        const getDob = (item) => {
+          if (item.dateOfBirth) return new Date(item.dateOfBirth).getTime();
+          return 0;
+        };
+        const dobA = getDob(a);
+        const dobB = getDob(b);
+        if (!dobA && !dobB) return 0;
+        if (!dobA) return 1;
+        if (!dobB) return -1;
+        return sortBy === 'yearYoungest' ? dobB - dobA : dobA - dobB;
+      }
+      return 0;
+    });
+    return list;
+  }, [filteredStudents, sortBy]);
+
+  // Pagination calculation
+  const totalPages = Math.ceil(sortedStudents.length / ITEMS_PER_PAGE) || 1;
+
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedStudents = sortedStudents.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
     <div className="space-y-6">
@@ -120,12 +226,23 @@ const AttendanceTracker = () => {
         </div>
       </div>
 
+      {/* View Only info banner for Admin */}
+      {isReadOnly && (
+        <div className="flex items-center gap-3 bg-indigo-50/80 dark:bg-indigo-950/30 border border-indigo-200/80 dark:border-indigo-800/40 rounded-2xl px-4 py-3 text-xs text-indigo-700 dark:text-indigo-300">
+          <i className="bx bx-show text-lg text-indigo-500 flex-shrink-0" />
+          <p>
+            <strong className="font-semibold">{t('viewOnlyAttendance', 'View Only')}:</strong>{' '}
+            {t('viewOnlyDesc', 'Child attendance is recorded by teachers and reception desk. Admin view is read-only.')}
+          </p>
+        </div>
+      )}
+
       {/* Alerts */}
       {error && <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl p-4 text-sm">{error}</div>}
       {success && <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl p-4 text-sm">✅ {success}</div>}
 
       {/* Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         {[
           { label: t('present', 'Present'), value: attendance.summary?.present || 0,
             icon: 'bx-user-check',
@@ -136,33 +253,113 @@ const AttendanceTracker = () => {
           { label: t('late', 'Late'),    value: attendance.summary?.late || 0,
             icon: 'bx-time',
             bg: 'bg-amber-50 dark:bg-amber-500/10', border: 'border-amber-200 dark:border-amber-500/20', text: 'text-amber-600 dark:text-amber-400' },
+          { label: t('permission', 'Permission'), value: attendance.records?.filter(r => ['permission', 'authorized-absence', 'excused'].includes(r.status)).length || (attendance.summary?.permission || 0),
+            icon: 'bx-badge-check',
+            bg: 'bg-cyan-50 dark:bg-cyan-500/10', border: 'border-cyan-200 dark:border-cyan-500/20', text: 'text-cyan-600 dark:text-cyan-400' },
           { label: t('sick', 'Sick'),    value: attendance.summary?.sick || 0,
             icon: 'bx-plus-medical',
-            bg: 'bg-[#00ADB5]/5 dark:bg-[#00ADB5]/10', border: 'border-[#00ADB5]/20', text: 'text-[#00ADB5]' },
+            bg: 'bg-purple-50 dark:bg-purple-500/10', border: 'border-purple-200 dark:border-purple-500/20', text: 'text-purple-600 dark:text-purple-400' },
         ].map(s => (
-          <div key={s.label} className={`${s.bg} border ${s.border} rounded-2xl p-5 shadow-sm`}>
+          <div key={s.label} className={`${s.bg} border ${s.border} rounded-2xl p-4 sm:p-5 shadow-sm`}>
             <i className={`bx ${s.icon} text-xl ${s.text}`} />
-            <p className={`text-2xl font-bold ${s.text} mt-2`}>{s.value}</p>
+            <p className={`text-xl sm:text-2xl font-bold ${s.text} mt-2`}>{s.value}</p>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{s.label}</p>
           </div>
         ))}
       </div>
 
+      {/* Filters & Sorting */}
+      <div className="bg-white dark:bg-[#0d1929] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* Search */}
+          <div className="relative">
+            <i className="bx bx-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder={t('searchChildren', 'Search child name...')}
+              value={search}
+              onChange={e => { setSearch(e.target.value); setCurrentPage(1); }}
+              className="w-full pl-9 pr-4 py-2.5 border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm bg-slate-50 dark:bg-[#0d1929] text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#00B4D8]/30 focus:border-[#00B4D8] transition-all"
+            />
+          </div>
+
+          {/* Classroom filter for Admin/Reception */}
+          {['admin', 'reception'].includes(user?.role) && classrooms.length > 0 && (
+            <div className="relative">
+              <select
+                value={selectedClassroom}
+                onChange={e => { setSelectedClassroom(e.target.value); setCurrentPage(1); }}
+                className="w-full appearance-none px-4 py-2.5 border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm bg-slate-50 dark:bg-[#0d1929] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00B4D8]/30 focus:border-[#00B4D8] transition-all"
+              >
+                <option value="">{t('allClassrooms', 'All Classrooms')}</option>
+                {classrooms.map(c => (
+                  <option key={c._id} value={c._id}>{c.name}</option>
+                ))}
+              </select>
+              <i className="bx bx-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            </div>
+          )}
+
+          {/* Status filter */}
+          <div className="relative">
+            <select
+              value={filterStatus}
+              onChange={e => { setFilterStatus(e.target.value); setCurrentPage(1); }}
+              className="w-full appearance-none px-4 py-2.5 border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm bg-slate-50 dark:bg-[#0d1929] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00B4D8]/30 focus:border-[#00B4D8] transition-all"
+            >
+              <option value="all">{t('allStatuses', 'All Statuses')}</option>
+              <option value="present">{t('present', 'Present')}</option>
+              <option value="absent">{t('absent', 'Absent')}</option>
+              <option value="late">{t('late', 'Late')}</option>
+              <option value="permission">{t('permission', 'Permission')}</option>
+              <option value="sick">{t('sick', 'Sick')}</option>
+              <option value="notMarked">{t('notMarked', 'Not Marked')}</option>
+            </select>
+            <i className="bx bx-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          </div>
+
+          {/* Sort By */}
+          <div className="relative">
+            <select
+              value={sortBy}
+              onChange={e => { setSortBy(e.target.value); setCurrentPage(1); }}
+              className="w-full appearance-none pl-9 pr-8 py-2.5 border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm bg-slate-50 dark:bg-[#0d1929] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00B4D8]/30 focus:border-[#00B4D8] transition-all font-medium"
+            >
+              <option value="nameAsc">{t('sortNameAsc', 'Name (A–Z)')}</option>
+              <option value="nameDesc">{t('sortNameDesc', 'Name (Z–A)')}</option>
+              <option value="dateNewest">{t('sortDateNewest', 'Registered (Newest)')}</option>
+              <option value="dateOldest">{t('sortDateOldest', 'Registered (Oldest)')}</option>
+              <option value="yearYoungest">{t('sortYearYoungest', 'Birth Year (Youngest)')}</option>
+              <option value="yearOldest">{t('sortYearOldest', 'Birth Year (Oldest)')}</option>
+            </select>
+            <i className="bx bx-sort absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            <i className="bx bx-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          </div>
+        </div>
+      </div>
+
       {loading ? (
         <div className="flex justify-center py-16"><div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>
       ) : (
-        <div className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-100 dark:border-teal-900/30 bg-slate-50 dark:bg-[#0d1520]/50">
+        <div className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 overflow-hidden shadow-sm">
+          <div className="px-5 py-4 border-b border-slate-100 dark:border-teal-900/30 bg-slate-50 dark:bg-[#0d1520]/50 flex items-center justify-between">
             <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
-              <i className="bx bx-group text-indigo-400" /> {t('allStudents', 'All Students')} ({allStudents.length})
+              <i className="bx bx-group text-indigo-400" /> {t('allStudents', 'All Students')} ({sortedStudents.length})
             </h3>
+            <span className="text-xs text-slate-400 font-medium">
+              {t('showingCount', 'Showing')} {paginatedStudents.length} / {sortedStudents.length}
+            </span>
           </div>
-          <div className="divide-y divide-slate-100 dark:divide-teal-900/30 max-h-[600px] overflow-y-auto">
-            {allStudents.length === 0 ? (
-              <p className="text-slate-400 text-sm text-center py-10">{t('noStudentsFound', 'No students found.')}</p>
+
+          <div className="divide-y divide-slate-100 dark:divide-teal-900/30">
+            {paginatedStudents.length === 0 ? (
+              <p className="text-slate-400 text-sm text-center py-12">{t('noStudentsFound', 'No students found.')}</p>
             ) : (
-              allStudents.map(student => {
-                const currentStatus = student.record?.status; // 'present', 'absent', 'late', 'sick'
+              paginatedStudents.map(student => {
+                const currentStatus = student.record?.status; // 'present', 'absent', 'late', 'sick', 'permission'
+                const birthYear = getBirthYear(student.dateOfBirth);
+                const age = getAge(student.dateOfBirth);
+
                 return (
                   <div key={student._id} className="flex flex-col lg:flex-row lg:items-center justify-between px-6 py-4 gap-4 hover:bg-slate-50 dark:hover:bg-[#162030]/30 transition-colors">
                     <div className="flex items-center gap-4">
@@ -170,11 +367,23 @@ const AttendanceTracker = () => {
                         {student.firstName?.charAt(0)}{student.lastName?.charAt(0)}
                       </div>
                       <div>
-                        <p className="text-base font-bold text-slate-800 dark:text-white">
-                          {student.firstName} {student.lastName}
-                        </p>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-base font-bold text-slate-800 dark:text-white">
+                            {student.firstName} {student.lastName}
+                          </p>
+                          {birthYear && (
+                            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40">
+                              {t('born', 'Born')} {birthYear} ({age} {t('yrs', 'yrs')})
+                            </span>
+                          )}
+                          {student.createdAt && (
+                            <span className="text-[11px] text-slate-400 font-medium">
+                              • {t('registered', 'Reg')}: {new Date(student.createdAt).toLocaleDateString()}
+                            </span>
+                          )}
+                        </div>
                         {student.record?.checkIn?.time && (
-                          <p className="text-xs text-slate-400 font-medium mt-0.5 flex items-center gap-1">
+                          <p className="text-xs text-slate-400 font-medium mt-1 flex items-center gap-1">
                             <i className="bx bx-time-five" /> 
                             {t('checkedInAt', 'Checked in at')} {new Date(student.record.checkIn.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                           </p>
@@ -182,8 +391,8 @@ const AttendanceTracker = () => {
                       </div>
                     </div>
                     
-                    {user?.role === 'admin' ? (
-                      <div className="flex items-center">
+                    {isReadOnly ? (
+                      <div className="flex items-center flex-wrap gap-2">
                         {currentStatus === 'present' && (
                           <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
                             <i className="bx bx-user-check text-base" /> {t('present', 'Present')}
@@ -204,6 +413,11 @@ const AttendanceTracker = () => {
                             <i className="bx bx-plus-medical text-base" /> {t('sick', 'Sick')}
                           </span>
                         )}
+                        {(currentStatus === 'permission' || currentStatus === 'authorized-absence' || currentStatus === 'excused') && (
+                          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30">
+                            <i className="bx bx-badge-check text-base" /> {t('permission', 'Permission')}
+                          </span>
+                        )}
                         {!currentStatus && (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-400 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
                             <i className="bx bx-minus text-base" /> {t('notMarked', 'Not Marked')}
@@ -216,9 +430,10 @@ const AttendanceTracker = () => {
                           { id: 'present', label: t('present', 'Present'), icon: 'bx-user-check', activeClass: 'bg-emerald-500 text-white shadow-emerald-500/40', inactiveClass: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20' },
                           { id: 'absent',  label: t('absent', 'Absent'),  icon: 'bx-user-x',     activeClass: 'bg-rose-500 text-white shadow-rose-500/40',    inactiveClass: 'bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20' },
                           { id: 'late',    label: t('late', 'Late'),    icon: 'bx-time',       activeClass: 'bg-amber-500 text-white shadow-amber-500/40',  inactiveClass: 'bg-amber-50 text-amber-600 hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20' },
+                          { id: 'permission', label: t('permission', 'Permission'), icon: 'bx-badge-check', activeClass: 'bg-cyan-500 text-white shadow-cyan-500/40', inactiveClass: 'bg-cyan-50 text-cyan-600 hover:bg-cyan-100 dark:bg-cyan-500/10 dark:text-cyan-400 dark:hover:bg-cyan-500/20' },
                           { id: 'sick',    label: t('sick', 'Sick'),    icon: 'bx-plus-medical',activeClass: 'bg-purple-500 text-white shadow-purple-500/40',inactiveClass: 'bg-purple-50 text-purple-600 hover:bg-purple-100 dark:bg-purple-500/10 dark:text-purple-400 dark:hover:bg-purple-500/20' }
                         ].map(opt => {
-                          const isActive = currentStatus === opt.id;
+                          const isActive = currentStatus === opt.id || (opt.id === 'permission' && (currentStatus === 'authorized-absence' || currentStatus === 'excused'));
                           return (
                             <button
                               key={opt.id}
@@ -241,6 +456,18 @@ const AttendanceTracker = () => {
                 );
               })
             )}
+          </div>
+
+          {/* Pagination */}
+          <div className="px-6 py-3 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-[#0d1929]">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={sortedStudents.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              itemLabel={t('childrenLabel', 'children')}
+            />
           </div>
         </div>
       )}

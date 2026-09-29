@@ -82,26 +82,28 @@ const FeatureMockup = () => {
       return <LiveStreamMonitoring />;
     }
 
-    // ── Children Management ───────────────────────────────────────────────────
-    if (slug.includes('child') || slug.includes('student') || slug.includes('roster')) {
-      return <ChildList />;
-    }
-
     // ── Attendance ────────────────────────────────────────────────────────────
-    if (slug === 'attendance') {
+    if (slug.includes('attendance') || slug.includes('check-in-out')) {
+      if (slug === 'teacher-attendance' || slug === 'provider-attendance' || slug === 'nanny-attendance') {
+        if (role === 'admin') return <AdminTeacherAttendance />;
+        return <TeacherAttendance />;
+      }
+      if (slug === 'student-attendance') {
+        return <StudentAttendance />;
+      }
+      if (slug === 'child-attendance') {
+        if (role === 'admin') return <AttendanceTracker readOnly={true} />;
+        return <AttendanceTracker />;
+      }
       if (role === 'admin') return <AttendanceDashboard />;
-      if (role === 'reception') return <TeacherAttendance />;
+      if (role === 'reception') return <AttendanceTracker />;
       if (role === 'teacher') return <AttendanceTracker />;
       return <AttendanceTracker />;
     }
-    if (slug === 'teacher-attendance') {
-      return <TeacherAttendance />;
-    }
-    if (slug === 'student-attendance') {
-      return <StudentAttendance />;
-    }
-    if (slug.includes('check-in-out')) {
-      return <AttendanceTracker />;
+
+    // ── Children Management ───────────────────────────────────────────────────
+    if (slug.includes('child') || slug.includes('student') || slug.includes('roster')) {
+      return <ChildList />;
     }
 
     // ── Payments / Invoices ───────────────────────────────────────────────────

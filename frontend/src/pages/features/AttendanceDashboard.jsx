@@ -34,7 +34,7 @@ const AttendanceDashboard = () => {
     },
     {
       id: 'teacher',
-      label: t('providerAttendance', 'Provider Attendance'),
+      label: t('childcareProviderAttendance', 'Nanny Attendance'),
       subtitle: t('providerAttendanceSub', 'Monitor Nanny presence synced from reception'),
       icon: 'bx-user-check',
       badge: { text: t('live', 'Live'), color: 'cyan' },
@@ -45,18 +45,24 @@ const AttendanceDashboard = () => {
     <div className="space-y-6">
 
       {/* ── Page heading ──────────────────────────────────── */}
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-widest text-[#00ADB5] mb-1">
-          {t('adminPortalAttendance', 'Admin Portal · Attendance')}
-        </p>
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white leading-tight">
-          {t('attendanceDashboardTitle', 'Attendance Dashboard')}
-        </h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          {new Date().toLocaleDateString('en-US', {
-            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-          })}
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-[#00ADB5] mb-1">
+            {t('adminPortalAttendance', 'Admin Portal · Attendance')}
+          </p>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white leading-tight">
+            {t('attendanceDashboardTitle', 'Attendance Dashboard')}
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            {new Date().toLocaleDateString('en-US', {
+              weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+            })}
+          </p>
+        </div>
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-slate-700">
+          <i className="bx bx-show text-sm text-[#00ADB5]" />
+          <span>{t('viewOnlyAttendance', 'View Only')}</span>
+        </div>
       </div>
 
       {/* ── Tab switcher ──────────────────────────────────── */}

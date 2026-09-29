@@ -18,7 +18,8 @@ const AdminDashboard = () => {
   const [classrooms, setClassrooms] = useState([]);
   const [meals, setMeals] = useState([]);
   const [naps, setNaps] = useState([]);
-  const [announcements, setAnnouncements] = useState([]);
+  const [childAttendance, setChildAttendance] = useState({ records: [], absentChildren: [], summary: {} });
+  const [nannyAttendance, setNannyAttendance] = useState([]);
   const [loading, setLoading] = useState(true);
   const [togglingMode, setTogglingMode] = useState(false);
 
@@ -42,13 +43,14 @@ const AdminDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const [statsRes, paymentsRes, apptsRes, classroomsRes, mealsRes, napsRes] = await Promise.all([
+      const [statsRes, paymentsRes, apptsRes, classroomsRes, mealsRes, childAttRes, nannyAttRes] = await Promise.all([
         api.get('/staff/admin-stats').catch(() => ({ data: { data: {} } })),
         api.get('/payments').catch(() => ({ data: { payments: [] } })),
         api.get('/appointments/upcoming').catch(() => ({ data: { data: [] } })),
         api.get('/classrooms').catch(() => ({ data: { data: [] } })),
         api.get('/meals').catch(() => ({ data: { data: [] } })),
-        api.get('/attendance/today').catch(() => ({ data: { data: { records: [] } } }))
+        api.get('/attendance/today').catch(() => ({ data: { data: { records: [], absentChildren: [], summary: {} } } })),
+        api.get('/teacher-attendance').catch(() => ({ data: { data: [] } }))
       ]);
       setStats(statsRes.data?.data || {});
       const pData = paymentsRes.data || {};
@@ -62,7 +64,10 @@ const AdminDashboard = () => {
       setAppointments(apptsRes.data?.data || []);
       setClassrooms(classroomsRes.data?.data || []);
       setMeals(mealsRes.data?.data || []);
-      setNaps(napsRes.data?.data?.records || []);
+      setChildAttendance(childAttRes.data?.data || { records: [], absentChildren: [], summary: {} });
+      const nData = nannyAttRes.data?.data;
+      setNannyAttendance(Array.isArray(nData) ? nData : []);
+      setNaps(childAttRes.data?.data?.records || []);
       // fetch recent announcements from sent messages
       try {
         const sentRes = await api.get('/messages/sent');
@@ -139,6 +144,57 @@ const AdminDashboard = () => {
     emerald: 'from-emerald-500/20 to-emerald-600/10 border-emerald-500/20 text-emerald-400'
   };
 
+  const childRecords = childAttendance?.records || [];
+  const childSummary = {
+    present: childAttendance?.summary?.present ?? childRecords.filter(r => r.status === 'present').length,
+    absent: (childAttendance?.absentChildren?.length || 0) + childRecords.filter(r => r.status === 'absent').length,
+    late: childAttendance?.summary?.late ?? childRecords.filter(r => r.status === 'late').length,
+    permission: childAttendance?.summary?.permission ?? childRecords.filter(r => ['permission', 'authorized-absence', 'excused'].includes(r.status)).length,
+    sick: childAttendance?.summary?.sick ?? childRecords.filter(r => r.status === 'sick').length
+  };
+  const totalChildrenEnrolled = stats?.totalChildren || (childSummary.present + childSummary.absent + childSummary.permission + childSummary.late + childSummary.sick) || 0;
+  const childAttendanceRate = totalChildrenEnrolled > 0 ? Math.round((childSummary.present / totalChildrenEnrolled) * 100) : 0;
+
+  const totalNannies = nannyAttendance.length;
+  const nannySummary = {
+    present: nannyAttendance.filter(t => t.status === 'present').length,
+    late: nannyAttendance.filter(t => t.status === 'late').length,
+    absent: nannyAttendance.filter(t => t.status === 'absent').length,
+    onLeave: nannyAttendance.filter(t => t.status === 'on-leave').length
+  };
+  const nannyPresenceRate = totalNannies > 0 ? Math.round((nannySummary.present / totalNannies) * 100) : 0;
+
+  const previewChildren = useMemo(() => {
+    const list = [];
+    if (childAttendance?.records) {
+      childAttendance.records.forEach(r => {
+        if (r.child) {
+          list.push({
+            id: r.child._id,
+            name: `${r.child.firstName || ''} ${r.child.lastName || ''}`.trim(),
+            status: r.status,
+            time: r.checkIn?.time
+          });
+        }
+      });
+    }
+    if (childAttendance?.absentChildren) {
+      childAttendance.absentChildren.forEach(c => {
+        list.push({
+          id: c._id,
+          name: `${c.firstName || ''} ${c.lastName || ''}`.trim(),
+          status: 'absent',
+          time: null
+        });
+      });
+    }
+    return list.slice(0, 5);
+  }, [childAttendance]);
+
+  const previewNannies = useMemo(() => {
+    return (nannyAttendance || []).slice(0, 5);
+  }, [nannyAttendance]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -172,6 +228,158 @@ const AdminDashboard = () => {
             </div>
           </Link>
         ))}
+      </div>
+
+      {/* ── Today's Attendance Overview ───────────────────────────── */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400">
+              <i className="bx bx-calendar-check text-xl" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white">{t('todaysAttendance', "Today's Attendance")}</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {t('viewOnlyAttendance', 'View Only')} · {t('attendancePortal', 'Attendance Portal')}
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/dashboard/admin/attendance"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-800/40 text-xs font-semibold hover:bg-teal-100 transition-colors"
+          >
+            <span>{t('attendanceDashboard', 'Attendance Center')}</span>
+            <i className="bx bx-right-arrow-alt text-base" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Children Attendance Card */}
+          <div className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 p-5 shadow-sm">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-teal-900/30">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500">
+                  <i className="bx bx-face text-2xl" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-slate-800 dark:text-white text-base">
+                    {t('childrenAttendance', "Children's Attendance")}
+                  </h4>
+                  <p className="text-xs text-slate-400">
+                    {childSummary.present} / {totalChildrenEnrolled} {t('present', 'Present')} ({childAttendanceRate}%)
+                  </p>
+                </div>
+              </div>
+              <Link
+                to="/dashboard/admin/attendance"
+                className="text-xs font-semibold text-indigo-500 hover:text-indigo-600 flex items-center gap-1"
+              >
+                {t('viewDetails', 'View Full Roster')} <i className="bx bx-chevron-right" />
+              </Link>
+            </div>
+
+            {/* Stat counts */}
+            <div className="grid grid-cols-5 gap-2 my-4">
+              {[
+                { label: t('present', 'Present'), value: childSummary.present, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+                { label: t('absent', 'Absent'), value: childSummary.absent, color: 'text-rose-500', bg: 'bg-rose-500/10' },
+                { label: t('late', 'Late'), value: childSummary.late, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+                { label: t('permission', 'Perm'), value: childSummary.permission, color: 'text-cyan-500', bg: 'bg-cyan-500/10' },
+                { label: t('sick', 'Sick'), value: childSummary.sick, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+              ].map(s => (
+                <div key={s.label} className={`${s.bg} rounded-xl p-2 text-center`}>
+                  <p className={`text-base font-bold ${s.color}`}>{s.value}</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5 truncate">{s.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Preview of up to 5 children */}
+            <div className="space-y-2 border-t border-slate-100 dark:border-teal-900/30 pt-3">
+              {previewChildren.length === 0 ? (
+                <p className="text-xs text-slate-400 text-center py-3">{t('noStudentsFound', 'No children attendance records today.')}</p>
+              ) : (
+                previewChildren.map(c => (
+                  <div key={c.id} className="flex items-center justify-between text-xs py-1">
+                    <span className="font-medium text-slate-700 dark:text-slate-300 truncate">{c.name}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                      c.status === 'present' ? 'bg-emerald-500/10 text-emerald-500' :
+                      c.status === 'absent' ? 'bg-rose-500/10 text-rose-500' :
+                      c.status === 'late' ? 'bg-amber-500/10 text-amber-500' :
+                      (c.status === 'permission' || c.status === 'authorized-absence' || c.status === 'excused') ? 'bg-cyan-500/10 text-cyan-500' :
+                      c.status === 'sick' ? 'bg-purple-500/10 text-purple-500' :
+                      'bg-slate-500/10 text-slate-400'
+                    }`}>
+                      {t(c.status || 'notMarked', c.status || 'Not Marked')}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Nanny & Provider Attendance Card */}
+          <div className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 p-5 shadow-sm">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-teal-900/30">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400">
+                  <i className="bx bxs-graduation text-2xl" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-slate-800 dark:text-white text-base">
+                    {t('nannyAttendance', "Nannies & Providers")}
+                  </h4>
+                  <p className="text-xs text-slate-400">
+                    {nannySummary.present} / {totalNannies} {t('present', 'Present')} ({nannyPresenceRate}%)
+                  </p>
+                </div>
+              </div>
+              <Link
+                to="/dashboard/admin/teacher-attendance"
+                className="text-xs font-semibold text-teal-400 hover:text-teal-300 flex items-center gap-1"
+              >
+                {t('viewDetails', 'View Full Roster')} <i className="bx bx-chevron-right" />
+              </Link>
+            </div>
+
+            {/* Stat counts */}
+            <div className="grid grid-cols-4 gap-2 my-4">
+              {[
+                { label: t('present', 'Present'), value: nannySummary.present, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+                { label: t('late', 'Late'), value: nannySummary.late, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+                { label: t('absent', 'Absent'), value: nannySummary.absent, color: 'text-rose-500', bg: 'bg-rose-500/10' },
+                { label: t('onLeave', 'Leave'), value: nannySummary.onLeave, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+              ].map(s => (
+                <div key={s.label} className={`${s.bg} rounded-xl p-2 text-center`}>
+                  <p className={`text-base font-bold ${s.color}`}>{s.value}</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5 truncate">{s.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Preview of up to 5 nannies */}
+            <div className="space-y-2 border-t border-slate-100 dark:border-teal-900/30 pt-3">
+              {previewNannies.length === 0 ? (
+                <p className="text-xs text-slate-400 text-center py-3">{t('noStaffFound', 'No nannies/providers found.')}</p>
+              ) : (
+                previewNannies.map(n => (
+                  <div key={n.id} className="flex items-center justify-between text-xs py-1">
+                    <span className="font-medium text-slate-700 dark:text-slate-300 truncate">{n.fullName}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                      n.status === 'present' ? 'bg-emerald-500/10 text-emerald-500' :
+                      n.status === 'late' ? 'bg-amber-500/10 text-amber-500' :
+                      n.status === 'absent' ? 'bg-rose-500/10 text-rose-500' :
+                      n.status === 'on-leave' ? 'bg-purple-500/10 text-purple-500' :
+                      'bg-slate-500/10 text-slate-400'
+                    }`}>
+                      {t(n.status || 'absent', n.status || 'Absent')}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -261,7 +469,7 @@ const AdminDashboard = () => {
             { label: t('addParent'), icon: 'bx-group', action: () => openModal('parent'), color: 'purple' },
             { label: t('addStaff'), icon: 'bx-id-card', action: () => openModal('staff'), color: 'cyan' },
             { label: t('newInvoice'), icon: 'bx-receipt', path: '/dashboard/admin/invoices', color: 'emerald' },
-            { label: t('attendance'), icon: 'bx-calendar-check', path: '/dashboard/admin/check-in-out', color: 'amber' },
+            { label: t('attendance'), icon: 'bx-calendar-check', path: '/dashboard/admin/attendance', color: 'amber' },
             { label: t('classrooms'), icon: 'bx-buildings', path: '/dashboard/admin/classrooms', color: 'rose' },
             { label: t('sendMessage'), icon: 'bx-message-square-add', path: '/dashboard/admin/messages', color: 'violet' },
             { label: t('viewReports'), icon: 'bx-file', path: '/dashboard/admin/daily-report', color: 'slate' }
@@ -434,6 +642,109 @@ const AdminDashboard = () => {
               <i className="bx bx-moon text-2xl text-teal-400" />
               <p className="text-2xl font-bold text-slate-800 dark:text-white mt-2">{naps.filter(n => n.napStart && !n.napEnd).length}</p>
               <p className="text-xs text-slate-500">{t('currentlyNapping')}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Today's Attendance Overview (Children & Nanny Attendance - View Only) */}
+      <div className="bg-white dark:bg-[#111c2d] rounded-2xl border border-slate-200 dark:border-teal-900/30 p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-100 dark:border-teal-900/20">
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
+                <i className="bx bx-calendar-check text-[#00ADB5] text-xl" /> {t('todaysAttendance', "Today's Attendance")}
+              </h3>
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                {t('viewOnlyAttendance', 'View Only')}
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-1">
+              {t('viewOnlyDesc', 'Child attendance is recorded by teachers and reception desk. Admin view is read-only.')}
+            </p>
+          </div>
+          <Link
+            to="/dashboard/admin/attendance"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#00ADB5] hover:text-[#00ADB5]/80 bg-[#00ADB5]/10 px-3.5 py-1.5 rounded-xl transition-colors self-start sm:self-auto"
+          >
+            {t('attendancePortal', 'Attendance Portal')} <i className="bx bx-right-arrow-alt text-sm" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Children Attendance Overview Card */}
+          <div className="rounded-xl p-4 bg-slate-50 dark:bg-[#0d1520] border border-slate-100 dark:border-teal-900/20 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                  <i className="bx bx-child text-indigo-500 text-lg" /> {t('childrenAttendance', 'Children Attendance')}
+                </span>
+                <Link to="/dashboard/admin/attendance" className="text-xs text-indigo-400 hover:underline">
+                  {t('viewAll', 'View all →')}
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+                <div className="bg-emerald-500/10 rounded-lg p-2.5 text-center">
+                  <p className="text-base font-bold text-emerald-500">{childSummary.present}</p>
+                  <p className="text-[11px] text-slate-500">{t('present', 'Present')}</p>
+                </div>
+                <div className="bg-rose-500/10 rounded-lg p-2.5 text-center">
+                  <p className="text-base font-bold text-rose-500">{childSummary.absent}</p>
+                  <p className="text-[11px] text-slate-500">{t('absent', 'Absent')}</p>
+                </div>
+                <div className="bg-cyan-500/10 rounded-lg p-2.5 text-center">
+                  <p className="text-base font-bold text-cyan-500">{childSummary.permission}</p>
+                  <p className="text-[11px] text-slate-500">{t('permission', 'Permission')}</p>
+                </div>
+                <div className="bg-amber-500/10 rounded-lg p-2.5 text-center">
+                  <p className="text-base font-bold text-amber-500">{childSummary.late}</p>
+                  <p className="text-[11px] text-slate-500">{t('late', 'Late')}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-slate-200/60 dark:border-teal-900/20 text-xs text-slate-400 flex items-center justify-between">
+              <span>{t('totalChildren', 'Total Children')}: <strong>{totalChildrenEnrolled}</strong></span>
+              <span className="text-emerald-500 font-semibold">{childAttendanceRate}% {t('present', 'Present')}</span>
+            </div>
+          </div>
+
+          {/* Nanny Attendance Overview Card */}
+          <div className="rounded-xl p-4 bg-slate-50 dark:bg-[#0d1520] border border-slate-100 dark:border-teal-900/20 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                  <i className="bx bx-user-check text-[#00ADB5] text-lg" /> {t('childcareProviderAttendance', 'Nanny Attendance')}
+                </span>
+                <Link to="/dashboard/admin/teacher-attendance" className="text-xs text-[#00ADB5] hover:underline">
+                  {t('viewAll', 'View all →')}
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+                <div className="bg-emerald-500/10 rounded-lg p-2.5 text-center">
+                  <p className="text-base font-bold text-emerald-500">{nannySummary.present}</p>
+                  <p className="text-[11px] text-slate-500">{t('present', 'Present')}</p>
+                </div>
+                <div className="bg-amber-500/10 rounded-lg p-2.5 text-center">
+                  <p className="text-base font-bold text-amber-500">{nannySummary.late}</p>
+                  <p className="text-[11px] text-slate-500">{t('late', 'Late')}</p>
+                </div>
+                <div className="bg-purple-500/10 rounded-lg p-2.5 text-center">
+                  <p className="text-base font-bold text-purple-500">{nannySummary.onLeave}</p>
+                  <p className="text-[11px] text-slate-500">{t('onLeave', 'On Leave')}</p>
+                </div>
+                <div className="bg-rose-500/10 rounded-lg p-2.5 text-center">
+                  <p className="text-base font-bold text-rose-500">{nannySummary.absent}</p>
+                  <p className="text-[11px] text-slate-500">{t('absent', 'Absent')}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-slate-200/60 dark:border-teal-900/20 text-xs text-slate-400 flex items-center justify-between">
+              <span>{t('totalProviders', 'Total Nannies')}: <strong>{totalNannies}</strong></span>
+              <span className="text-[#00ADB5] font-semibold">{nannyPresenceRate}% {t('present', 'Present')}</span>
             </div>
           </div>
         </div>

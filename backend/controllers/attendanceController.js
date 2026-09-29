@@ -81,7 +81,7 @@ const getTodayAttendance = async (req, res) => {
 
     const records = await Attendance.find(query)
       .select('child classroom date checkIn checkOut status notes napStart napEnd napQuality')
-      .populate('child', 'firstName lastName')
+      .populate('child', 'firstName lastName dateOfBirth createdAt enrollmentDate')
       .populate('classroom', 'name')
       .lean()
       .maxTimeMS(5000);
@@ -90,12 +90,17 @@ const getTodayAttendance = async (req, res) => {
     let allChildren = [];
     if (classroomId) {
       allChildren = await Child.find({ classroom: classroomId, status: 'active' })
-        .select('firstName lastName')
+        .select('firstName lastName dateOfBirth createdAt enrollmentDate classroom')
         .lean()
         .maxTimeMS(5000);
     } else if (req.user?.role === 'parent') {
       allChildren = await Child.find({ parent: req.user._id, status: 'active' })
-        .select('firstName lastName')
+        .select('firstName lastName dateOfBirth createdAt enrollmentDate classroom')
+        .lean()
+        .maxTimeMS(5000);
+    } else {
+      allChildren = await Child.find({ status: 'active' })
+        .select('firstName lastName dateOfBirth createdAt enrollmentDate classroom')
         .lean()
         .maxTimeMS(5000);
     }
@@ -116,9 +121,10 @@ const getTodayAttendance = async (req, res) => {
         absentChildren,
         summary: {
           present: records.filter(r => r.status === 'present').length,
-          absent: absentChildren.length,
+          absent: absentChildren.length + records.filter(r => r.status === 'absent').length,
           late: records.filter(r => r.status === 'late').length,
-          sick: records.filter(r => r.status === 'sick').length
+          sick: records.filter(r => r.status === 'sick').length,
+          permission: records.filter(r => ['permission', 'authorized-absence', 'excused'].includes(r.status)).length
         }
       }
     });
@@ -130,7 +136,7 @@ const getTodayAttendance = async (req, res) => {
       data: {
         records: [],
         absentChildren: [],
-        summary: { present: 0, absent: 0, late: 0, sick: 0 }
+        summary: { present: 0, absent: 0, late: 0, sick: 0, permission: 0 }
       }
     });
   }

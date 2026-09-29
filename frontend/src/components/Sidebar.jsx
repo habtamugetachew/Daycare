@@ -96,7 +96,11 @@ const Sidebar = () => {
       { labelKey: 'studentList', icon: GraduationCap },
       { labelKey: 'capacity', icon: Gauge }
     ]},
-    { titleKey: 'attendance', icon: CalendarCheck, path: `/dashboard/${user.role}/attendance`, roles: ['teacher', 'admin'] },
+    { titleKey: 'attendance', icon: CalendarCheck, roles: ['admin'], subItems: [
+      { labelKey: 'childAttendance', icon: Baby, path: '/dashboard/admin/attendance' },
+      { labelKey: 'childcareProviderAttendance', icon: UserCheck, path: '/dashboard/admin/teacher-attendance' }
+    ]},
+    { titleKey: 'attendance', icon: CalendarCheck, path: `/dashboard/${user.role}/attendance`, roles: ['teacher'] },
     { titleKey: 'myChildren', icon: Baby, roles: ['parent'], subItems: [
       { labelKey: 'registerChild', icon: UserPlus, path: '/dashboard/parent/register-child' },
       { labelKey: 'childProfile', icon: Baby, path: '/dashboard/parent/profile-card' },
