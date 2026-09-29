@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { validateEthPhone } from '../../utils/phoneValidation';
 
 const VisitorLog = () => {
   const [visitors, setVisitors] = useState([]);
@@ -9,6 +10,7 @@ const VisitorLog = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [children, setChildren] = useState([]);
+  const [phoneError, setPhoneError] = useState('');
 
   const emptyForm = {
     fullName: '', phone: '', purpose: '', host: '',
@@ -36,6 +38,12 @@ const VisitorLog = () => {
   const handleCheckIn = async (e) => {
     e.preventDefault();
     setError('');
+    const validationMessage = validateEthPhone(form.phone);
+    if (validationMessage) {
+      setPhoneError(validationMessage);
+      return;
+    }
+    setPhoneError('');
     try {
       await api.post('/visitors/checkin', form);
       setSuccess('Visitor checked in!');
@@ -93,9 +101,15 @@ const VisitorLog = () => {
             ].map(f => (
               <div key={f.key}>
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1 block">{f.label}</label>
-                <input type={f.type} required={f.required} placeholder={f.placeholder || ''} value={form[f.key]}
-                  onChange={e => setForm({ ...form, [f.key]: e.target.value })}
+                <input type={f.key === 'badgeNumber' ? 'text' : f.type} inputMode={f.key === 'badgeNumber' ? 'numeric' : undefined}
+                  pattern={f.key === 'badgeNumber' ? '[0-9]*' : undefined} required={f.required} placeholder={f.placeholder || ''} value={form[f.key]}
+                  onChange={e => {
+                    const value = f.key === 'badgeNumber' ? e.target.value.replace(/\D/g, '') : e.target.value;
+                    setForm({ ...form, [f.key]: value });
+                    if (f.key === 'phone') setPhoneError(validateEthPhone(value));
+                  }}
                   className="w-full border border-slate-200 dark:border-teal-900/40 rounded-xl px-4 py-2.5 text-sm bg-white dark:bg-[#0d1520] text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                {f.key === 'phone' && phoneError && <p className="mt-1 text-xs text-rose-500">{phoneError}</p>}
               </div>
             ))}
             <div>

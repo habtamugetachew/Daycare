@@ -32,8 +32,22 @@ const getVisitors = async (req, res) => {
 // @access  Private (admin, reception)
 const checkInVisitor = async (req, res) => {
   try {
+    const phone = typeof req.body.phone === 'string' ? req.body.phone.trim().replace(/\s+/g, '') : '';
+    const badgeNumber = typeof req.body.badgeNumber === 'string' ? req.body.badgeNumber.trim() : '';
+    const validEthiopianPhone = /^(?:(?:\+251|251)[97]|0[97])\d{8}$/;
+
+    if (phone && !validEthiopianPhone.test(phone)) {
+      return res.status(400).json({ success: false, message: 'Enter a valid Ethio Telecom (09) or Safaricom ET (07) phone number.' });
+    }
+
+    if (badgeNumber && !/^\d+$/.test(badgeNumber)) {
+      return res.status(400).json({ success: false, message: 'Badge number must contain digits only.' });
+    }
+
     const visitor = await Visitor.create({
       ...req.body,
+      phone,
+      badgeNumber,
       checkIn: new Date(),
       status: 'checked-in',
       recordedBy: req.user._id

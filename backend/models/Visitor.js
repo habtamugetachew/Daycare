@@ -43,6 +43,7 @@ const visitorSchema = new mongoose.Schema(
     badgeNumber: {
       type: String,
       trim: true,
+      match: [/^\d*$/, 'Badge number must contain digits only'],
       default: ''
     },
     status: {
