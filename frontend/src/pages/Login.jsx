@@ -123,6 +123,13 @@ const Login = () => {
     }
   };
 
+  // ⚡ Preload protected dashboard bundles in the background on interaction
+  const preloadDashboards = () => {
+    import('../pages/dashboards/AdminDashboard').catch(() => {});
+    import('../pages/dashboards/ParentDashboard').catch(() => {});
+    import('../pages/dashboards/TeacherDashboard').catch(() => {});
+    import('../pages/dashboards/ReceptionDashboard').catch(() => {});
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -164,7 +171,7 @@ const Login = () => {
       <div
         className="absolute inset-0 z-0 bg-cover bg-center no-repeat transition-all duration-500 scale-[1.05]"
         style={{
-          backgroundImage: `url('${theme === 'dark' ? '/assets/images/darkmode.png' : '/assets/images/login.png'}')`,
+          backgroundImage: `url('${theme === 'dark' ? '/assets/optimized/darkmode.webp' : '/assets/optimized/login.webp'}')`,
           filter: theme === 'dark' ? 'none' : 'brightness(1.15)',
         }}
       />
@@ -195,7 +202,7 @@ const Login = () => {
           }}>
           <div className="ministry-logo w-20 h-20 mx-auto mb-4 bg-white/15 border border-white/30 rounded-2xl flex items-center justify-center p-2 shadow-lg">
             <img
-              src="/assets/images/icon.png"
+              src="/assets/optimized/icon.webp"
               alt="Logo"
               className="w-full h-full object-contain rounded-lg"
             />
@@ -304,6 +311,9 @@ const Login = () => {
             <button
               type="submit"
               disabled={isSubmitting}
+              onMouseEnter={preloadDashboards}
+              onFocus={preloadDashboards}
+              onTouchStart={preloadDashboards}
               className="w-full py-3.5 text-[15px] font-bold text-white rounded-[2rem] bg-[var(--primary-dark)] border-none shadow-[0_4px_14px_rgba(0,107,112,0.35)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,107,112,0.45)] active:translate-y-0 transition-all duration-200 focus:outline-none flex items-center justify-center gap-2"
               style={{ boxShadow: 'var(--shadow-glow-secondary)' }}
             >
@@ -320,31 +330,35 @@ const Login = () => {
               <div className="flex-grow border-t" style={{ borderColor: theme === 'dark' ? 'rgba(0,174,181,0.2)' : 'var(--border)' }}></div>
             </div>
 
-            {/* Hidden div where GIS renders the real Google button (triggered programmatically) */}
-            <div ref={googleBtnRef} style={{ position: 'absolute', left: '-9999px', top: 0, width: '320px' }} aria-hidden="true" />
-
-            {/* Social Google Login Button (custom styled, triggers hidden GIS button) */}
-            <button
-              type="button"
-              onClick={handleGoogleLogin}
-              disabled={isGoogleLoading}
-              className="w-full py-3 text-xs font-bold border rounded-[2rem] shadow-sm transition-all flex items-center justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-60"
-              style={{
-                background: theme === 'dark' ? '#0d1e2c' : '#ffffff',
-                color: theme === 'dark' ? '#e2e8f0' : '#374151',
-                borderColor: theme === 'dark' ? 'rgba(0,174,181,0.25)' : 'var(--border)',
-              }}
-            >
-              {/* Real Google logo SVG with brand colors */}
-              <svg className="w-4 h-4" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
-                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
-                <path fill="none" d="M0 0h48v48H0z" />
-              </svg>
-              {isGoogleLoading ? t('signingIn') : t('continueWithGoogle')}
-            </button>
+            {/* Social Google Login Button with transparent GIS overlay */}
+            <div className="relative w-full overflow-hidden rounded-[2rem]">
+              <div
+                ref={googleBtnRef}
+                className="absolute inset-0 z-10 flex items-center justify-center opacity-[0.0001] cursor-pointer overflow-hidden"
+                style={{ transform: 'scale(1.2)' }}
+              />
+              <button
+                type="button"
+                onClick={handleGoogleLogin}
+                disabled={isGoogleLoading}
+                className="w-full py-3 text-xs font-bold border rounded-[2rem] shadow-sm transition-all flex items-center justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-60"
+                style={{
+                  background: theme === 'dark' ? '#0d1e2c' : '#ffffff',
+                  color: theme === 'dark' ? '#e2e8f0' : '#374151',
+                  borderColor: theme === 'dark' ? 'rgba(0,174,181,0.25)' : 'var(--border)',
+                }}
+              >
+                {/* Real Google logo SVG with brand colors */}
+                <svg className="w-4 h-4" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                  <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                  <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                  <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                  <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                  <path fill="none" d="M0 0h48v48H0z" />
+                </svg>
+                {isGoogleLoading ? t('signingIn') : t('continueWithGoogle')}
+              </button>
+            </div>
 
             {/* Create Account Link */}
             <Link

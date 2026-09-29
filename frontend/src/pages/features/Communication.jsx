@@ -172,6 +172,8 @@ const Communication = () => {
   const [inbox, setInbox] = useState([]);
   const [sentMessages, setSentMessages] = useState([]);
   const [contacts, setContacts] = useState([]);
+  const [contactsLoading, setContactsLoading] = useState(false);
+  const [contactsError, setContactsError] = useState('');
   const [selected, setSelected] = useState(null);
   const [thread, setThread] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -262,45 +264,46 @@ const Communication = () => {
   }, [inbox, sentMessages, user?._id, tick]);
 
   // ── Fetch data ──────────────────────────────────────────────────────────────
+  const parseAnnouncements = useCallback((msgs) => {
+    const staffRoles = ['admin', 'teacher', 'reception', 'staff'];
+    const grouped = new Map();
+    msgs.filter(m => staffRoles.includes(m.sender?.role) && m.subject?.startsWith('[Announcement]')).forEach(msg => {
+      const key = msg.broadcastId || `${msg.subject}__${Math.floor(new Date(msg.createdAt).getTime() / 5000)}`;
+      if (!grouped.has(key)) {
+        grouped.set(key, {
+          _id: msg._id,
+          broadcastId: key,
+          subject: msg.subject,
+          body: msg.body,
+          sender: msg.sender,
+          priority: msg.priority,
+          broadcastGroup: msg.broadcastGroup,
+          broadcastCount: msg.broadcastCount,
+          createdAt: msg.createdAt,
+        });
+      }
+    });
+    return Array.from(grouped.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }, []);
+
   const fetchInbox = useCallback(async () => {
     try {
       const res = await api.get('/messages/inbox');
-      setInbox(res.data.data || []);
+      const data = res.data.data || [];
+      setInbox(data);
       setUnread(res.data.unreadCount || 0);
-    } catch { /* silent */ }
-  }, []);
+      if (!canAnnounce) {
+        setAnnouncements(parseAnnouncements(data));
+      }
+      return data;
+    } catch { return []; }
+  }, [canAnnounce, parseAnnouncements]);
 
   const fetchAnnouncements = useCallback(async () => {
+    if (!canAnnounce) return;
     try {
-      if (canAnnounce) {
-        // Admin/teacher: fetch their own sent announcements (grouped by broadcast)
-        const res = await api.get('/messages/announcements');
-        setAnnouncements(res.data.data || []);
-      } else {
-        // Parents/staff: show announcements received in inbox
-        const res = await api.get('/messages/inbox');
-        const msgs = res.data.data || [];
-        const staffRoles = ['admin', 'teacher', 'reception', 'staff'];
-        // Group received announcements by broadcastId or subject+window
-        const grouped = new Map();
-        msgs.filter(m => staffRoles.includes(m.sender?.role) && m.subject?.startsWith('[Announcement]')).forEach(msg => {
-          const key = msg.broadcastId || `${msg.subject}__${Math.floor(new Date(msg.createdAt).getTime() / 5000)}`;
-          if (!grouped.has(key)) {
-            grouped.set(key, {
-              _id: msg._id,
-              broadcastId: key,
-              subject: msg.subject,
-              body: msg.body,
-              sender: msg.sender,
-              priority: msg.priority,
-              broadcastGroup: msg.broadcastGroup,
-              broadcastCount: msg.broadcastCount,
-              createdAt: msg.createdAt,
-            });
-          }
-        });
-        setAnnouncements(Array.from(grouped.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
-      }
+      const res = await api.get('/messages/announcements');
+      setAnnouncements(res.data.data || []);
     } catch { /* silent */ }
   }, [canAnnounce]);
 
@@ -359,37 +362,89 @@ const Communication = () => {
 
 
   const fetchContacts = useCallback(async () => {
+    setContactsLoading(true);
+    setContactsError('');
+    const currentUserId = user?._id || user?.id;
+    const userRole = user?.role;
     const parentContactRoles = ['teacher', 'reception', 'admin'];
-    const filterParentContacts = (contactsList) => contactsList
-      .filter(c => c._id !== user._id)
-      .filter(c => user.role === 'parent' ? parentContactRoles.includes(c.role) : true);
+
+    const normalizeAndFilter = (list) => {
+      const seen = new Set();
+      return (list || []).filter(c => {
+        if (!c || !c._id) return false;
+        const idStr = String(c._id);
+        if (idStr === String(currentUserId)) return false;
+        if (userRole === 'parent' && !parentContactRoles.includes(c.role)) return false;
+        if (seen.has(idStr)) return false;
+        seen.add(idStr);
+        return true;
+      });
+    };
 
     try {
-      const res = await api.get('/staff/contacts');
-      setContacts(filterParentContacts(res.data.data || []));
-    } catch {
+      console.log('[Communication] Fetching contacts for role:', userRole);
+      let rawContacts = [];
+
+      // 1. Fetch from /staff/contacts
       try {
-        const res = await api.get('/classrooms');
-        const teachers = (res.data.data || [])
-          .filter(c => c.teacher)
-          .map(c => c.teacher)
-          .filter((t, i, arr) => arr.findIndex(x => x._id === t._id) === i);
+        const res = await api.get('/staff/contacts');
+        const list = Array.isArray(res.data?.data) ? res.data.data : (Array.isArray(res.data) ? res.data : []);
+        console.log('[Communication] /api/staff/contacts returned:', list.length);
+        rawContacts.push(...list);
+      } catch (cErr) {
+        console.warn('[Communication] /staff/contacts fetch error:', cErr.message);
+      }
 
-        const receptionRes = await api.get('/staff?role=reception');
-        const adminRes = await api.get('/staff?role=admin');
+      // 2. For admin and reception, also fetch from /staff/parents to guarantee all parents are loaded
+      if (['admin', 'reception'].includes(userRole)) {
+        try {
+          const parentsRes = await api.get('/staff/parents');
+          const parentsList = (parentsRes.data?.data || []).map(p => ({
+            _id: p._id,
+            fullName: p.fullName,
+            email: p.email,
+            phone: p.phone,
+            role: 'parent',
+            avatar: p.avatar
+          }));
+          console.log('[Communication] /api/staff/parents returned:', parentsList.length);
+          rawContacts.push(...parentsList);
+        } catch (pErr) {
+          console.warn('[Communication] /staff/parents fetch error:', pErr.message);
+        }
 
-        const fallbackContacts = [
-          ...teachers,
-          ...(receptionRes.data.data || []),
-          ...(adminRes.data.data || [])
-        ].filter((contact, index, array) =>
-          array.findIndex(item => item._id.toString() === contact._id.toString()) === index
-        );
+        // 3. Also fetch all staff members from /staff
+        try {
+          const staffRes = await api.get('/staff');
+          const staffList = staffRes.data?.data || [];
+          console.log('[Communication] /api/staff returned:', staffList.length);
+          rawContacts.push(...staffList);
+        } catch (sErr) {
+          console.warn('[Communication] /staff fetch error:', sErr.message);
+        }
+      }
 
-        setContacts(filterParentContacts(fallbackContacts));
-      } catch { setContacts([]); }
+      const finalContacts = normalizeAndFilter(rawContacts);
+      console.log('[Communication] Final combined contacts count:', finalContacts.length);
+      setContacts(finalContacts);
+
+      if (finalContacts.length === 0) {
+        setContactsError('No user contacts could be loaded. Please click "Reload Contacts" to retry.');
+      }
+    } catch (err) {
+      console.error('[Communication] fetchContacts fatal error:', err);
+      setContactsError(err.response?.data?.message || err.message || 'Failed to load contacts');
+    } finally {
+      setContactsLoading(false);
     }
-  }, [user._id, user.role]);
+  }, [user?._id, user?.id, user?.role]);
+
+  // Ensure contacts are loaded whenever announcement form is opened
+  useEffect(() => {
+    if (showAnnounceForm && contacts.length === 0) {
+      fetchContacts();
+    }
+  }, [showAnnounceForm, contacts.length, fetchContacts]);
 
   const fetchSent = useCallback(async () => {
     try {
@@ -401,11 +456,16 @@ const Communication = () => {
   useEffect(() => {
     const init = async () => {
       setLoading(true);
-      await Promise.all([fetchAnnouncements(), fetchInbox(), fetchSent(), fetchContacts()]);
+      await Promise.all([
+        fetchInbox(),
+        canAnnounce ? fetchAnnouncements() : Promise.resolve(),
+        fetchSent(),
+        fetchContacts()
+      ]);
       setLoading(false);
     };
     init();
-  }, [fetchAnnouncements, fetchInbox, fetchContacts]);
+  }, [fetchAnnouncements, fetchInbox, fetchSent, fetchContacts, canAnnounce]);
 
   useEffect(() => {
     if (loading) return;
@@ -773,7 +833,17 @@ const Communication = () => {
           {/* New Announcement — announcements tab + admin/teacher only */}
           {tab === 'announcements' && canAnnounce && (
             <button
-              onClick={() => { setShowAnnounceForm(p => !p); setShowCompose(false); setError(''); if (showAnnounceForm) { setEditingAnnouncement(null); setAnnounceForm(emptyAnnounce); setAnnounceTarget('all'); } }}
+              onClick={() => {
+                setShowAnnounceForm(p => !p);
+                setShowCompose(false);
+                setError('');
+                fetchContacts();
+                if (showAnnounceForm) {
+                  setEditingAnnouncement(null);
+                  setAnnounceForm(emptyAnnounce);
+                  setAnnounceTarget('all');
+                }
+              }}
               className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl font-semibold transition-colors text-sm"
             >
               <i className={`bx ${showAnnounceForm ? 'bx-x' : 'bx-megaphone'}`} />
@@ -816,10 +886,27 @@ const Communication = () => {
             <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
               <div className="space-y-4">
                 <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1 block">{t('sendTo', 'Send To')} *</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block">{t('sendTo', 'Send To')} *</label>
+                    <button
+                      type="button"
+                      onClick={fetchContacts}
+                      disabled={contactsLoading}
+                      className="text-xs text-amber-500 hover:text-amber-600 dark:hover:text-amber-400 hover:underline flex items-center gap-1 font-medium disabled:opacity-50 cursor-pointer"
+                    >
+                      <i className={`bx bx-refresh text-base ${contactsLoading ? 'animate-spin' : ''}`} />
+                      {contactsLoading ? 'Loading users...' : contacts.length > 0 ? `✓ ${contacts.length} users ready` : 'Reload Contacts'}
+                    </button>
+                  </div>
+                  {contactsError && (
+                    <p className="text-xs text-rose-500 font-medium mb-1.5 flex items-center gap-1">
+                      <i className="bx bx-error-circle" /> {contactsError}
+                    </p>
+                  )}
                   <select
                     value={announceTarget}
                     onChange={e => setAnnounceTarget(e.target.value)}
+                    onFocus={() => { if (contacts.length === 0) fetchContacts(); }}
                     className={INPUT}
                   >
                     <optgroup label="── Groups ──">

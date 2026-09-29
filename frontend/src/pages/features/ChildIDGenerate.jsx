@@ -43,7 +43,7 @@ const IDFront = ({ child, studentId }) => {
         overflow: 'hidden',
         boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
         flexShrink: 0,
-        backgroundImage: 'url(/assets/images/daycare-bg-front.png)',
+        backgroundImage: 'url(/assets/optimized/daycare-bg-front.webp)',
         backgroundPosition: 'bottom center',
         backgroundSize: '100% auto',
         backgroundRepeat: 'no-repeat',
@@ -61,7 +61,7 @@ const IDFront = ({ child, studentId }) => {
         {/* Top bar: Logo + Allergy */}
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', padding:'16px 20px 0' }}>
           <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-            <img src="/assets/images/mint-logo.png" alt="MinT" style={{ width:42, height:42, objectFit:'contain' }} />
+            <img src="/assets/optimized/mint-logo.webp" alt="MinT" style={{ width:42, height:42, objectFit:'contain' }} />
             <div style={{ lineHeight:1.1 }}>
               <div style={{ fontSize:'22px', fontWeight:900, color:'#1a5c2a', letterSpacing:'-0.5px' }}>MinT</div>
               <div style={{ fontSize:'10px', fontWeight:800, letterSpacing:'1px', color:'#d4af37' }}>DAYCARE</div>
@@ -198,7 +198,7 @@ const IDBack = ({ child }) => (
       overflow:'hidden',
       boxShadow:'0 8px 32px rgba(0,0,0,0.15)',
       flexShrink:0,
-      backgroundImage: 'url(/assets/images/daycare-bg-back.png)',
+      backgroundImage: 'url(/assets/optimized/daycare-bg-back.webp)',
       backgroundPosition: 'bottom center',
       backgroundSize: '100% auto',
       backgroundRepeat: 'no-repeat',
@@ -240,7 +240,7 @@ const IDBack = ({ child }) => (
       <div style={{ padding:'20px 16px 0', display:'flex', gap:'12px' }}>
         {/* Left: Logo */}
         <div style={{ width:'80px', display:'flex', flexDirection:'column', alignItems:'center', gap:'8px', marginTop:'8px' }}>
-          <img src="/assets/images/mint-logo.png" alt="MinT" style={{ width:46, height:46, objectFit:'contain' }} />
+          <img src="/assets/optimized/mint-logo.webp" alt="MinT" style={{ width:46, height:46, objectFit:'contain' }} />
           <div style={{ lineHeight:1.1, textAlign:'center' }}>
             <div style={{ fontSize:'18px', fontWeight:900, color:'#1a5c2a', letterSpacing:'-0.5px' }}>MinT</div>
             <div style={{ fontSize:'8px', fontWeight:800, letterSpacing:'1px', color:'#d4af37' }}>DAYCARE</div>

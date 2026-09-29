@@ -17,15 +17,15 @@ const ReceptionDashboard = () => {
     const fetchData = async () => {
       try {
         const [visitorsRes, apptsRes, childrenRes, mealsRes] = await Promise.all([
-          api.get('/visitors/today'),
-          api.get('/appointments/upcoming'),
-          api.get('/children'),
-          api.get('/meals')
+          api.get('/visitors/today').catch(() => ({ data: { data: [], checkedIn: 0 } })),
+          api.get('/appointments/upcoming').catch(() => ({ data: { data: [] } })),
+          api.get('/children').catch(() => ({ data: { data: [] } })),
+          api.get('/meals').catch(() => ({ data: { data: [] } }))
         ]);
-        setVisitors(visitorsRes.data);
-        setAppointments(apptsRes.data.data);
-        setChildren(childrenRes.data.data);
-        setMeals(mealsRes.data.data || []);
+        setVisitors(visitorsRes.data || { data: [], checkedIn: 0 });
+        setAppointments(apptsRes.data?.data || []);
+        setChildren(childrenRes.data?.data || []);
+        setMeals(mealsRes.data?.data || []);
       } catch (err) {
         console.error('Reception dashboard error:', err);
       } finally {

@@ -10,13 +10,13 @@ const TranslatorIcon = ({ className = 'w-4 h-4', style = {} }) => {
     <span className={`inline-flex items-center justify-center flex-shrink-0 ${className}`} style={style}>
       {/* Light mode */}
       <img
-        src="/assets/images/translator-icon-128.png"
+        src="/assets/optimized/translator-icon-128.webp"
         alt="Translate"
         className="w-full h-full object-contain block dark:hidden select-none pointer-events-none"
       />
       {/* Dark mode */}
       <img
-        src="/assets/images/translator-icon-dark.png"
+        src="/assets/optimized/translator-icon-dark.webp"
         alt="Translate"
         className="w-full h-full object-contain hidden dark:block select-none pointer-events-none"
       />

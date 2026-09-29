@@ -41,4 +41,8 @@ const mealSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Indexes for fast date & meal type lookups
+mealSchema.index({ date: -1, time: 1 });
+mealSchema.index({ type: 1, date: -1 });
+
 module.exports = mongoose.model('Meal', mealSchema);

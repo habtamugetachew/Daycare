@@ -5,18 +5,33 @@ const Meal = require('../models/Meal');
 // @access  Private
 const getMeals = async (req, res) => {
   try {
-    const { date, type } = req.query;
+    const { date, type, limit } = req.query;
     let query = {};
     if (date) query.date = date;
     if (type) query.type = type;
 
-    const meals = await Meal.find(query)
-      .populate('createdBy', 'fullName')
-      .sort({ date: -1, time: 1 });
+    const maxLimit = Math.min(parseInt(limit) || 30, 100);
 
-    res.status(200).json({ success: true, count: meals.length, data: meals });
+    const meals = await Meal.find(query)
+      .select('name type date time items allergies notes createdBy createdAt')
+      .populate('createdBy', 'fullName')
+      .sort({ date: -1, time: 1 })
+      .limit(maxLimit)
+      .lean()
+      .maxTimeMS(5000);
+
+    return res.status(200).json({
+      success: true,
+      count: meals.length,
+      data: meals
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('getMeals error:', error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to fetch meals',
+      data: []
+    });
   }
 };
 
@@ -26,10 +41,10 @@ const getMeals = async (req, res) => {
 const createMeal = async (req, res) => {
   try {
     const meal = await Meal.create({ ...req.body, createdBy: req.user._id });
-    const populated = await Meal.findById(meal._id).populate('createdBy', 'fullName');
-    res.status(201).json({ success: true, data: populated });
+    const populated = await Meal.findById(meal._id).populate('createdBy', 'fullName').lean();
+    return res.status(201).json({ success: true, data: populated });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -41,15 +56,15 @@ const updateMeal = async (req, res) => {
     const meal = await Meal.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true
-    }).populate('createdBy', 'fullName');
+    }).populate('createdBy', 'fullName').lean();
 
     if (!meal) {
       return res.status(404).json({ success: false, message: 'Meal not found' });
     }
 
-    res.status(200).json({ success: true, data: meal });
+    return res.status(200).json({ success: true, data: meal });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -62,9 +77,9 @@ const deleteMeal = async (req, res) => {
     if (!meal) {
       return res.status(404).json({ success: false, message: 'Meal not found' });
     }
-    res.status(200).json({ success: true, message: 'Meal deleted' });
+    return res.status(200).json({ success: true, message: 'Meal deleted' });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 

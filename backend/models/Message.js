@@ -77,4 +77,11 @@ messageSchema.methods.markRead = async function () {
   return this.save();
 };
 
+// Compound indexes for instantaneous unread-count and inbox fetches
+messageSchema.index({ recipient: 1, isRead: 1 });
+messageSchema.index({ recipient: 1, createdAt: -1 });
+messageSchema.index({ recipient: 1, priority: 1, isRead: 1 });
+messageSchema.index({ parentMessage: 1, createdAt: -1 });
+messageSchema.index({ sender: 1, parentMessage: 1 });
+
 module.exports = mongoose.model('Message', messageSchema);

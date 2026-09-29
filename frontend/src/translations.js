@@ -955,7 +955,17 @@ export const translations = {
     "helpAndSupport": "Help & Support",
     "darkMode": "Dark",
     "lightMode": "Light",
-    "daycare": "Daycare"
+    "daycare": "Daycare",
+    "next": "Next",
+    "previous": "Previous",
+    "page": "Page",
+    "of": "of",
+    "showing": "Showing",
+    "to": "to",
+    "childrenLabel": "Children",
+    "parentsLabel": "Parents",
+    "familiesLabel": "Families",
+    "more": "more"
   },
   am: {
     "receiptNumber": "የደረሰኝ ቁጥር",
@@ -1914,7 +1924,17 @@ export const translations = {
     "helpAndSupport": "እገዛ እና ድጋፍ",
     "darkMode": "ጨለማ",
     "lightMode": "ብርሃን",
-    "daycare": "የሕፃናት ማቆያ"
+    "daycare": "የሕፃናት ማቆያ",
+    "next": "ቀጣይ",
+    "previous": "ቀዳሚ",
+    "page": "ገጽ",
+    "of": "ከ",
+    "showing": "የሚታየው",
+    "to": "እስከ",
+    "childrenLabel": "ልጆች",
+    "parentsLabel": "ወላጆች",
+    "familiesLabel": "ቤተሰቦች",
+    "more": "ተጨማሪ"
   },
   om: {
     "receiptNumber": "Lakkoofsa Nagahee",
@@ -2874,7 +2894,17 @@ export const translations = {
     "helpAndSupport": "Gargaarsa & Deeggarsa",
     "darkMode": "Dukkana",
     "lightMode": "Ifaa",
-    "daycare": "Kunuunsa Daa'immanii"
+    "daycare": "Kunuunsa Daa'immanii",
+    "next": "Itti aanu",
+    "previous": "Duraa",
+    "page": "Fuula",
+    "of": "keessaa",
+    "showing": "Agarsiisaa jira",
+    "to": "hanga",
+    "childrenLabel": "Daa'imman",
+    "parentsLabel": "Maatii",
+    "familiesLabel": "Maatiiwwan",
+    "more": "dabalata"
   },
   ti: {
     "receiptNumber": "ቁጽሪ ቅብሊት",
@@ -3833,6 +3863,16 @@ export const translations = {
     "helpAndSupport": "ሓገዝን ደገፍን",
     "darkMode": "ጸላም",
     "lightMode": "ብርሃን",
-    "daycare": "መውዓሊ ህጻናት"
+    "daycare": "መውዓሊ ህጻናት",
+    "next": "ቀጻሊ",
+    "previous": "ዝሓለፈ",
+    "page": "ገጽ",
+    "of": "ካብ",
+    "showing": "ዝርአ ዘሎ",
+    "to": "ክሳብ",
+    "childrenLabel": "ህጻናት",
+    "parentsLabel": "ወለዲ",
+    "familiesLabel": "ስድራቤታት",
+    "more": "ተወሳኺ"
   }
 };

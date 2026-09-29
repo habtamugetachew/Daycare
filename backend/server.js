@@ -19,7 +19,8 @@ const allowedOrigins = [
   'http://127.0.0.1:3000',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
-  'https://mintdaycare.netlify.app'
+  'https://mintdaycare.netlify.app',
+  'https://daycaremint.netlify.app'
 ];
 if (process.env.FRONTEND_URL && !allowedOrigins.includes(process.env.FRONTEND_URL)) {
   allowedOrigins.push(process.env.FRONTEND_URL);
@@ -29,6 +30,7 @@ const checkCorsOrigin = (origin, callback) => {
   if (!origin) return callback(null, true);
   if (
     allowedOrigins.includes(origin) ||
+    origin.endsWith('.netlify.app') ||
     origin.startsWith('http://localhost:') ||
     origin.startsWith('http://127.0.0.1:')
   ) {
@@ -37,12 +39,16 @@ const checkCorsOrigin = (origin, callback) => {
   return callback(null, true);
 };
 
-// Socket.io initialization
+const compression = require('compression');
+
+// Socket.io initialization with memory-safe timeouts
 const io = new Server(server, {
   cors: {
     origin: checkCorsOrigin,
     credentials: true
-  }
+  },
+  pingTimeout: 20000,
+  pingInterval: 25000
 });
 
 // Map to track online users: userId -> socketId
@@ -50,7 +56,9 @@ const connectedUsers = new Map();
 
 io.on('connection', (socket) => {
   socket.on('register', (userId) => {
-    connectedUsers.set(userId, socket.id);
+    if (userId) {
+      connectedUsers.set(userId.toString(), socket.id);
+    }
   });
 
   socket.on('disconnect', () => {
@@ -61,6 +69,12 @@ io.on('connection', (socket) => {
         break;
       }
     }
+    // Clean up event listeners to allow garbage collection
+    socket.removeAllListeners();
+  });
+
+  socket.on('error', () => {
+    socket.disconnect(true);
   });
 });
 
@@ -68,13 +82,33 @@ io.on('connection', (socket) => {
 app.set('io', io);
 app.set('connectedUsers', connectedUsers);
 
+// ── Performance & Memory Middlewares ───────────────────────
+// Gzip compression: drastically reduces payload sizes and egress bandwidth
+app.use(compression({
+  threshold: 1024,
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) return false;
+    return compression.filter(req, res);
+  }
+}));
+
+// Stream & Request cleanup: proactively tear down aborted connections to prevent buffer leaks
+app.use((req, res, next) => {
+  res.on('close', () => {
+    if (!res.writableEnded) {
+      res.destroy();
+    }
+  });
+  next();
+});
+
 // Middleware
 app.use(cors({
   origin: checkCorsOrigin,
   credentials: true
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
 // ── API Routes ─────────────────────────────────────────────
 app.use('/api/auth', require('./routes/auth'));
@@ -94,14 +128,21 @@ app.use('/api/live-stream', require('./routes/liveStream'));
 app.use('/api/settings', require('./routes/settings'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Health check
-app.get('/health', (req, res) => {
+// ── Keep-Alive / Health Check Endpoints (Render Free Tier Ping) ──
+// Lightweight endpoint without database overhead to prevent Render sleep state
+const handleHealthCheck = (req, res) => {
+  const now = new Date();
+  const clientIp = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown';
+  console.log(`[Keep-Alive Ping] 🟢 Health check received at ${now.toISOString()} | IP: ${clientIp}`);
+
   res.status(200).json({
     status: 'ok',
-    message: 'DaycareHQ Backend is running',
-    timestamp: new Date().toISOString()
+    timestamp: now
   });
-});
+};
+
+app.get('/api/health', handleHealthCheck);
+app.get('/health', handleHealthCheck);
 
 // 404 handler
 app.use((req, res) => {

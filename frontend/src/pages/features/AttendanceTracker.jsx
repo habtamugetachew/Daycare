@@ -182,31 +182,61 @@ const AttendanceTracker = () => {
                       </div>
                     </div>
                     
-                    <div className="flex flex-wrap items-center gap-2">
-                      {[
-                        { id: 'present', label: t('present', 'Present'), icon: 'bx-user-check', activeClass: 'bg-emerald-500 text-white shadow-emerald-500/40', inactiveClass: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20' },
-                        { id: 'absent',  label: t('absent', 'Absent'),  icon: 'bx-user-x',     activeClass: 'bg-rose-500 text-white shadow-rose-500/40',    inactiveClass: 'bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20' },
-                        { id: 'late',    label: t('late', 'Late'),    icon: 'bx-time',       activeClass: 'bg-amber-500 text-white shadow-amber-500/40',  inactiveClass: 'bg-amber-50 text-amber-600 hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20' },
-                        { id: 'sick',    label: t('sick', 'Sick'),    icon: 'bx-plus-medical',activeClass: 'bg-purple-500 text-white shadow-purple-500/40',inactiveClass: 'bg-purple-50 text-purple-600 hover:bg-purple-100 dark:bg-purple-500/10 dark:text-purple-400 dark:hover:bg-purple-500/20' }
-                      ].map(opt => {
-                        const isActive = currentStatus === opt.id;
-                        return (
-                          <button
-                            key={opt.id}
-                            onClick={() => handleSetStatus(student._id, student.classroom, opt.id)}
-                            disabled={actionLoading === student._id}
-                            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-                              isActive 
-                                ? `${opt.activeClass} shadow-lg scale-105`
-                                : `${opt.inactiveClass} hover:scale-105`
-                            } ${actionLoading === student._id ? 'opacity-50 cursor-not-allowed scale-100' : ''}`}
-                          >
-                            <i className={`bx ${opt.icon} text-sm`} />
-                            {opt.label}
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {user?.role === 'admin' ? (
+                      <div className="flex items-center">
+                        {currentStatus === 'present' && (
+                          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                            <i className="bx bx-user-check text-base" /> {t('present', 'Present')}
+                          </span>
+                        )}
+                        {currentStatus === 'absent' && (
+                          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30">
+                            <i className="bx bx-user-x text-base" /> {t('absent', 'Absent')}
+                          </span>
+                        )}
+                        {currentStatus === 'late' && (
+                          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                            <i className="bx bx-time text-base" /> {t('late', 'Late')}
+                          </span>
+                        )}
+                        {currentStatus === 'sick' && (
+                          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30">
+                            <i className="bx bx-plus-medical text-base" /> {t('sick', 'Sick')}
+                          </span>
+                        )}
+                        {!currentStatus && (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-400 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                            <i className="bx bx-minus text-base" /> {t('notMarked', 'Not Marked')}
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap items-center gap-2">
+                        {[
+                          { id: 'present', label: t('present', 'Present'), icon: 'bx-user-check', activeClass: 'bg-emerald-500 text-white shadow-emerald-500/40', inactiveClass: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20' },
+                          { id: 'absent',  label: t('absent', 'Absent'),  icon: 'bx-user-x',     activeClass: 'bg-rose-500 text-white shadow-rose-500/40',    inactiveClass: 'bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20' },
+                          { id: 'late',    label: t('late', 'Late'),    icon: 'bx-time',       activeClass: 'bg-amber-500 text-white shadow-amber-500/40',  inactiveClass: 'bg-amber-50 text-amber-600 hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20' },
+                          { id: 'sick',    label: t('sick', 'Sick'),    icon: 'bx-plus-medical',activeClass: 'bg-purple-500 text-white shadow-purple-500/40',inactiveClass: 'bg-purple-50 text-purple-600 hover:bg-purple-100 dark:bg-purple-500/10 dark:text-purple-400 dark:hover:bg-purple-500/20' }
+                        ].map(opt => {
+                          const isActive = currentStatus === opt.id;
+                          return (
+                            <button
+                              key={opt.id}
+                              onClick={() => handleSetStatus(student._id, student.classroom, opt.id)}
+                              disabled={actionLoading === student._id}
+                              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
+                                isActive 
+                                  ? `${opt.activeClass} shadow-lg scale-105`
+                                  : `${opt.inactiveClass} hover:scale-105`
+                              } ${actionLoading === student._id ? 'opacity-50 cursor-not-allowed scale-100' : ''}`}
+                            >
+                              <i className={`bx ${opt.icon} text-sm`} />
+                              {opt.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 );
               })

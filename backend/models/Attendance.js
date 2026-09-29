@@ -57,5 +57,9 @@ const attendanceSchema = new mongoose.Schema(
 
 // Unique: one record per child per day
 attendanceSchema.index({ child: 1, date: 1 }, { unique: true });
+// Compound indexes for daily attendance aggregation & classroom filtering
+attendanceSchema.index({ date: 1, classroom: 1 });
+attendanceSchema.index({ date: 1, child: 1 });
+attendanceSchema.index({ date: 1, status: 1 });
 
 module.exports = mongoose.model('Attendance', attendanceSchema);

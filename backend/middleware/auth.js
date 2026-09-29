@@ -16,8 +16,10 @@ const protect = async (req, res, next) => {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Get user from database, omit password
-      req.user = await User.findById(decoded.id).select('-password');
+      // Get user from database with lean projection (fast, no Mongoose overhead)
+      req.user = await User.findById(decoded.id)
+        .select('fullName email phone role avatar approvalStatus status')
+        .lean();
       
       if (!req.user) {
         return res.status(401).json({ success: false, message: 'User not found in system' });

@@ -24,11 +24,13 @@ const getAppointments = async (req, res) => {
       .populate('requestedBy', 'fullName email role')
       .populate('withUser', 'fullName email role')
       .populate('child', 'firstName lastName')
-      .sort({ scheduledAt: 1 });
+      .sort({ scheduledAt: 1 })
+      .lean()
+      .maxTimeMS(5000);
 
-    res.status(200).json({ success: true, count: appointments.length, data: appointments });
+    return res.status(200).json({ success: true, count: appointments.length, data: appointments });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message, data: [] });
   }
 };
 
@@ -40,15 +42,17 @@ const getAppointment = async (req, res) => {
     const appointment = await Appointment.findById(req.params.id)
       .populate('requestedBy', 'fullName email role')
       .populate('withUser', 'fullName email role')
-      .populate('child', 'firstName lastName');
+      .populate('child', 'firstName lastName')
+      .lean()
+      .maxTimeMS(5000);
 
     if (!appointment) {
       return res.status(404).json({ success: false, message: 'Appointment not found' });
     }
 
-    res.status(200).json({ success: true, data: appointment });
+    return res.status(200).json({ success: true, data: appointment });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -65,11 +69,12 @@ const createAppointment = async (req, res) => {
     const populated = await Appointment.findById(appointment._id)
       .populate('requestedBy', 'fullName email')
       .populate('withUser', 'fullName email')
-      .populate('child', 'firstName lastName');
+      .populate('child', 'firstName lastName')
+      .lean();
 
-    res.status(201).json({ success: true, data: populated });
+    return res.status(201).json({ success: true, data: populated });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -84,15 +89,16 @@ const updateAppointment = async (req, res) => {
     })
       .populate('requestedBy', 'fullName email')
       .populate('withUser', 'fullName email')
-      .populate('child', 'firstName lastName');
+      .populate('child', 'firstName lastName')
+      .lean();
 
     if (!appointment) {
       return res.status(404).json({ success: false, message: 'Appointment not found' });
     }
 
-    res.status(200).json({ success: true, data: appointment });
+    return res.status(200).json({ success: true, data: appointment });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -105,9 +111,9 @@ const deleteAppointment = async (req, res) => {
     if (!appointment) {
       return res.status(404).json({ success: false, message: 'Appointment not found' });
     }
-    res.status(200).json({ success: true, message: 'Appointment cancelled' });
+    return res.status(200).json({ success: true, message: 'Appointment cancelled' });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -121,20 +127,32 @@ const getUpcoming = async (req, res) => {
       status: { $in: ['pending', 'confirmed'] }
     };
 
-    if (!['admin', 'reception'].includes(req.user.role)) {
-      query.$or = [{ requestedBy: req.user._id }, { withUser: req.user._id }];
+    if (!['admin', 'reception'].includes(req.user?.role)) {
+      query.$or = [{ requestedBy: req.user?._id }, { withUser: req.user?._id }];
     }
 
     const appointments = await Appointment.find(query)
+      .select('title description type requestedBy withUser child scheduledAt duration location status notes')
       .populate('requestedBy', 'fullName email role')
       .populate('withUser', 'fullName email role')
       .populate('child', 'firstName lastName')
       .sort({ scheduledAt: 1 })
-      .limit(10);
+      .limit(10)
+      .lean()
+      .maxTimeMS(5000);
 
-    res.status(200).json({ success: true, count: appointments.length, data: appointments });
+    return res.status(200).json({
+      success: true,
+      count: appointments.length,
+      data: appointments
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('getUpcoming error:', error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to fetch upcoming appointments',
+      data: []
+    });
   }
 };
 

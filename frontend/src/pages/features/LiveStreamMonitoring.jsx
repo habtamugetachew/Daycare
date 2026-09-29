@@ -65,12 +65,31 @@ const LiveStreamMonitoring = () => {
   const [viewMode, setViewMode] = useState('single');
 
   const playerContainerRef = useRef(null);
+  const videoRef = useRef(null);
 
   // Live real-time clock updating every second
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Synchronize audio volume and mute state with video element
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = isMuted;
+      videoRef.current.volume = isMuted ? 0 : volume / 100;
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          if (videoRef.current) {
+            videoRef.current.muted = true;
+            setIsMuted(true);
+            videoRef.current.play().catch(() => {});
+          }
+        });
+      }
+    }
+  }, [isMuted, volume]);
 
   // Close dropdowns on click outside
   useEffect(() => {
@@ -85,6 +104,21 @@ const LiveStreamMonitoring = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Map room name to its corresponding video feed if available (Rainbow Room video feed)
+  const getRoomVideo = (name = '', angle = 1) => {
+    const lower = (name || '').toLowerCase();
+    if (
+      lower.includes('rainbow') ||
+      lower.includes('rain bow') ||
+      lower.includes('rein bow') ||
+      lower.includes('reinbow') ||
+      (angle === 2 && !lower.includes('sunshine') && !lower.includes('play'))
+    ) {
+      return '/assets/images/rein%20bow%20room.mp4';
+    }
+    return null;
+  };
 
   // Map room name and optional angle index to its corresponding camera feed photo
   const getRoomImage = (name = '', angle = 1) => {
@@ -195,6 +229,33 @@ const LiveStreamMonitoring = () => {
   // Take Snapshot Download
   const handleTakeSnapshot = () => {
     try {
+      if (videoRef.current && getRoomVideo(roomName)) {
+        const video = videoRef.current;
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 1920;
+        canvas.height = video.videoHeight || 1080;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Watermark
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+        ctx.fillRect(30, canvas.height - 80, 520, 50);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 20px sans-serif';
+        ctx.fillText(`${roomName} - Camera 01  |  ${formatLiveTimestamp(currentTime)}`, 45, canvas.height - 48);
+
+        const dataUrl = canvas.toDataURL('image/png');
+        const filename = `Mint-Daycare-${roomName.replace(/\s+/g, '-')}-${Date.now()}.png`;
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = dataUrl;
+        link.click();
+
+        setActionSuccess('Snapshot saved to downloads!');
+        setTimeout(() => setActionSuccess(''), 3000);
+        return;
+      }
+
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.src = getRoomImage(roomName);
@@ -424,15 +485,31 @@ const LiveStreamMonitoring = () => {
                   </div>
                 ) : (
                   <>
-                    {/* The Crisp Classroom Feed Image */}
-                    <img
-                      src={getRoomImage(roomName)}
-                      alt="Daycare Live Stream"
-                      className="w-full h-full object-cover transition-all duration-300"
-                      style={{
-                        filter: nightVision ? 'invert(10%) contrast(150%) hue-rotate(90deg)' : 'none'
-                      }}
-                    />
+                    {/* The Crisp Classroom Feed (Video for Rainbow Room, Image for others) */}
+                    {getRoomVideo(roomName) ? (
+                      <video
+                        ref={videoRef}
+                        key={roomName}
+                        src={getRoomVideo(roomName)}
+                        autoPlay
+                        loop
+                        muted={isMuted}
+                        playsInline
+                        className="w-full h-full object-cover transition-all duration-300"
+                        style={{
+                          filter: nightVision ? 'invert(10%) contrast(150%) hue-rotate(90deg)' : 'none'
+                        }}
+                      />
+                    ) : (
+                      <img
+                        src={getRoomImage(roomName)}
+                        alt="Daycare Live Stream"
+                        className="w-full h-full object-cover transition-all duration-300"
+                        style={{
+                          filter: nightVision ? 'invert(10%) contrast(150%) hue-rotate(90deg)' : 'none'
+                        }}
+                      />
+                    )}
 
                     {/* Subtle CCTV Ambient Scanlines Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30 pointer-events-none" />
@@ -974,11 +1051,22 @@ const LiveStreamMonitoring = () => {
                       </div>
 
                       <div className="aspect-video relative bg-slate-900 overflow-hidden">
-                        <img
-                          src={childImg}
-                          alt={`${child.firstName}'s Classroom`}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
+                        {getRoomVideo(childRoomName) ? (
+                          <video
+                            src={getRoomVideo(childRoomName)}
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <img
+                            src={childImg}
+                            alt={`${child.firstName}'s Classroom`}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        )}
                         <div className="absolute top-2.5 left-2.5 flex items-center gap-2">
                           <span className="px-2 py-0.5 rounded bg-red-600/90 text-white font-bold text-[10px] flex items-center gap-1 shadow">
                             <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
@@ -1044,11 +1132,22 @@ const LiveStreamMonitoring = () => {
                     </div>
 
                     <div className="aspect-video relative bg-slate-900 overflow-hidden">
-                      <img
-                        src={getRoomImage(roomName, cam.angle)}
-                        alt={cam.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
+                      {getRoomVideo(roomName, cam.angle) ? (
+                        <video
+                          src={getRoomVideo(roomName, cam.angle)}
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      ) : (
+                        <img
+                          src={getRoomImage(roomName, cam.angle)}
+                          alt={cam.name}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      )}
                       <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
                         <span className="px-2 py-0.5 rounded bg-red-600/90 text-white font-bold text-[10px] flex items-center gap-1">
                           <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
@@ -1111,11 +1210,22 @@ const LiveStreamMonitoring = () => {
                       </div>
 
                       <div className="aspect-video relative bg-slate-900 overflow-hidden">
-                        <img
-                          src={getRoomImage(room.name)}
-                          alt={room.name}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
+                        {getRoomVideo(room.name) ? (
+                          <video
+                            src={getRoomVideo(room.name)}
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <img
+                            src={getRoomImage(room.name)}
+                            alt={room.name}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        )}
                         <div className="absolute top-2.5 left-2.5 flex items-center gap-2">
                           <span className="px-2 py-0.5 rounded bg-red-600/90 text-white font-bold text-[10px] flex items-center gap-1 shadow">
                             <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
@@ -1176,11 +1286,22 @@ const LiveStreamMonitoring = () => {
                     </div>
 
                     <div className="aspect-video relative bg-slate-900 overflow-hidden">
-                      <img
-                        src={getRoomImage(roomName, cam.angle)}
-                        alt={cam.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
+                      {getRoomVideo(roomName, cam.angle) ? (
+                        <video
+                          src={getRoomVideo(roomName, cam.angle)}
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      ) : (
+                        <img
+                          src={getRoomImage(roomName, cam.angle)}
+                          alt={cam.name}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      )}
                       <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
                         <span className="px-2 py-0.5 rounded bg-red-600/90 text-white font-bold text-[10px] flex items-center gap-1">
                           <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
@@ -1234,11 +1355,22 @@ const LiveStreamMonitoring = () => {
                     <span className="text-slate-500 dark:text-slate-400">{room.roomNumber}</span>
                   </div>
                   <div className="aspect-video relative bg-slate-900 overflow-hidden">
-                    <img
-                      src={getRoomImage(room.name)}
-                      alt={room.name}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
+                    {getRoomVideo(room.name) ? (
+                      <video
+                        src={getRoomVideo(room.name)}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    ) : (
+                      <img
+                        src={getRoomImage(room.name)}
+                        alt={room.name}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    )}
                     <div className="absolute top-2.5 left-2.5 flex items-center gap-2">
                       <span className="px-2 py-0.5 rounded bg-red-600/90 text-white font-bold text-[10px] flex items-center gap-1 shadow">
                         <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>

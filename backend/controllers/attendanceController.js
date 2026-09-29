@@ -39,17 +39,20 @@ const getAttendance = async (req, res) => {
       .populate('classroom', 'name')
       .populate('checkIn.recordedBy', 'fullName')
       .populate('checkOut.recordedBy', 'fullName')
-      .sort({ date: -1 });
+      .sort({ date: -1 })
+      .limit(100)
+      .lean()
+      .maxTimeMS(5000);
 
-    res.status(200).json({ success: true, count: records.length, data: records });
+    return res.status(200).json({ success: true, count: records.length, data: records });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message, data: [] });
   }
 };
 
-// @desc    Get today's attendance for a classroom
+// @desc    Get today's attendance for a classroom or parent
 // @route   GET /api/attendance/today
-// @access  Private (teacher, admin)
+// @access  Private (teacher, admin, parent, reception)
 const getTodayAttendance = async (req, res) => {
   try {
     const today = new Date();
@@ -58,29 +61,55 @@ const getTodayAttendance = async (req, res) => {
 
     let classroomId = req.query.classroomId;
 
-    if (req.user.role === 'teacher') {
-      const classroom = await Classroom.findOne({ teacher: req.user._id });
+    if (req.user?.role === 'teacher') {
+      const classroom = await Classroom.findOne({ teacher: req.user._id }).select('_id').lean().maxTimeMS(5000);
       classroomId = classroom ? classroom._id : null;
     }
 
     const query = {
-      date: { $gte: startOfDay, $lt: endOfDay },
-      ...(classroomId && { classroom: classroomId })
+      date: { $gte: startOfDay, $lt: endOfDay }
     };
 
+    if (classroomId) {
+      query.classroom = classroomId;
+    } else if (req.user?.role === 'parent') {
+      // For parent users: isolate attendance to only their children
+      const parentChildren = await Child.find({ parent: req.user._id }).select('_id').lean().maxTimeMS(5000);
+      const childIds = parentChildren.map(c => c._id);
+      query.child = { $in: childIds };
+    }
+
     const records = await Attendance.find(query)
+      .select('child classroom date checkIn checkOut status notes napStart napEnd napQuality')
       .populate('child', 'firstName lastName')
-      .populate('classroom', 'name');
+      .populate('classroom', 'name')
+      .lean()
+      .maxTimeMS(5000);
 
-    // Get all children in classroom to find absent ones
-    const allChildren = classroomId
-      ? await Child.find({ classroom: classroomId, status: 'active' }).select('firstName lastName')
-      : [];
+    // Get children in scope to calculate absent ones
+    let allChildren = [];
+    if (classroomId) {
+      allChildren = await Child.find({ classroom: classroomId, status: 'active' })
+        .select('firstName lastName')
+        .lean()
+        .maxTimeMS(5000);
+    } else if (req.user?.role === 'parent') {
+      allChildren = await Child.find({ parent: req.user._id, status: 'active' })
+        .select('firstName lastName')
+        .lean()
+        .maxTimeMS(5000);
+    }
 
-    const checkedInIds = new Set(records.map(r => r.child._id.toString()));
-    const absentChildren = allChildren.filter(c => !checkedInIds.has(c._id.toString()));
+    // Null-safe extraction of checked-in IDs
+    const checkedInIds = new Set(
+      records
+        .filter(r => r && r.child && r.child._id)
+        .map(r => r.child._id.toString())
+    );
 
-    res.status(200).json({
+    const absentChildren = allChildren.filter(c => c && c._id && !checkedInIds.has(c._id.toString()));
+
+    return res.status(200).json({
       success: true,
       data: {
         records,
@@ -94,7 +123,16 @@ const getTodayAttendance = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('getTodayAttendance error:', error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to fetch attendance',
+      data: {
+        records: [],
+        absentChildren: [],
+        summary: { present: 0, absent: 0, late: 0, sick: 0 }
+      }
+    });
   }
 };
 

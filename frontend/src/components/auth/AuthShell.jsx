@@ -25,7 +25,7 @@ const AuthShell = ({ title, subtitle, children }) => {
     <div style={{
       minHeight: "100vh", display: "flex", alignItems: "center",
       justifyContent: "center", padding: "3rem 1rem", position: "relative",
-      backgroundImage: `url(${dark ? "/assets/images/dark.png" : "/assets/images/login.png"})`,
+      backgroundImage: `url(${dark ? "/assets/optimized/dark.webp" : "/assets/optimized/login.webp"})`,
       backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat",
     }}>
       {/* Overlay */}
@@ -47,7 +47,7 @@ const AuthShell = ({ title, subtitle, children }) => {
         {/* Navy header */}
         <div style={{ position: "relative", textAlign: "center", padding: "2.5rem 2rem 7rem", background: t.headerBg, borderRadius: "28px 28px 0 0" }}>
           <div style={{ margin: "0 auto 1rem", width: "80px", height: "80px", borderRadius: "1rem", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", boxShadow: "0 8px 24px rgba(0,0,0,0.2)" }}>
-            <img src="/assets/images/icon.png" alt="Daycare" style={{ width: "50px", height: "50px", objectFit: "contain" }} />
+            <img src="/assets/optimized/icon.webp" alt="Daycare" style={{ width: "50px", height: "50px", objectFit: "contain" }} />
           </div>
           <h1 style={{ color: "white", fontSize: "1.6rem", fontWeight: 800, margin: "0 0 5px", letterSpacing: "-0.02em" }}>{title}</h1>
           {subtitle && <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "12px", fontWeight: 600, margin: 0, lineHeight: 1.5, padding: "0 1rem" }}>{subtitle}</p>}
