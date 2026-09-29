@@ -90,7 +90,16 @@ export const AuthProvider = ({ children }) => {
         console.error('Login error:', error);
         const status = error.response?.status;
         const serverMsg = error.response?.data?.message;
-        const errMsg = serverMsg || (status === 401 ? 'Invalid email or password' : 'Unable to sign in. Please try again.');
+        let errMsg = serverMsg;
+        if (!errMsg) {
+          if (status === 401) {
+            errMsg = 'Invalid email or password';
+          } else if (!error.response || error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
+            errMsg = 'Server is waking up (Render cold start) or network failed. Please try again in 5 seconds.';
+          } else {
+            errMsg = 'Unable to sign in. Please try again.';
+          }
+        }
         return { success: false, message: errMsg, status };
     }
   };
