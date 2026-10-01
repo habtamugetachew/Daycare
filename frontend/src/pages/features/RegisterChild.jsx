@@ -35,6 +35,23 @@ const EMPTY_PARENT = {
   emergencyContactName: '', emergencyContactPhone: '', emergencyContactRelationship: '',
 };
 
+const validateIdImage = (file, side) => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try {
+      const response = await api.post('/auth/validate-id', {
+        side,
+        imageBase64: reader.result,
+      });
+      resolve({ valid: response.data?.valid !== false, reason: response.data?.reason });
+    } catch (error) {
+      reject(error);
+    }
+  };
+  reader.onerror = () => reject(new Error('Unable to read ID image.'));
+  reader.readAsDataURL(file);
+});
+
 /* ─── Single child card (Step 1) ──────────────────────── */
 const ChildCard = ({ child, index, total, onChange, onRemove, t, locale, error }) => {
   const set = (key) => (e) => onChange(child.id, key, e.target.value);
@@ -115,6 +132,7 @@ const RegisterChild = () => {
   const [parent, setParent]     = useState(EMPTY_PARENT);
   const [phoneErrors, setPhoneErrors] = useState({ parentPhone: '', emergencyContactPhone: '' });
   const [loading, setLoading]   = useState(false);
+  const [verifyingId, setVerifyingId] = useState(false);
 
   /* ── Existing parents dropdown ──────────────────────── */
   const [registeredParents, setRegisteredParents] = useState([]);
@@ -302,6 +320,24 @@ const RegisterChild = () => {
       setPhoneErrors({ parentPhone: primaryError, emergencyContactPhone: emergencyError });
       setError('Please fix the phone number errors before submitting.');
       return;
+    }
+
+    setVerifyingId(true);
+    try {
+      const [frontResult, backResult] = await Promise.all([
+        validateIdImage(idFrontFile, 'front'),
+        validateIdImage(idBackFile, 'back'),
+      ]);
+      const invalidResult = [frontResult, backResult].find(result => !result.valid);
+      if (invalidResult) {
+        setError(invalidResult.reason || 'Parent ID verification failed. Please upload clear images of both sides.');
+        return;
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Unable to verify the parent ID. Please try again.');
+      return;
+    } finally {
+      setVerifyingId(false);
     }
 
     setLoading(true);
@@ -822,10 +858,12 @@ const RegisterChild = () => {
                   </button>
                   <button
                     type="submit"
-                    disabled={loading || !isEmailVerified || !idFrontFile || !idBackFile || hasPhoneError}
+                    disabled={loading || verifyingId || !isEmailVerified || !idFrontFile || !idBackFile || hasPhoneError}
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#00ADB5] hover:bg-[#009aa1] text-white font-semibold text-sm px-8 py-2.5 transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    {loading
+                    {verifyingId
+                      ? <><i className="bx bx-loader-alt animate-spin text-lg" /> {lx('Verifying ID…', 'መታወቂያ በማረጋገጥ ላይ…', 'Eenyummaa mirkaneessaa…', 'መንነት ይረጋገጽ ኣሎ…')}</>
+                      : loading
                       ? <><i className="bx bx-loader-alt animate-spin text-lg" /> {t('registering')}</>
                       : <><i className="bx bx-check text-lg" />
                         {children.length === 1 ? t('submitRegistration') : `Submit ${children.length} + Parent`}
