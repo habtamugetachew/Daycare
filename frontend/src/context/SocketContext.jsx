@@ -8,10 +8,13 @@ export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
-  const { user, token } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
-    // Only connect if we have a logged-in user
+    // Read token directly from localStorage — AuthContext does not expose it in context
+    const token = localStorage.getItem('token');
+
+    // Only connect if we have a logged-in user with a valid token
     if (user && token) {
       const backendURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
       const newSocket = io(backendURL, {

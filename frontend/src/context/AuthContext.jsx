@@ -206,8 +206,11 @@ export const AuthProvider = ({ children }) => {
     }
   }, [navigate]);
 
+  // Derive token from localStorage so consumers always have the latest value
+  const token = localStorage.getItem('token');
+
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, login, signup, googleLogin, logout, redirectUser }}>
+    <AuthContext.Provider value={{ user, setUser, token, loading, login, signup, googleLogin, logout, redirectUser }}>
       {children}
     </AuthContext.Provider>
   );
