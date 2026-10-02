@@ -4,14 +4,23 @@ import axios from 'axios';
 // Vite automatically prefixes VITE_ env vars with import.meta.env
 const getBaseURL = () => {
   const envURL = import.meta.env.VITE_API_BASE_URL;
-  
+
   if (envURL) {
     const cleanURL = envURL.replace(/\/+$/, '');
     const baseURL = cleanURL.endsWith('/api') ? cleanURL : `${cleanURL}/api`;
     return baseURL;
   }
-  
-  // Fallback for local development (relative path proxies to localhost:5000)
+
+  // In development, Vite's proxy forwards /api → http://localhost:5000
+  // In production (Netlify), VITE_API_BASE_URL must be set to the Render backend URL
+  if (import.meta.env.PROD) {
+    console.error(
+      '[api.js] VITE_API_BASE_URL is not set. ' +
+      'Go to Netlify → Site configuration → Environment variables and add:\n' +
+      '  VITE_API_BASE_URL = https://<your-backend>.onrender.com'
+    );
+  }
+
   return '/api';
 };
 

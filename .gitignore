@@ -9,6 +9,9 @@ backend/dist/
 
 # Environment variables (keep secrets out of git)
 backend/.env
+frontend/.env
+# Allow production env (no secrets, just the public backend URL)
+!frontend/.env.production
 
 # Uploads (user-generated content, not source code)
 backend/uploads/avatars/*

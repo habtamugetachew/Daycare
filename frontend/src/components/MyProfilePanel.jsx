@@ -186,7 +186,7 @@ const MyProfilePanel = ({ open, onClose }) => {
                 <div className="flex items-center justify-between mb-1">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Personal Information</h4>
                   <button
-                    onClick={() => setEditPersonal(p => !p)}
+                    onClick={() => setEditPersonal(prev => !prev)}
                     className="text-xs font-semibold text-[#00ADB5] hover:underline flex items-center gap-1"
                   >
                     <i className={`bx ${editPersonal ? 'bx-x' : 'bx-edit-alt'} text-sm`} />

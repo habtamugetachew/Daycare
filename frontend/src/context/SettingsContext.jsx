@@ -8,13 +8,20 @@ export const SettingsProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchSettings = async () => {
+    // Only fetch if a token exists — avoids unauthenticated calls on Netlify static hosting
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     try {
       const res = await api.get('/settings');
       if (res.data.success) {
         setIsFreeMode(res.data.data.isFreeMode);
       }
     } catch (error) {
-      console.error('Failed to fetch system settings:', error);
+      // Silently fail — settings will use defaults (isFreeMode = false)
+      console.warn('Settings fetch skipped or failed:', error?.message);
     } finally {
       setLoading(false);
     }
