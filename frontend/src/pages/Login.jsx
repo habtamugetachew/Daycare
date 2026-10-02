@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/useLanguage';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
@@ -25,7 +25,11 @@ const Login = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [retryCountdown, setRetryCountdown] = useState(null); // null = not retrying
   const googleBtnRef = useRef(null);
+  const retryTimerRef = useRef(null);
+  const retryEmailRef = useRef('');
+  const retryPasswordRef = useRef('');
 
   // Sync theme changes with DOM
   useEffect(() => {
@@ -131,8 +135,64 @@ const Login = () => {
     import('../pages/dashboards/ReceptionDashboard').catch(() => {});
   };
 
+  // Clears any running retry countdown
+  const clearRetry = () => {
+    if (retryTimerRef.current) {
+      clearInterval(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
+    setRetryCountdown(null);
+  };
+
+  // Kicks off a 5-second auto-retry countdown
+  const scheduleRetry = useCallback((savedEmail, savedPassword) => {
+    clearRetry();
+    retryEmailRef.current = savedEmail;
+    retryPasswordRef.current = savedPassword;
+    let count = 5;
+    setRetryCountdown(count);
+    retryTimerRef.current = setInterval(async () => {
+      count -= 1;
+      if (count > 0) {
+        setRetryCountdown(count);
+      } else {
+        clearInterval(retryTimerRef.current);
+        retryTimerRef.current = null;
+        setRetryCountdown(null);
+        // Auto-retry the login
+        setIsSubmitting(true);
+        setErrorMsg('');
+        try {
+          const result = await login(retryEmailRef.current, retryPasswordRef.current);
+          if (!result.success) {
+            const isNetwork = !result.status;
+            if (isNetwork) {
+              // Still offline — restart the countdown
+              scheduleRetry(retryEmailRef.current, retryPasswordRef.current);
+            } else {
+              const msg = result.status === 401
+                ? `❌ ${result.message} — try resetting your password.`
+                : `❌ ${result.message}`;
+              setErrorMsg(msg);
+            }
+          } else if (result.user) {
+            redirectUser(result.user.role);
+          }
+        } catch (error) {
+          setErrorMsg(`❌ ${error.message || 'Login failed. Please try again.'}`);
+        } finally {
+          setIsSubmitting(false);
+        }
+      }
+    }, 1000);
+  }, [login, redirectUser]);
+
+  // Clean up interval on unmount
+  useEffect(() => () => clearRetry(), []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    clearRetry();
     setErrorMsg('');
 
     if (!email || !password) {
@@ -145,11 +205,18 @@ const Login = () => {
       const result = await login(email, password);
       if (!result.success) {
         console.error('Login failed:', result);
-        const msg = result.status === 401
-          ? `❌ ${result.message} — try resetting your password.`
-          : `❌ ${result.message}`;
-        setErrorMsg(msg);
-        setPassword(''); // clear password field
+        // Detect cold-start / network failure (no HTTP status = no response from server)
+        const isNetwork = !result.status;
+        if (isNetwork) {
+          scheduleRetry(email, password);
+          setErrorMsg('🔄 Server is waking up (Render cold start). Retrying automatically…');
+        } else {
+          const msg = result.status === 401
+            ? `❌ ${result.message} — try resetting your password.`
+            : `❌ ${result.message}`;
+          setErrorMsg(msg);
+          setPassword('');
+        }
       } else if (result.user) {
         redirectUser(result.user.role);
       }
@@ -230,6 +297,22 @@ const Login = () => {
             <div className="p-4 mb-4 rounded-xl text-xs leading-relaxed border text-left font-semibold"
               style={{ background: 'var(--danger-light)', color: 'var(--danger)', borderColor: 'var(--danger-border)' }}>
               {errorMsg}
+              {retryCountdown !== null && (
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="flex-grow h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.12)' }}>
+                    <div
+                      className="h-full rounded-full transition-all duration-1000"
+                      style={{
+                        width: `${(retryCountdown / 5) * 100}%`,
+                        background: 'var(--danger)'
+                      }}
+                    />
+                  </div>
+                  <span className="text-[11px] font-bold shrink-0" style={{ color: 'var(--danger)' }}>
+                    Retrying in {retryCountdown}s…
+                  </span>
+                </div>
+              )}
             </div>
           )}
 

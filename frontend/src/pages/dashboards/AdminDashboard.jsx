@@ -20,6 +20,7 @@ const AdminDashboard = () => {
   const [naps, setNaps] = useState([]);
   const [childAttendance, setChildAttendance] = useState({ records: [], absentChildren: [], summary: {} });
   const [nannyAttendance, setNannyAttendance] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [togglingMode, setTogglingMode] = useState(false);
 
