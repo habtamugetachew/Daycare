@@ -4,6 +4,27 @@ const Classroom = require('../models/Classroom');
 const Message = require('../models/Message');
 const fs = require('fs');
 
+const normalizeDateOfBirth = (value) => {
+  if (value === null || value === undefined || value === '') return '';
+
+  const raw = String(value).trim();
+  if (!raw) return '';
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+
+  const slashMatch = /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/.exec(raw);
+  if (slashMatch) {
+    const [, day, month, year] = slashMatch;
+    const iso = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const parsed = new Date(`${iso}T00:00:00Z`);
+    return Number.isNaN(parsed.getTime()) ? raw : iso;
+  }
+
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) return raw;
+  return parsed.toISOString().split('T')[0];
+};
+
 /* ── Notify parent + all reception users on approval/disapproval ── */
 const sendChildApprovalNotifications = async ({ child, action, adminId, adminReason, req }) => {
   try {
@@ -163,6 +184,9 @@ const getChild = async (req, res) => {
 const createChild = async (req, res) => {
   try {
     const childData = { ...req.body };
+    if (childData.dateOfBirth) {
+      childData.dateOfBirth = normalizeDateOfBirth(childData.dateOfBirth);
+    }
 
     // Parents may only register their own children and require admin review.
     // Use 'pending' so admin sees the registration in the approvals workflow.
@@ -196,7 +220,12 @@ const createChild = async (req, res) => {
 // @access  Private (admin, reception)
 const updateChild = async (req, res) => {
   try {
-    const child = await Child.findByIdAndUpdate(req.params.id, req.body, {
+    const updateData = { ...req.body };
+    if (updateData.dateOfBirth) {
+      updateData.dateOfBirth = normalizeDateOfBirth(updateData.dateOfBirth);
+    }
+
+    const child = await Child.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
       runValidators: true
     })

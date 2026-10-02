@@ -11,5 +11,8 @@
     "build": "node scripts/build.js",
     "postinstall": "npm install --prefix backend",
     "install:all": "npm install --prefix backend && npm install --prefix frontend"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.4"
   }
 }

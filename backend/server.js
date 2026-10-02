@@ -1,15 +1,15 @@
-const express = require('express');
-const cors = require('cors');
 const path = require('path');
 const dotenv = require('dotenv');
+
+// Load environment variables before importing modules that may read them.
+dotenv.config({ path: path.join(__dirname, '.env') });
+
+const express = require('express');
+const cors = require('cors');
 const connectDB = require('./config/db');
 const seedAll = require('./config/seed');
 const http = require('http');
 const { Server } = require('socket.io');
-
-// Load environment variables
-dotenv.config();
-
 
 const app = express();
 const server = http.createServer(app);
@@ -38,6 +38,7 @@ const checkCorsOrigin = (origin, callback) => {
   }
   return callback(null, true);
 };
+
 
 const compression = require('compression');
 

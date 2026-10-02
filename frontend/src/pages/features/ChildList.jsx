@@ -14,10 +14,31 @@ const EMPTY_FORM = {
   status: 'active',
 };
 
+const normalizeDateOfBirth = (value) => {
+  if (value === null || value === undefined || value === '') return '';
+
+  const raw = String(value).trim();
+  if (!raw) return '';
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+
+  const slashMatch = /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/.exec(raw);
+  if (slashMatch) {
+    const [, day, month, year] = slashMatch;
+    const iso = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const parsed = new Date(`${iso}T00:00:00`);
+    return Number.isNaN(parsed.getTime()) ? raw : iso;
+  }
+
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) return raw;
+  return parsed.toISOString().split('T')[0];
+};
+
 const toFormValues = (child) => ({
   firstName: child.firstName || '',
   lastName:  child.lastName  || '',
-  dateOfBirth: child.dateOfBirth ? child.dateOfBirth.split('T')[0] : '',
+  dateOfBirth: normalizeDateOfBirth(child.dateOfBirth),
   gender: child.gender || 'male',
   allergies: child.allergies || '',
   medicalNotes: child.medicalNotes || '',

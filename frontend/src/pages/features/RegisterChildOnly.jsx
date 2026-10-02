@@ -3,8 +3,31 @@ import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/useLanguage';
 
+const normalizeDateOfBirth = (value) => {
+  if (value === null || value === undefined || value === '') return '';
+
+  const raw = String(value).trim();
+  if (!raw) return '';
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+
+  const slashMatch = /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/.exec(raw);
+  if (slashMatch) {
+    const [, day, month, year] = slashMatch;
+    const iso = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const parsed = new Date(`${iso}T00:00:00`);
+    return Number.isNaN(parsed.getTime()) ? raw : iso;
+  }
+
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) return raw;
+  return parsed.toISOString().split('T')[0];
+};
+
 const getChildAge = (dob) => {
-  const d = new Date(dob);
+  const normalized = normalizeDateOfBirth(dob);
+  if (!normalized) return null;
+  const d = new Date(`${normalized}T00:00:00`);
   if (Number.isNaN(d.getTime()) || d > new Date()) return null;
   let y = new Date().getFullYear() - d.getFullYear();
   const m = new Date().getMonth() - d.getMonth();
@@ -83,7 +106,7 @@ const ChildCard = ({ child, index, total, onChange, onRemove, t, error, phoneErr
         </div>
         <div>
           <label className={LBL}>{t('dateOfBirth')}</label>
-          <input type="date" value={child.dateOfBirth} onChange={set('dateOfBirth')}
+          <input type="date" value={normalizeDateOfBirth(child.dateOfBirth)} onChange={(e) => onChange(child.id, 'dateOfBirth', normalizeDateOfBirth(e.target.value))}
             className={`${INP} [color-scheme:light] dark:[color-scheme:dark]`} />
         </div>
         <div>

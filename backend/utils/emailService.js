@@ -1,5 +1,10 @@
 const nodemailer = require('nodemailer');
 
+const getEmailConfigError = () =>
+  'Email service is not configured. Set EMAIL_USER and EMAIL_PASS in backend/.env using a Gmail app password, then restart the backend.';
+
+const isEmailConfigured = () => !!process.env.EMAIL_USER && !!process.env.EMAIL_PASS;
+
 // ---------------------------------------------------------------------------
 // Gmail SMTP Transporter
 // ---------------------------------------------------------------------------
@@ -24,14 +29,19 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// Verify transporter config on startup (logs a warning if credentials are missing)
-transporter.verify((error) => {
-  if (error) {
-    console.warn('[Email] Transporter verification failed:', error.message);
-  } else {
-    console.log('[Email] SMTP transporter is ready to send mail');
-  }
-});
+// Verify transporter config on startup (logs a warning if credentials are missing).
+// Missing email credentials must never crash the backend during development.
+if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  console.warn('[Email] EMAIL_USER / EMAIL_PASS not set — email sending disabled (development warning only).');
+} else {
+  transporter.verify((error) => {
+    if (error) {
+      console.warn('[Email] Transporter verification failed:', error.message);
+    } else {
+      console.log('[Email] SMTP transporter is ready to send mail');
+    }
+  });
+}
 
 // ---------------------------------------------------------------------------
 // HTML email template for OTP
@@ -125,6 +135,15 @@ const buildOtpEmailHtml = (otp) => `
  * @returns {Promise<void>}
  */
 const sendOtpEmail = async (toEmail, otp) => {
+  if (!isEmailConfigured()) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn(`[Email] ${getEmailConfigError()}`);
+      console.log(`[Email Dev] Password reset OTP for ${toEmail}: ${otp}`);
+      return;
+    }
+    throw new Error(getEmailConfigError());
+  }
+
   const mailOptions = {
     from: `"Daycare Support" <${process.env.EMAIL_USER}>`,
     to: toEmail,
@@ -234,6 +253,15 @@ const buildVerificationEmailHtml = (otp) => `
  */
 const sendVerificationOtp = async (toEmail, otp) => {
   try {
+    if (!isEmailConfigured()) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(`[Email] ${getEmailConfigError()}`);
+        console.log(`[Email Dev] Verification OTP for ${toEmail}: ${otp}`);
+        return;
+      }
+      throw new Error(getEmailConfigError());
+    }
+
     // Explicit log so you can confirm the dynamic recipient in the terminal
     console.log('Sending OTP to:', toEmail);
 

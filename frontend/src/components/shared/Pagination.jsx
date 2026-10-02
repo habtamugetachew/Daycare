@@ -27,6 +27,15 @@ const Pagination = ({
     return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
   };
 
+  const handlePageChange = (nextPage) => {
+    if (!onPageChange) return;
+    const safeTotalPages = Math.max(totalPages, 1);
+    const safePage = Math.min(Math.max(Number(nextPage) || 1, 1), safeTotalPages);
+    if (safePage !== currentPage) {
+      onPageChange(safePage);
+    }
+  };
+
   const pages = getPageNumbers();
 
   return (
@@ -59,8 +68,8 @@ const Pagination = ({
         {/* Previous Button */}
         <button
           type="button"
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage <= 1}
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage <= 1 || totalPages <= 1}
           aria-label={t('previous', 'Previous')}
           className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0d1520] text-slate-700 dark:text-slate-200 font-medium transition-all hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 disabled:opacity-35 disabled:cursor-not-allowed disabled:pointer-events-none shadow-sm"
         >
@@ -82,7 +91,7 @@ const Pagination = ({
               <button
                 key={p}
                 type="button"
-                onClick={() => onPageChange(p)}
+                onClick={() => handlePageChange(p)}
                 aria-current={currentPage === p ? 'page' : undefined}
                 className={`w-8 h-8 rounded-lg text-xs font-semibold flex items-center justify-center transition-all ${
                   currentPage === p
@@ -99,8 +108,8 @@ const Pagination = ({
         {/* Next Button */}
         <button
           type="button"
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage >= totalPages}
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage >= totalPages || totalPages <= 1}
           aria-label={t('next', 'Next')}
           className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0d1520] text-slate-700 dark:text-slate-200 font-medium transition-all hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 disabled:opacity-35 disabled:cursor-not-allowed disabled:pointer-events-none shadow-sm"
         >

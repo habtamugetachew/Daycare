@@ -5,8 +5,32 @@ import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/useLanguage';
 import { useSettings } from '../../context/SettingsContext';
 
+const normalizeDateOfBirth = (value) => {
+  if (value === null || value === undefined || value === '') return '';
+
+  const raw = String(value).trim();
+  if (!raw) return '';
+
+  const isoMatch = /^\d{4}-\d{2}-\d{2}$/.test(raw);
+  if (isoMatch) return raw;
+
+  const slashMatch = /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/.exec(raw);
+  if (slashMatch) {
+    const [, day, month, year] = slashMatch;
+    const iso = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const parsed = new Date(`${iso}T00:00:00`);
+    return Number.isNaN(parsed.getTime()) ? raw : iso;
+  }
+
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) return raw;
+  return parsed.toISOString().split('T')[0];
+};
+
 const getChildAge = (dobString) => {
-  const dob = new Date(dobString);
+  const normalized = normalizeDateOfBirth(dobString);
+  if (!normalized) return null;
+  const dob = new Date(`${normalized}T00:00:00`);
   if (Number.isNaN(dob.getTime())) return null;
   const now = new Date();
   if (dob > now) return null;
@@ -405,7 +429,10 @@ const ParentDashboard = () => {
                   <input
                     type="date"
                     value={childForm.dateOfBirth}
-                    onChange={e => setChildForm(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                    onChange={e => setChildForm(prev => ({
+                      ...prev,
+                      dateOfBirth: normalizeDateOfBirth(e.target.value)
+                    }))}
                     className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200"
                   />
                 </label>
