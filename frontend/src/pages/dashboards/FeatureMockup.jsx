@@ -221,3 +221,5 @@ export function prefetchFeature(slug) {
     import('../features/MealPrep').catch(() => {});
   }
 }
+
+export default FeatureMockup;
