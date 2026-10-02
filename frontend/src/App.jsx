@@ -10,6 +10,7 @@ import { SettingsProvider } from './context/SettingsContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardLayout from './components/DashboardLayout';
 import LoadingFallback from './components/common/LoadingFallback';
+import { ChunkErrorBoundary } from './components/common/ChunkErrorBoundary';
 
 // Lazy Loaded Pages
 const Home = lazy(() => import('./pages/Home'));
@@ -29,26 +30,13 @@ const Settings = lazy(() => import('./pages/Settings'));
 const HelpSupport = lazy(() => import('./pages/HelpSupport'));
 const PaymentSuccess = lazy(() => import('./pages/features/PaymentSuccess'));
 
-// Global error boundary
-class ErrorBoundary extends React.Component {
-  constructor(props) { super(props); this.state = { hasError: false, error: null }; }
-  static getDerivedStateFromError(error) { return { hasError: true, error }; }
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{ padding: 40, fontFamily: 'sans-serif', textAlign: 'center' }}>
-          <h2 style={{ color: '#e53e3e' }}>Something went wrong</h2>
-          <pre style={{ fontSize: 12, color: '#666', whiteSpace: 'pre-wrap', maxWidth: 600, margin: '16px auto' }}>
-            {this.state.error?.message}
-          </pre>
-          <button onClick={() => window.location.href='/'} style={{ padding: '10px 24px', background: '#00ADB5', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}>
-            Go to Home
-          </button>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
+/**
+ * Prefetch a lazy route's JS chunk without rendering it.
+ * Call on link hover / focus so the chunk is in-flight before navigation.
+ * Usage: prefetch(() => import('./pages/features/Communication'))
+ */
+export function prefetch(importFn) {
+  importFn().catch(() => {}); // fire-and-forget
 }
 
 const DashboardRedirect = () => {
@@ -64,7 +52,7 @@ const DashboardRedirect = () => {
 
 function App() {
   return (
-    <ErrorBoundary>
+    <ChunkErrorBoundary label="App">
       <Router>
         <ThemeProvider>
           <LanguageProvider>
@@ -138,7 +126,7 @@ function App() {
           </LanguageProvider>
         </ThemeProvider>
       </Router>
-    </ErrorBoundary>
+    </ChunkErrorBoundary>
   );
 }
 

@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import LoadingFallback from '../../components/common/LoadingFallback';
+import { ChunkErrorBoundary } from '../../components/common/ChunkErrorBoundary';
 
 // Lazy-loaded feature pages
 const ChildList = lazy(() => import('../features/ChildList'));
@@ -179,15 +180,44 @@ const FeatureMockup = () => {
 
   return (
     <div className="space-y-4">
-      {/* Dynamic Feature Component */}
-      <div className="animate-fade-in">
-        <Suspense fallback={<LoadingFallback message="Loading..." />}>
-          {renderFeature()}
-        </Suspense>
-      </div>
+      {/* Each feature gets its own error boundary so a single chunk failure
+          doesn't crash the whole dashboard layout */}
+      <ChunkErrorBoundary label={feature || 'this feature'}>
+        <div className="animate-fade-in">
+          <Suspense fallback={<LoadingFallback message="Loading..." />}>
+            {renderFeature()}
+          </Suspense>
+        </div>
+      </ChunkErrorBoundary>
     </div>
   );
 };
 
-export default FeatureMockup;
-
+/**
+ * Call this on sidebar link mouseenter to prefetch the target feature's
+ * chunk before the user clicks. Dramatically reduces perceived navigation time.
+ *
+ * Usage in Sidebar.jsx:
+ *   import { prefetchFeature } from './FeatureMockup';
+ *   <Link onMouseEnter={() => prefetchFeature('communication')} to="...">...
+ */
+export function prefetchFeature(slug) {
+  const s = (slug || '').toLowerCase();
+  if (s.includes('communication') || s.includes('announcement') || s.includes('message')) {
+    import('../features/Communication').catch(() => {});
+  } else if (s.includes('stream') || s.includes('cctv') || s.includes('monitoring')) {
+    import('../features/LiveStreamMonitoring').catch(() => {});
+  } else if (s.includes('payment') || s.includes('invoice') || s.includes('billing')) {
+    import('../features/PaymentList').catch(() => {});
+  } else if (s.includes('attendance') || s.includes('check-in')) {
+    import('../features/AttendanceTracker').catch(() => {});
+  } else if (s.includes('child') || s.includes('student')) {
+    import('../features/ChildList').catch(() => {});
+  } else if (s.includes('staff')) {
+    import('../features/StaffList').catch(() => {});
+  } else if (s.includes('report') || s.includes('daily')) {
+    import('../features/DailyReports').catch(() => {});
+  } else if (s.includes('meal') || s.includes('food')) {
+    import('../features/MealPrep').catch(() => {});
+  }
+}
