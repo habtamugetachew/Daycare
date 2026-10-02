@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, useContext, useCallback, useEffect, useMemo, useState } from 'react';
 
 export const LanguageContext = createContext(null);
 
@@ -9,55 +9,67 @@ export const LANGUAGE_OPTIONS = [
   { code: 'ti', label: 'ትግርኛ' },
 ];
 
-/**
- * Dynamically import only the requested locale chunk.
- * Vite will split each locale into its own JS file (~37-50 KB each).
- * Only the active locale is ever downloaded.
- */
-const localeCache = {}; // module-level memo so we never re-fetch the same locale
+// ─── Module-level locale cache ────────────────────────────────────────────────
+// The user's saved locale is pre-fetched when this module first loads so
+// the very first render always has a populated dictionary (no empty-dict flash).
+const localeCache = {};
 
-async function loadLocale(code) {
-  if (localeCache[code]) return localeCache[code];
-  try {
-    const mod = await import(`../locales/${code}.js`);
-    localeCache[code] = mod.default;
-    return mod.default;
-  } catch (err) {
-    console.warn(`[i18n] Failed to load locale "${code}", falling back to English.`, err);
-    // Try English as a safe fallback
-    if (code !== 'en') return loadLocale('en');
-    return {};
-  }
+function fetchLocale(code) {
+  if (localeCache[code]?.promise) return localeCache[code].promise;
+
+  const entry = { dict: null, promise: null };
+  localeCache[code] = entry;
+
+  entry.promise = import(`../locales/${code}.js`)
+    .then((mod) => {
+      entry.dict = mod.default;
+      return mod.default;
+    })
+    .catch((err) => {
+      console.warn(`[i18n] Failed to load locale "${code}"`, err);
+      if (code !== 'en') {
+        return fetchLocale('en').then((d) => { entry.dict = d; return d; });
+      }
+      entry.dict = {};
+      return {};
+    });
+
+  return entry.promise;
 }
 
+// Eagerly kick off load of the user's current locale before any component renders
+const _savedLocale =
+  (typeof window !== 'undefined' && window.localStorage.getItem('locale')) || 'am';
+fetchLocale(_savedLocale);
+
+// ─── Provider ─────────────────────────────────────────────────────────────────
 export const LanguageProvider = ({ children }) => {
-  const [locale, setLocaleState] = useState(() => {
-    const stored = typeof window !== 'undefined' ? window.localStorage.getItem('locale') : null;
-    return stored || 'am';
-  });
+  const [locale, setLocaleState] = useState(_savedLocale);
 
-  // dict holds the currently loaded translation map
-  const [dict, setDict] = useState({});
-  const [localeLoading, setLocaleLoading] = useState(true);
+  // Initialize from cache so dict is NEVER empty on first render
+  const [dict, setDict] = useState(() => localeCache[_savedLocale]?.dict || {});
 
-  // Load locale whenever it changes
   useEffect(() => {
     let cancelled = false;
-    setLocaleLoading(true);
-    loadLocale(locale).then((loaded) => {
-      if (!cancelled) {
-        setDict(loaded);
-        setLocaleLoading(false);
-      }
+
+    const cached = localeCache[locale]?.dict;
+    if (cached) {
+      setDict(cached);
+      return;
+    }
+
+    // Load on-demand for locales not yet fetched
+    fetchLocale(locale).then((loaded) => {
+      if (!cancelled) setDict(loaded);
     });
+
     return () => { cancelled = true; };
   }, [locale]);
 
   const setLocale = useCallback((code) => {
     window.localStorage.setItem('locale', code);
     setLocaleState(code);
-    // Pre-warm: start fetching new locale immediately
-    loadLocale(code);
+    fetchLocale(code); // pre-warm so it's ready before useEffect fires
   }, []);
 
   const t = useMemo(() => (key, fallbackText) => {
@@ -66,8 +78,8 @@ export const LanguageProvider = ({ children }) => {
   }, [dict]);
 
   const contextValue = useMemo(
-    () => ({ locale, setLocale, t, LANGUAGE_OPTIONS, localeLoading }),
-    [locale, setLocale, t, localeLoading]
+    () => ({ locale, setLocale, t, LANGUAGE_OPTIONS }),
+    [locale, setLocale, t]
   );
 
   return (
@@ -80,8 +92,6 @@ export const LanguageProvider = ({ children }) => {
 // Convenience hook
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
-  if (!context) {
-    throw new Error('useLanguage must be used within LanguageProvider');
-  }
+  if (!context) throw new Error('useLanguage must be used within LanguageProvider');
   return context;
 };
