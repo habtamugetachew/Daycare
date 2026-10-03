@@ -20,7 +20,8 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'https://mintdaycare.netlify.app',
-  'https://daycaremint.netlify.app'
+  'https://daycaremint.netlify.app',
+  'https://daycare-dun-seven.vercel.app'
 ];
 if (process.env.FRONTEND_URL && !allowedOrigins.includes(process.env.FRONTEND_URL)) {
   allowedOrigins.push(process.env.FRONTEND_URL);
@@ -31,6 +32,7 @@ const checkCorsOrigin = (origin, callback) => {
   if (
     allowedOrigins.includes(origin) ||
     origin.endsWith('.netlify.app') ||
+    origin.endsWith('.vercel.app') ||
     origin.startsWith('http://localhost:') ||
     origin.startsWith('http://127.0.0.1:')
   ) {
