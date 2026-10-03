@@ -8,12 +8,10 @@ export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
-  const { user } = useAuth();
+  // Read token at component level so it is in scope for the dependency array
+  const { user, token } = useAuth();
 
   useEffect(() => {
-    // Read token directly from localStorage — AuthContext does not expose it in context
-    const token = localStorage.getItem('token');
-
     // Only connect if we have a logged-in user with a valid token
     if (user && token) {
       const backendURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
@@ -41,7 +39,7 @@ export const SocketProvider = ({ children }) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, token]); // Only re-run when user or token changes
+  }, [user, token]); // Re-run when user or token changes
 
   return (
     <SocketContext.Provider value={{ socket }}>
