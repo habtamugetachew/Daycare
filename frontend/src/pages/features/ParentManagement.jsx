@@ -32,13 +32,20 @@ const ParentManagement = () => {
     return () => { document.body.style.overflow = ''; };
   }, [deleteTarget]);
 
-  const fetchData = async () => {
+  const fetchData = async (attempt = 1) => {
     try {
       setLoading(true);
+      setError('');
       const parentsRes = await api.get('/staff/parents');
       setParents(parentsRes.data.data);
     } catch (err) {
-      setError('Failed to load data.');
+      const isNetworkError = !err.response || err.code === 'ERR_NETWORK' || err.message?.includes('Network Error');
+      if (isNetworkError && attempt < 4) {
+        setError(`Server is starting up… retrying (${attempt}/4)`);
+        setTimeout(() => fetchData(attempt + 1), attempt * 8000);
+        return;
+      }
+      setError('Failed to load data. Please refresh the page.');
     } finally {
       setLoading(false);
     }

@@ -11,6 +11,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import DashboardLayout from './components/DashboardLayout';
 import LoadingFallback from './components/common/LoadingFallback';
 import { ChunkErrorBoundary } from './components/common/ChunkErrorBoundary';
+import BackendWakeupBanner from './components/common/BackendWakeupBanner';
 
 // Lazy Loaded Pages
 const Home = lazy(() => import('./pages/Home'));
@@ -60,6 +61,7 @@ function App() {
               <AuthProvider>
                 <SocketProvider>
                   <Suspense fallback={<LoadingFallback fullPage />}>
+                    <BackendWakeupBanner />
                     <Routes>
                       {/* Public routes */}
                       <Route path="/" element={<Home />} />

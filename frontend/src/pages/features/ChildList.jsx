@@ -63,12 +63,19 @@ const ChildList = () => {
   const [approvalSubmitted, setApprovalSubmitted] = useState(false);
 
   /* fetch ─────────────────────────────────────────────────── */
-  const fetchChildren = async () => {
+  const fetchChildren = async (attempt = 1) => {
     try {
+      setError('');
       const res = await api.get('/children');
       setChildren(res.data.data);
-    } catch {
-      setError('Failed to load children.');
+    } catch (err) {
+      const isNetworkError = !err.response || err.code === 'ERR_NETWORK' || err.message?.includes('Network Error');
+      if (isNetworkError && attempt < 4) {
+        setError(`Server is starting up… retrying (${attempt}/4)`);
+        setTimeout(() => fetchChildren(attempt + 1), attempt * 8000);
+        return;
+      }
+      setError('Failed to load children. Please refresh the page.');
     } finally {
       setLoading(false);
     }
